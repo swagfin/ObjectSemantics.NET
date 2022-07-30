@@ -2,6 +2,29 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Simple Object to File Mapper that supports string formatting, you can;
+    &gt; Mapping your object e.g. StudentDetails to a html Template that you define
+    &gt; Mapping a collection to enumerable or List to a html/text/ (predefined format)
+</Description>
+    <Copyright>Crudsoft Technologies @ 2022</Copyright>
+    <PackageProjectUrl>https://github.com/swagfin/ObjectSemantics.NET</PackageProjectUrl>
+    <PackageIcon>icon-full.jpg</PackageIcon>
+    <PackageIconUrl />
+    <RepositoryUrl>https://github.com/swagfin/ObjectSemantics.NET</RepositoryUrl>
+    <RepositoryType>Github</RepositoryType>
+    <PackageReleaseNotes>Support for Obj Collection and Enumerables</PackageReleaseNotes>
+    <AssemblyVersion>1.0.0.1</AssemblyVersion>
+    <FileVersion>1.0.0.1</FileVersion>
+    <Version>1.0.0.1</Version>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <ApplicationIcon></ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="icon-full.jpg">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>
