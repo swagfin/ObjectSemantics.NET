@@ -15,6 +15,20 @@ Install-Package ObjectSemantics.NET
 https://nuget.org/packages/ObjectSemantics.NET
 
 ## Usage Example
+** .NET Core API/Web Apps via Dependency Injection
+```cs
+    // DI injected service registrations
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddObjectSemantics(new ObjectSemanticsOptions
+        {
+            TemplatesDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates"),
+            ReserveTemplatesInMemory = true
+            //other configs
+        });
+        services.AddControllers();
+    }
+```
 
 **.NET and .NET Core Apps/Consoles**
 ```cs
