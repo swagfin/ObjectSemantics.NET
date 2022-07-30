@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32630.194
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectSemantics.NET", "ObjectSemantics.NET\ObjectSemantics.NET.csproj", "{05E65005-23E3-4F38-A4AC-697DBA5085E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectSemantics.NET.Demo", "ObjectSemantics.NET.Demo\ObjectSemantics.NET.Demo.csproj", "{91BDBFB5-7B54-44A2-ADC7-C7E275D97A52}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{05E65005-23E3-4F38-A4AC-697DBA5085E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05E65005-23E3-4F38-A4AC-697DBA5085E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05E65005-23E3-4F38-A4AC-697DBA5085E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05E65005-23E3-4F38-A4AC-697DBA5085E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91BDBFB5-7B54-44A2-ADC7-C7E275D97A52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91BDBFB5-7B54-44A2-ADC7-C7E275D97A52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91BDBFB5-7B54-44A2-ADC7-C7E275D97A52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91BDBFB5-7B54-44A2-ADC7-C7E275D97A52}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {61F3043E-F962-462F-B561-9ABAAEC12810}
+	EndGlobalSection
+EndGlobal
