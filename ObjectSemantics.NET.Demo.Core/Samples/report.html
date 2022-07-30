@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <h3>Supporting Stylish Whitespaces of {{ RegDate:yyyy-MM-dd }} | {{    RegDate:yyyy-MM-dd hh:mm    }} |  {{RegDate:hh tt    }} |  {{   RegDate:yyyy-dd hh:mm}}</h3>
+    <hr />
+    <table>
+        <thead>
+            <tr>
+                <th>NAME</th>
+                <th>REG DATE</th>
+                <th>BALANCE</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ for-each-start }}
+            <tr>
+                <td>{{ StudentName:uppercase }} and small letter is {{ StudentName:lowercase }} and Saved is {{ StudentName}}</td>
+                <td>{{ RegDate:yyyy-MM-dd hh:mm tt }}</td>
+                <td>{{ Balance:N2 }}</td>
+            </tr>
+            {{ for-each-end }}
+        </tbody>
+    </table>
+</body>
+</html>
