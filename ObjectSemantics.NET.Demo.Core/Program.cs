@@ -28,9 +28,6 @@ namespace ObjectSemantics.NET.Demo.Core
             Console.WriteLine(htmlWithData);
 
 
-
-
-            //Exist
             Console.ReadLine();
             Environment.Exit(0);
         }
