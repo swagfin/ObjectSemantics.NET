@@ -18,15 +18,21 @@ namespace ObjectSemantics.NET.Demo
             });
 
 
-            var newStudent = new Student
+            Student newStudent = new Student
             {
                 StudentName = "Steve",
                 Balance = 1200,
                 RegDate = DateTime.Now,
                 Invoices = null
             };
+            List<ObjectSemanticsKeyValue> semanticsKeyValues = new List<ObjectSemanticsKeyValue>
+            {
+                 new ObjectSemanticsKeyValue{ Key ="CompanyName",  Value= "CRUDSOFT TECHNOLOGIES" },
+                 new ObjectSemanticsKeyValue{ Key ="CompanyEmail",  Value= "georgewainaina18@gmail.com" },
+                 new ObjectSemanticsKeyValue{ Key ="CompanyEmployees",  Value= "1,298" },
+            };
 
-            string singleRecordHtml = objectSemantics.GenerateTemplate(newStudent, "record.html");
+            string singleRecordHtml = objectSemantics.GenerateTemplate(newStudent, "record.html", semanticsKeyValues);
 
             //Proceed
             List<Student> students = new List<Student>

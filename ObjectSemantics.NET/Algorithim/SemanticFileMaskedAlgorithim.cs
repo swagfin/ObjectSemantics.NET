@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ObjectSemantics.NET;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,21 +8,24 @@ using System.Text.RegularExpressions;
 
 internal static class SemanticFileMaskedAlgorithim
 {
-    public static string GeneratFromObj<T>(this T record, List<string> fileLines) where T : new()
+    public static string GeneratFromObj<T>(this T record, List<string> fileLines, List<ObjectSemanticsKeyValue> parameterKeyValues = null) where T : new()
     {
         //Replace the Contents Again
         string cleanedCode = string.Empty;
-        var singleProperties = GetObjProperties(record);
+        List<ExtractedObjProperty> singleProperties = GetObjProperties(record);
+        if (parameterKeyValues != null && parameterKeyValues.Count > 0)
+            singleProperties.AddRange(parameterKeyValues.ToObjProperties()); //Append Custom
         fileLines = fileLines.RemoveLoopBlockCodeSpace();
         for (int i = 0; i < fileLines.Count; i++)
             cleanedCode = string.Format("{0}{1}", cleanedCode, fileLines[i].ReplaceWithObjProperties(singleProperties));
         return cleanedCode?.Trim();
     }
-    public static string GeneratFromObjCollection<T>(this List<T> dataRecords, List<string> fileLines) where T : new()
+    public static string GeneratFromObjCollection<T>(this List<T> dataRecords, List<string> fileLines, List<ObjectSemanticsKeyValue> parameterKeyValues = null) where T : new()
     {
         string cleanedCode = string.Empty;
         if (fileLines != null && fileLines.Count != 0)
         {
+            List<ExtractedObjProperty> additionalParameters = parameterKeyValues.ToObjProperties();
             bool startedBlock = false;
             string loopContent = string.Empty;
             for (int i = 0; i < fileLines.Count; i++)
@@ -40,6 +44,8 @@ internal static class SemanticFileMaskedAlgorithim
                         foreach (T record in dataRecords)
                         {
                             List<ExtractedObjProperty> properties = GetObjProperties(record);
+                            if (additionalParameters != null && additionalParameters.Count > 0)
+                                properties.AddRange(additionalParameters);
                             cleanedCode = string.Format("{0}{1}{2}", cleanedCode, loopContent.ReplaceWithObjProperties(properties), Environment.NewLine);
                         }
                         loopContent = string.Empty;
@@ -206,6 +212,27 @@ internal static class SemanticFileMaskedAlgorithim
                     Type = prop.PropertyType,
                     Name = prop.Name,
                     OriginalValue = value == null ? null : prop.GetValue(value)
+                });
+            }
+            catch { }
+        }
+        return list;
+    }
+    private static List<ExtractedObjProperty> ToObjProperties(this List<ObjectSemanticsKeyValue> parameterKeyValues)
+    {
+        //Also Insert Parameter Keys
+        List<ExtractedObjProperty> list = new List<ExtractedObjProperty>();
+        if (parameterKeyValues == null)
+            return list;
+        foreach (ObjectSemanticsKeyValue param in parameterKeyValues)
+        {
+            try
+            {
+                list.Add(new ExtractedObjProperty
+                {
+                    Type = param.GetType(),
+                    Name = param.Key,
+                    OriginalValue = param.Value
                 });
             }
             catch { }
