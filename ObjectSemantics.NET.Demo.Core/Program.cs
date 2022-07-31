@@ -24,7 +24,7 @@ namespace ObjectSemantics.NET.Demo.Core
                 new Student{ StudentName="Steve", Balance= 1200, RegDate= DateTime.Now },
             };
 
-            string htmlWithData = objectSemantics.GenerateTemplate(students, "report.html");
+            string htmlWithData = objectSemantics.GenerateTemplate(students, "record.html");
             Console.WriteLine(htmlWithData);
 
 
