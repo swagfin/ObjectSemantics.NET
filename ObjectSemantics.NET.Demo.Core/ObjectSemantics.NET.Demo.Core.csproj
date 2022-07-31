@@ -6,11 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Samples\report.html" />
+    <None Remove="Samples\record.html" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Samples\report.html">
+    <Content Include="Samples\record.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

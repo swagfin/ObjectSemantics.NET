@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>SIMPLE OBJECT SEMANTICS TEST</title>
+</head>
+<body>
+
+    <hr />
+    <h6>Also Supports Additional Parameters</h6>
+    <h4>COMPANY NAME: {{ CompanyName }}</h4>
+    <h4>COMPANY EMAIL: {{ CompanyEmail }}</h4>
+    <h4>COMPANY EMPLOYEES: {{ CompanyEmployees}}</h4>
+
+    <h3>DATE OF REGISTRATION :  {{ RegDate:yyyy-MM-dd }} | {{    RegDate:yyyy-MM-dd hh:mm    }} |  {{RegDate:hh tt    }} |  {{   RegDate:yyyy-dd hh:mm}}</h3>
+    <hr />
+
+    <h4>{{ StudentName:uppercase }} DETAILS</h4>
+
+    <ol>
+        <li><strong>STUDENT NAME</strong>: {{ StudentName:uppercase }}</li>
+        <li><strong>STUDENT REG. DATE</strong>: {{ RegDate:yyyy-MM-dd hh:mm tt }}</li>
+        <li><strong>CURRENT BALANCE</strong>: Ksh. <span style="color:red;font-weight:bold;font-size:17px">{{ Balance:N2 }}</span> </li>
+    </ol>
+</body>
+</html>

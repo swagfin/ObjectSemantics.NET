@@ -72,20 +72,20 @@ namespace ObjectSemantics.NET.Logic
             catch { }
         }
 
-        public string GenerateTemplate<T>(T record, string templateName) where T : new()
+        public string GenerateTemplate<T>(T record, string templateName, List<ObjectSemanticsKeyValue> additionalKeyValues = null) where T : new()
         {
             if (record == null)
                 return string.Empty;
             List<string> templateLines = GetTemplateContents(templateName);
-            return record.GeneratFromObj(templateLines);
+            return record.GeneratFromObj(templateLines, additionalKeyValues);
         }
 
-        public string GenerateTemplate<T>(List<T> records, string templateName) where T : new()
+        public string GenerateTemplate<T>(List<T> records, string templateName, List<ObjectSemanticsKeyValue> additionalKeyValues = null) where T : new()
         {
             if (records == null || records.Count == 0)
                 return string.Empty;
             List<string> templateLines = GetTemplateContents(templateName);
-            return records.GeneratFromObjCollection(templateLines);
+            return records.GeneratFromObjCollection(templateLines, additionalKeyValues);
         }
 
     }
