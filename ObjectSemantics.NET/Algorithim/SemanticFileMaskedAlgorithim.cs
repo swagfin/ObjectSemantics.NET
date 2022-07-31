@@ -15,7 +15,7 @@ internal static class SemanticFileMaskedAlgorithim
         fileLines = fileLines.RemoveLoopBlockCodeSpace();
         for (int i = 0; i < fileLines.Count; i++)
             cleanedCode = string.Format("{0}{1}", cleanedCode, fileLines[i].ReplaceWithObjProperties(singleProperties));
-        return cleanedCode;
+        return cleanedCode?.Trim();
     }
     public static string GeneratFromObjCollection<T>(this List<T> dataRecords, List<string> fileLines) where T : new()
     {
@@ -24,11 +24,11 @@ internal static class SemanticFileMaskedAlgorithim
         {
             bool startedBlock = false;
             string loopContent = string.Empty;
-            foreach (string line in fileLines)
+            for (int i = 0; i < fileLines.Count; i++)
             {
                 try
                 {
-                    string lineBlock = line.RemoveStylishWhitespaces();
+                    string lineBlock = fileLines[i].RemoveStylishWhitespaces();
                     if (lineBlock.Contains("{{for-each-start}}"))
                     {
                         startedBlock = true;
@@ -40,23 +40,23 @@ internal static class SemanticFileMaskedAlgorithim
                         foreach (T record in dataRecords)
                         {
                             List<ExtractedObjProperty> properties = GetObjProperties(record);
-                            cleanedCode = string.Format("{0}{1}{2}", cleanedCode, Environment.NewLine, loopContent.ReplaceWithObjProperties(properties));
+                            cleanedCode = string.Format("{0}{1}{2}", cleanedCode, loopContent.ReplaceWithObjProperties(properties), Environment.NewLine);
                         }
                         loopContent = string.Empty;
                     }
                     else if (startedBlock)
-                        loopContent = string.Format("{0}{1}{2}", loopContent, Environment.NewLine, lineBlock);
+                        loopContent = string.Format("{0}{1}{2}", loopContent, lineBlock, Environment.NewLine);
                     else
-                        cleanedCode = string.Format("{0}{1}{2}", cleanedCode, Environment.NewLine, lineBlock);
+                        cleanedCode = string.Format("{0}{1}{2}", cleanedCode, lineBlock, Environment.NewLine);
                 }
                 catch (Exception ex)
                 {
-                    cleanedCode = string.Format("{0}{1}{2}", cleanedCode, Environment.NewLine, $"------EXCEPTION OCCURRED---- {ex.Message}");
+                    cleanedCode = string.Format("{0}{1}{2}", cleanedCode, $"------EXCEPTION OCCURRED---- {ex.Message}", Environment.NewLine);
                 }
 
             }
         }
-        return cleanedCode;
+        return cleanedCode?.Trim();
     }
 
 
@@ -121,7 +121,7 @@ internal static class SemanticFileMaskedAlgorithim
             }
 
         }
-        return value?.Trim();
+        return value;
     }
 
     private static void AssignObjectChildLoopForTypeEnumerable(ref string value, ExtractedObjProperty p)
