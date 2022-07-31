@@ -24,17 +24,11 @@
                 <td>
                     <ol>
                         {{ for-each-start:invoices   }}
-                        <li>
-                            Invoice No: {{ Id:N0 }}
-                            of {{ Narration }}
-                            amount  {{Amount:N0}}
-                        </li>
+                        <li>Invoice No: {{ RefNo }}  of {{ Narration }} amount {{ Amount:N0 }} </li>
                         {{ for-each-end:invoices }}
                     </ol>
 
                 </td>
-
-
             </tr>
             {{ for-each-end }}
         </tbody>

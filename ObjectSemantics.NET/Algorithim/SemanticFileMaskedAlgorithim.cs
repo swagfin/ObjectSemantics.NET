@@ -134,10 +134,12 @@ internal static class SemanticFileMaskedAlgorithim
             string loopContent = string.Empty;
             string startCodeBlock = Regex.Replace("{{for-each-start:--value--}}", "--value--", p.Name, RegexOptions.IgnoreCase);
             string endCodeBlock = Regex.Replace("{{for-each-end:--value--}}", "--value--", p.Name, RegexOptions.IgnoreCase);
-            foreach (string lineBlock in fileLines)
+            string lineBlock;
+            for (int i = 0; i < fileLines.Length; i++)
             {
                 try
                 {
+                    lineBlock = fileLines[i];
                     if (lineBlock.ToLower().Contains(startCodeBlock.ToLower()))
                     {
                         startedBlock = true;
@@ -150,18 +152,18 @@ internal static class SemanticFileMaskedAlgorithim
                             foreach (object record in (IEnumerable)p.OriginalValue)
                             {
                                 List<ExtractedObjProperty> properties = GetObjPropertiesFromUnknown(record);
-                                cleanedCode = string.Format("{0}{1}{2}", cleanedCode, Environment.NewLine, loopContent.ReplaceWithObjProperties(properties));
+                                cleanedCode = string.Format("{0}{1}{2}", cleanedCode, loopContent.ReplaceWithObjProperties(properties), Environment.NewLine);
                             }
                         loopContent = string.Empty;
                     }
                     else if (startedBlock)
-                        loopContent = string.Format("{0}{1}{2}", loopContent, Environment.NewLine, lineBlock);
+                        loopContent = string.Format("{0}{1}{2}", loopContent, lineBlock, Environment.NewLine);
                     else
-                        cleanedCode = string.Format("{0}{1}{2}", cleanedCode, Environment.NewLine, lineBlock);
+                        cleanedCode = string.Format("{0}{1}{2}", cleanedCode, lineBlock, Environment.NewLine);
                 }
                 catch (Exception ex)
                 {
-                    cleanedCode = string.Format("{0}{1}{2}", cleanedCode, Environment.NewLine, $"------EXCEPTION OCCURRED---- {ex.Message}");
+                    cleanedCode = string.Format("{0}{1}{2}", cleanedCode, $"------EXCEPTION OCCURRED---- {ex.Message}", Environment.NewLine);
                 }
 
             }

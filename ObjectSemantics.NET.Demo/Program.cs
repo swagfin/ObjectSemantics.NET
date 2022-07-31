@@ -52,6 +52,7 @@ namespace ObjectSemantics.NET.Demo
               };
 
             string htmlWithData = objectSemantics.GenerateTemplate(students, "list.html");
+            string htmlWithChildrenData = objectSemantics.GenerateTemplate(students, "listWithChildren.html");
             Console.WriteLine(htmlWithData);
 
 
