@@ -13,6 +13,7 @@
                 <th>NAME</th>
                 <th>REG DATE</th>
                 <th>BALANCE</th>
+                <th>INVOICES</th>
             </tr>
         </thead>
         <tbody>
@@ -21,6 +22,20 @@
                 <td>{{ StudentName:uppercase }} and small letter is {{ StudentName:lowercase }} and Saved is {{ StudentName}}</td>
                 <td>{{ RegDate:yyyy-MM-dd hh:mm tt }}</td>
                 <td>{{ Balance:N2 }}</td>
+                <td>
+                    <ol>
+                        {{ for-each-start:invoices   }}
+                        <li>
+                            Invoice No: {{ Id:N0 }}
+                            of {{ Narration }}
+                            amount  {{Amount:N0}}
+                        </li>
+                        {{ for-each-end:invoices }}
+                    </ol>
+
+                </td>
+
+
             </tr>
             {{ for-each-end }}
         </tbody>
