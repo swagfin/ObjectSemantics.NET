@@ -1,4 +1,5 @@
-﻿using ObjectSemantics.NET.Logic;
+﻿using ObjectSemantics.NET.Algorithim;
+using ObjectSemantics.NET.Logic;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,14 +26,14 @@ namespace ObjectSemantics.NET.Demo
                 RegDate = DateTime.Now,
                 Invoices = null
             };
-            List<ObjectSemanticsKeyValue> semanticsKeyValues = new List<ObjectSemanticsKeyValue>
+            List<ObjectSemanticsKeyValue> headers = new List<ObjectSemanticsKeyValue>
             {
                  new ObjectSemanticsKeyValue{ Key ="CompanyName",  Value= "CRUDSOFT TECHNOLOGIES" },
                  new ObjectSemanticsKeyValue{ Key ="CompanyEmail",  Value= "georgewainaina18@gmail.com" },
                  new ObjectSemanticsKeyValue{ Key ="CompanyEmployees",  Value= "1,298" },
             };
 
-            string singleRecordHtml = objectSemantics.GenerateTemplate(newStudent, "record.html", semanticsKeyValues);
+            //   string singleRecordHtml = objectSemantics.GenerateTemplate(newStudent, "record.html", headers);
 
             //Proceed
             List<Student> students = new List<Student>
@@ -57,8 +58,14 @@ namespace ObjectSemantics.NET.Demo
                 },
               };
 
-            string htmlWithData = objectSemantics.GenerateTemplate(students, "list.html");
-            string htmlWithChildrenData = objectSemantics.GenerateTemplate(students, "listWithChildren.html");
+            //TESTING 
+            GeorgesPrincipleAlgorithim algorithm = new GeorgesPrincipleAlgorithim();
+            TemplateInitialization objInit = algorithm.GetTemplatInitialization(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Samples", "recordWithChildren.html"));
+            TemplateInitialization objInit2 = algorithm.GetTemplatInitialization(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Samples", "listWithChildren.html"));
+
+            string recordWithChildren = objectSemantics.GenerateTemplate(students[0], "recordWithChildren.html", headers);
+            string htmlWithData = objectSemantics.GenerateTemplate(students, "list.html", headers);
+            string htmlWithChildrenData = objectSemantics.GenerateTemplate(students, "listWithChildren.html", headers);
             Console.WriteLine(htmlWithData);
 
 

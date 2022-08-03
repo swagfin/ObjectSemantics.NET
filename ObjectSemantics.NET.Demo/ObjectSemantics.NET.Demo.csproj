@@ -59,6 +59,9 @@
     <Content Include="Samples\list.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Samples\recordWithChildren.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Samples\record.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

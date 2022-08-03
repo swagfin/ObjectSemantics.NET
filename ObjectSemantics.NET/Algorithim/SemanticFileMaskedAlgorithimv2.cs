@@ -4,23 +4,26 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 
-internal static class SemanticFileMaskedAlgorithim
+internal static class SemanticFileMaskedAlgorithimv2
 {
-    public static string GeneratFromObj<T>(this T record, List<string> fileLines, List<ObjectSemanticsKeyValue> parameterKeyValues = null) where T : new()
+    public static string GenerateFromObjRecord<T>(this T record, List<string> fileLines, List<ObjectSemanticsKeyValue> parameterKeyValues = null) where T : new()
     {
-        //Replace the Contents Again
-        string cleanedCode = string.Empty;
-        List<ExtractedObjProperty> singleProperties = GetObjProperties(record);
+        List<ExtractedObjProperty> objProperties = GetObjProperties(record);
         if (parameterKeyValues != null && parameterKeyValues.Count > 0)
-            singleProperties.AddRange(parameterKeyValues.ToObjProperties()); //Append Custom
-        fileLines = fileLines.RemoveLoopBlockCodeSpace();
+            objProperties.AddRange(parameterKeyValues.ToObjProperties()); //Append Custom
+        StringBuilder sbText = new StringBuilder();
         for (int i = 0; i < fileLines.Count; i++)
-            cleanedCode = string.Format("{0}{1}", cleanedCode, fileLines[i].ReplaceWithObjProperties(singleProperties));
-        return cleanedCode?.Trim();
+        {
+            string lineBlock = fileLines[i].RemoveStylishWhitespaces();
+            lineBlock = ReplaceDataLineWithObjProperties(lineBlock, objProperties);
+            sbText.AppendLine(lineBlock);
+        }
+        return sbText.ToString()?.Trim();
     }
-    public static string GeneratFromObjCollection<T>(this List<T> dataRecords, List<string> fileLines, List<ObjectSemanticsKeyValue> parameterKeyValues = null) where T : new()
+    public static string GenerateFromObjCollection<T>(this List<T> dataRecords, List<string> fileLines, List<ObjectSemanticsKeyValue> parameterKeyValues = null) where T : new()
     {
         string cleanedCode = string.Empty;
         if (fileLines != null && fileLines.Count != 0)
@@ -46,7 +49,7 @@ internal static class SemanticFileMaskedAlgorithim
                             List<ExtractedObjProperty> properties = GetObjProperties(record);
                             if (additionalParameters != null && additionalParameters.Count > 0)
                                 properties.AddRange(additionalParameters);
-                            cleanedCode = string.Format("{0}{1}{2}", cleanedCode, loopContent.ReplaceWithObjProperties(properties), Environment.NewLine);
+                            cleanedCode = string.Format("{0}{1}{2}", cleanedCode, ReplaceDataLineWithObjProperties(loopContent, properties), Environment.NewLine);
                         }
                         loopContent = string.Empty;
                     }
@@ -66,12 +69,12 @@ internal static class SemanticFileMaskedAlgorithim
     }
 
 
-    public static string ReplaceWithObjProperties(this string value, List<ExtractedObjProperty> properties)
+    public static string ReplaceDataLineWithObjProperties(string line, List<ExtractedObjProperty> properties)
     {
-        if (string.IsNullOrWhiteSpace(value))
+        if (string.IsNullOrWhiteSpace(line))
             return string.Empty;
         if (properties == null || properties.Count == 0)
-            return value;
+            return string.Empty;
         foreach (ExtractedObjProperty p in properties)
         {
             string searchKey = Regex.Replace("{{--value--}}", "--value--", p.Name, RegexOptions.IgnoreCase);
@@ -79,7 +82,7 @@ internal static class SemanticFileMaskedAlgorithim
             //Property is of Type of Enumerable
             if (typeof(IEnumerable).IsAssignableFrom(p.Type) && p.Type != typeof(string))
             {
-                AssignObjectChildLoopForTypeEnumerable(ref value, p);
+                AssignObjectChildLoopForTypeEnumerable(ref line, p);
             }
             else
             {
@@ -87,7 +90,7 @@ internal static class SemanticFileMaskedAlgorithim
                 //Search Key With Custom Formatting e.g. 1,200
                 string customValFormatting = Regex.Replace("{{--value--:", "--value--", p.Name, RegexOptions.IgnoreCase);
                 string regexF = string.Format(@"\{0}(.+)\}}", customValFormatting);
-                Match blockMatch = Regex.Match(value, regexF, RegexOptions.IgnoreCase);
+                Match blockMatch = Regex.Match(line, regexF, RegexOptions.IgnoreCase);
                 if (blockMatch.Success)
                 {
                     Match regexMatch = Regex.Match(blockMatch.Value, @"{{(.+?)}}", RegexOptions.IgnoreCase);
@@ -97,24 +100,24 @@ internal static class SemanticFileMaskedAlgorithim
                         string customFormattingValue = regexMatch.Groups[1].Value.ReplaceMany(new string[] { customFormatting, "}", "{" }, string.Empty);
 
                         if (p.Type.Equals(typeof(int)))
-                            value = Regex.Replace(value, regexMatch.Value, int.Parse(p.StringFormatted).ToString(customFormattingValue), RegexOptions.IgnoreCase);
+                            line = Regex.Replace(line, regexMatch.Value, int.Parse(p.StringFormatted).ToString(customFormattingValue), RegexOptions.IgnoreCase);
                         else if (p.Type.Equals(typeof(double)))
-                            value = Regex.Replace(value, regexMatch.Value, double.Parse(p.StringFormatted).ToString(customFormattingValue), RegexOptions.IgnoreCase);
+                            line = Regex.Replace(line, regexMatch.Value, double.Parse(p.StringFormatted).ToString(customFormattingValue), RegexOptions.IgnoreCase);
                         else if (p.Type.Equals(typeof(long)))
-                            value = Regex.Replace(value, regexMatch.Value, long.Parse(p.StringFormatted).ToString(customFormattingValue), RegexOptions.IgnoreCase);
+                            line = Regex.Replace(line, regexMatch.Value, long.Parse(p.StringFormatted).ToString(customFormattingValue), RegexOptions.IgnoreCase);
                         else if (p.Type.Equals(typeof(float)))
-                            value = Regex.Replace(value, regexMatch.Value, float.Parse(p.StringFormatted).ToString(customFormattingValue), RegexOptions.IgnoreCase);
+                            line = Regex.Replace(line, regexMatch.Value, float.Parse(p.StringFormatted).ToString(customFormattingValue), RegexOptions.IgnoreCase);
                         else if (p.Type.Equals(typeof(decimal)))
-                            value = Regex.Replace(value, regexMatch.Value, decimal.Parse(p.StringFormatted).ToString(customFormattingValue), RegexOptions.IgnoreCase);
+                            line = Regex.Replace(line, regexMatch.Value, decimal.Parse(p.StringFormatted).ToString(customFormattingValue), RegexOptions.IgnoreCase);
                         else if (p.Type.Equals(typeof(DateTime)))
-                            value = Regex.Replace(value, regexMatch.Value, DateTime.Parse(p.StringFormatted).ToString(customFormattingValue), RegexOptions.IgnoreCase);
+                            line = Regex.Replace(line, regexMatch.Value, DateTime.Parse(p.StringFormatted).ToString(customFormattingValue), RegexOptions.IgnoreCase);
                         //Custom Formats
                         else if (customFormattingValue.ToLower().Equals("uppercase"))
-                            value = Regex.Replace(value, regexMatch.Value, searchValue.ToUpper(), RegexOptions.IgnoreCase);
+                            line = Regex.Replace(line, regexMatch.Value, searchValue.ToUpper(), RegexOptions.IgnoreCase);
                         else if (customFormattingValue.ToLower().Equals("lowercase"))
-                            value = Regex.Replace(value, regexMatch.Value, searchValue.ToLower(), RegexOptions.IgnoreCase);
+                            line = Regex.Replace(line, regexMatch.Value, searchValue.ToLower(), RegexOptions.IgnoreCase);
                         else
-                            value = Regex.Replace(value, regexMatch.Value, searchValue, RegexOptions.IgnoreCase);
+                            line = Regex.Replace(line, regexMatch.Value, searchValue, RegexOptions.IgnoreCase);
 
                         //Proceed To Next
                         regexMatch = regexMatch.NextMatch();
@@ -122,12 +125,10 @@ internal static class SemanticFileMaskedAlgorithim
 
                 }
                 else
-                    value = Regex.Replace(value, searchKey, searchValue, RegexOptions.IgnoreCase);
-
+                    line = Regex.Replace(line, searchKey, searchValue, RegexOptions.IgnoreCase);
             }
-
         }
-        return value;
+        return line;
     }
 
     private static void AssignObjectChildLoopForTypeEnumerable(ref string value, ExtractedObjProperty p)
@@ -158,7 +159,7 @@ internal static class SemanticFileMaskedAlgorithim
                             foreach (object record in (IEnumerable)p.OriginalValue)
                             {
                                 List<ExtractedObjProperty> properties = GetObjPropertiesFromUnknown(record);
-                                cleanedCode = string.Format("{0}{1}{2}", cleanedCode, loopContent.ReplaceWithObjProperties(properties), Environment.NewLine);
+                                cleanedCode = string.Format("{0}{1}{2}", cleanedCode, ReplaceDataLineWithObjProperties(loopContent, properties), Environment.NewLine);
                             }
                         loopContent = string.Empty;
                     }

@@ -77,7 +77,7 @@ namespace ObjectSemantics.NET.Logic
             if (record == null)
                 return string.Empty;
             List<string> templateLines = GetTemplateContents(templateName);
-            return record.GeneratFromObj(templateLines, additionalKeyValues);
+            return record.GenerateFromObjRecord(templateLines, additionalKeyValues);
         }
 
         public string GenerateTemplate<T>(List<T> records, string templateName, List<ObjectSemanticsKeyValue> additionalKeyValues = null) where T : new()
@@ -85,7 +85,7 @@ namespace ObjectSemantics.NET.Logic
             if (records == null || records.Count == 0)
                 return string.Empty;
             List<string> templateLines = GetTemplateContents(templateName);
-            return records.GeneratFromObjCollection(templateLines, additionalKeyValues);
+            return records.GenerateFromObjCollection(templateLines, additionalKeyValues);
         }
 
     }
