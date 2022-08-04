@@ -24,5 +24,13 @@
             {{ for-each-end }}
         </tbody>
     </table>
+
+    <hr />
+    <h4>Endorsements</h4>
+    {{ for-each-start }}
+    <ol>
+        <li>{{ StudentName:uppercase }} CLASS OF {{ RegDate:yyyy }}</li>
+    </ol>
+    {{ for-each-end }}
 </body>
 </html>

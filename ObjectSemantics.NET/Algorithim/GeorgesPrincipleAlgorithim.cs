@@ -23,6 +23,56 @@ namespace ObjectSemantics.NET.Algorithim
             }
             return finalResultBuilder.ToString()?.Trim();
         }
+
+        public string GenerateFromObjCollection<T>(List<T> records, TemplateInitialization templateInitialization, List<ObjectSemanticsKeyValue> parameterKeyValues = null) where T : new()
+        {
+            Dictionary<string, string> rowIDValues = new Dictionary<string, string>();
+            foreach (T record in records)
+            {
+                ObjPropertiesDescription properties = GetObjPropertiesDescription(record, parameterKeyValues);
+                List<TemplateRowLoopCode> allRowsLoop = templateInitialization.TemplateRowLoopCodes.ToList();
+                foreach (TemplateRowLoopCode row in allRowsLoop)
+                {
+                    List<TemplateLine> allLines = templateInitialization.TemplateLines.Where(x => !string.IsNullOrWhiteSpace(x.IsInRowLoopBlockID)).ToList().Where(x => x.IsInRowLoopBlockID.Equals(row.RowLoopBlockID)).ToList();
+                    if (allLines != null && allLines.Count > 0)
+                    {
+                        StringBuilder rowContentBuilder = new StringBuilder();
+                        string loopBlockId = allLines.FirstOrDefault().IsInRowLoopBlockID;
+                        //Loop Through Each
+                        foreach (TemplateLine line in allLines)
+                        {
+                            string cleanLine = ReplaceDataLineWithObjProperties(line.OriginalLine, properties);
+                            rowContentBuilder.AppendLine(cleanLine);
+                        }
+
+                        rowIDValues.Add(loopBlockId, rowContentBuilder.ToString()?.Trim());
+                    }
+
+                }
+            }
+            //Replace
+            StringBuilder allLinesBuilder = new StringBuilder();
+            List<string> loopOccureces = new List<string> { };
+            foreach (var line in templateInitialization.TemplateLines)
+            {
+                if (line.IsInRowLoopBlock && !loopOccureces.Contains(line.IsInRowLoopBlockID))
+                {
+                    //Find Loop Occurrence
+                    rowIDValues.TryGetValue(line.IsInRowLoopBlockID, out string rowLoopContents);
+                    allLinesBuilder.AppendLine(rowLoopContents);
+                    loopOccureces.Add(line.IsInRowLoopBlockID);
+                }
+                else if (!line.IsInRowLoopBlock)
+                {
+                    allLinesBuilder.AppendLine(line.OriginalLine);
+                }
+            }
+
+            allLinesBuilder.Replace("{{for-each-start}}", string.Empty);
+            allLinesBuilder.Replace("{{for-each-end}}", string.Empty);
+            allLinesBuilder.Replace("{{--LOOP:--}}", "Wiiiiiii");
+            return allLinesBuilder.ToString()?.Trim();
+        }
         public TemplateInitialization GetTemplatInitialization(string templateFilePath)
         {
             if (!File.Exists(templateFilePath))
@@ -33,6 +83,7 @@ namespace ObjectSemantics.NET.Algorithim
                 string line;
                 long currentIndex = -1;
                 bool startedRowsLoopCode = false;
+                string startedRowsLoopCodeGuid = null;
                 long startedRowsLoopCodeAtIndex = 0;
                 //For Obj Loop
                 bool startedObjLoopCode = false;
@@ -45,7 +96,9 @@ namespace ObjectSemantics.NET.Algorithim
                     {
                         Index = currentIndex,
                         LineId = Guid.NewGuid(),
-                        OriginalLine = RemoveStylishWhitespacesInExecutableBlocks(line)
+                        OriginalLine = RemoveStylishWhitespacesInExecutableBlocks(line),
+                        IsInRowLoopBlock = startedRowsLoopCode,
+                        IsInRowLoopBlockID = startedRowsLoopCodeGuid
                     };
 
                     //ICollection Of an Object [Loop]
@@ -68,13 +121,20 @@ namespace ObjectSemantics.NET.Algorithim
                     {
                         startedRowsLoopCodeAtIndex = currentIndex;
                         startedRowsLoopCode = true;
+                        startedRowsLoopCodeGuid = Guid.NewGuid().ToString().ToUpper();
+
+                        templateLine.IsInRowLoopBlock = false;
+                        templateLine.IsInRowLoopBlockID = null;
                     }
                     else if (templateLine.OriginalLine.Contains("{{for-each-end}}") && startedRowsLoopCode)
                     {
                         //Find Row Loops Between Index
                         var rowObjLoops = FindRowObjLoops(initObj.TemplateLines.Where(x => x.Index >= startedRowsLoopCodeAtIndex && x.Index <= currentIndex).ToList());
-                        initObj.TemplateRowLoopCodes.Add(new TemplateRowLoopCode { StartIndex = startedRowsLoopCodeAtIndex, EndIndex = currentIndex, TemplateObjLoopCodes = rowObjLoops });
+                        initObj.TemplateRowLoopCodes.Add(new TemplateRowLoopCode { RowLoopBlockID = startedRowsLoopCodeGuid, StartIndex = startedRowsLoopCodeAtIndex, EndIndex = currentIndex, TemplateObjLoopCodes = rowObjLoops });
                         startedRowsLoopCode = false;
+                        startedRowsLoopCodeGuid = null;
+                        templateLine.IsInRowLoopBlock = false;
+                        templateLine.IsInRowLoopBlockID = null;
                     }
                     //Finnaly Add Template Line
                     initObj.TemplateLines.Add(templateLine);
@@ -243,9 +303,12 @@ namespace ObjectSemantics.NET.Algorithim
         public long Index { get; set; }
         public string OriginalLine { get; set; }
         public Guid LineId { get; set; } = Guid.NewGuid();
+        public bool IsInRowLoopBlock { get; set; }
+        public string IsInRowLoopBlockID { get; set; }
     }
     public class TemplateRowLoopCode
     {
+        public string RowLoopBlockID { get; set; }
         public long StartIndex { get; set; }
         public long EndIndex { get; set; }
         public List<TemplateObjLoopCode> TemplateObjLoopCodes { get; set; } = new List<TemplateObjLoopCode>();

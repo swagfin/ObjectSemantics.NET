@@ -61,12 +61,15 @@ namespace ObjectSemantics.NET.Demo
             //TESTING 
             GeorgesPrincipleAlgorithim algorithm = new GeorgesPrincipleAlgorithim();
             TemplateInitialization objInit = algorithm.GetTemplatInitialization(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Samples", "record.html"));
-            // TemplateInitialization objInit2 = algorithm.GetTemplatInitialization(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Samples", "listWithChildren.html"));
+            // string singleRecordHtml = algorithm.GenerateFromTemplate(students, objInit, headers);
 
 
-            string singleRecordHtml = algorithm.GenerateFromTemplate(students[0], objInit, headers);
 
-            string recordWithChildren = objectSemantics.GenerateTemplate(students[0], "recordWithChildren.html", headers);
+            TemplateInitialization objInit2 = algorithm.GetTemplatInitialization(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Samples", "list.html"));
+
+            string recordWithChildren = algorithm.GenerateFromObjCollection(students, objInit2, headers);
+
+
             string htmlWithData = objectSemantics.GenerateTemplate(students, "list.html", headers);
             string htmlWithChildrenData = objectSemantics.GenerateTemplate(students, "listWithChildren.html", headers);
             Console.WriteLine(htmlWithData);
