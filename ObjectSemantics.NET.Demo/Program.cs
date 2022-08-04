@@ -30,10 +30,10 @@ namespace ObjectSemantics.NET.Demo
             {
                  new ObjectSemanticsKeyValue{ Key ="CompanyName",  Value= "CRUDSOFT TECHNOLOGIES" },
                  new ObjectSemanticsKeyValue{ Key ="CompanyEmail",  Value= "georgewainaina18@gmail.com" },
-                 new ObjectSemanticsKeyValue{ Key ="CompanyEmployees",  Value= "1,298" },
+                 new ObjectSemanticsKeyValue{ Key ="CompanyEmployees",  Value= 1289 },
             };
 
-            //   string singleRecordHtml = objectSemantics.GenerateTemplate(newStudent, "record.html", headers);
+
 
             //Proceed
             List<Student> students = new List<Student>
@@ -60,8 +60,11 @@ namespace ObjectSemantics.NET.Demo
 
             //TESTING 
             GeorgesPrincipleAlgorithim algorithm = new GeorgesPrincipleAlgorithim();
-            TemplateInitialization objInit = algorithm.GetTemplatInitialization(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Samples", "recordWithChildren.html"));
-            TemplateInitialization objInit2 = algorithm.GetTemplatInitialization(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Samples", "listWithChildren.html"));
+            TemplateInitialization objInit = algorithm.GetTemplatInitialization(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Samples", "record.html"));
+            // TemplateInitialization objInit2 = algorithm.GetTemplatInitialization(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Samples", "listWithChildren.html"));
+
+
+            string singleRecordHtml = algorithm.GenerateFromTemplate(students[0], objInit, headers);
 
             string recordWithChildren = objectSemantics.GenerateTemplate(students[0], "recordWithChildren.html", headers);
             string htmlWithData = objectSemantics.GenerateTemplate(students, "list.html", headers);

@@ -1,6 +1,6 @@
 ﻿using System;
 
-internal class ExtractedObjProperty
+public class ExtractedObjProperty
 {
     public Type Type { get; set; }
     public string Name { get; set; }
