@@ -12,7 +12,7 @@ namespace ObjectSemantics.NET.Demo
             IObjectSemantics objectSemantics = new ObjectSemanticsLogic(new ObjectSemanticsOptions
             {
                 CreateTemplatesDirectoryIfNotExist = true,
-                ReserveTemplatesInMemory = true,
+                ReserveTemplatesInMemory = false,
                 SupportedTemplateFileExtensions = new string[] { ".html" },
                 TemplatesDirectory = Path.Combine(Environment.CurrentDirectory, "Samples")
             });
@@ -50,9 +50,10 @@ namespace ObjectSemantics.NET.Demo
               };
 
             //TESTING 
-            string htmlWithData = objectSemantics.GenerateTemplate(students[0], "record.html", headers);
+            //string htmlWithData = objectSemantics.GenerateTemplate(students[0], "record.html", headers);
 
 
+            string htmlWithData = objectSemantics.GenerateTemplate(students[0], "recordWithChildren.html", headers);
 
             string htmlWithChildrenData = objectSemantics.GenerateTemplate(students, "listWithChildren.html", headers);
             Console.WriteLine(htmlWithData);

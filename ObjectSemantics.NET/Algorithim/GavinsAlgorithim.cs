@@ -14,36 +14,65 @@ public static class GavinsAlgorithim
         TemplatedContent clonedTemplate = new TemplatedContent { Template = originTemplateContent.Template, ReplaceCodes = originTemplateContent.ReplaceCodes };
         //Get Object's Properties
         List<ExtractedObjProperty> objProperties = GetObjectProperties(record, parameterKeyValues);
+
+        ReplaceObjectTemplateExecutables(clonedTemplate, objProperties);
+
+        return clonedTemplate.Template;
+    }
+
+    private static void ReplaceObjectTemplateExecutables(TemplatedContent clonedTemplate, List<ExtractedObjProperty> objProperties)
+    {
         foreach (ReplaceCode replaceCode in clonedTemplate.ReplaceCodes)
         {
             ExtractedObjProperty property = objProperties.FirstOrDefault(x => x.Name.ToUpper().Equals(replaceCode.TargetPropertyName.ToUpper()));
             if (property != null)
-            {
                 clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, replaceCode.ReplaceRef, GetValueFromPropertyFormatted(property, replaceCode.FormattingCommand));
-            }
             else
                 clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, replaceCode.ReplaceRef, replaceCode.ReplaceCommand);
         }
-
-        return clonedTemplate.Template;
     }
 
     internal static TemplatedContent GenerateTemplateFromFile(string fileContent)
     {
         TemplatedContent templatedContent = new TemplatedContent { Template = fileContent };
 
-        Match regexMatch = Regex.Match(fileContent, @"{{(.+?)}}", RegexOptions.IgnoreCase);
+        #region Generate Obj Looop
+        Match regexLoopMatch = Regex.Match(templatedContent.Template, "{{(.+?)for-each-start:(.+?)}}", RegexOptions.IgnoreCase);
+        Match regexLoopEnd = Regex.Match(templatedContent.Template, "{{(.+?)for-each-end:(.+?)}}", RegexOptions.IgnoreCase);
+        while (regexLoopMatch.Success && regexLoopEnd.Success)
+        {
+            int startAtIndex = templatedContent.Template.IndexOf(regexLoopMatch.Value); //Getting again index just incase it was replaced
+            int endOfCodeIndex = templatedContent.Template.IndexOf(regexLoopEnd.Value); //Getting again index just incase it was replaced
+            int endAtIndex = (endOfCodeIndex + regexLoopEnd.Length) - startAtIndex;
+            string subBlock = templatedContent.Template.Substring(startAtIndex, endAtIndex);
+            //Replace Code Block
+            string replaceCode = string.Format("REPLACE_LOOP_{0}", Guid.NewGuid().ToString().ToUpper());
+            templatedContent.Template = Regex.Replace(templatedContent.Template, subBlock, replaceCode, RegexOptions.IgnoreCase);
+            //Obj
+
+            //Move Next (Both)
+            regexLoopMatch = regexLoopMatch.NextMatch();
+            regexLoopEnd = regexLoopEnd.NextMatch();
+        }
+
+
+        #endregion
+
+        #region Generate direct targets
+        Match regexMatch = Regex.Match(templatedContent.Template, @"{{(.+?)}}", RegexOptions.IgnoreCase);
         while (regexMatch.Success)
         {
             //Reclean again
             string actualCmdProperty = string.Format(@"{0}{1}{2}", "{{", regexMatch.Groups[1].Value.Trim(), "}}");
-            string replaceCode = string.Format("REPLACE_{0}", Guid.NewGuid().ToString().ToUpper());
             //Replace Command Occurrence
+            string replaceCode = string.Format("REPLACE_{0}", Guid.NewGuid().ToString().ToUpper());
             templatedContent.Template = ReplaceFirstOccurrence(templatedContent.Template, regexMatch.Value, replaceCode);
             templatedContent.ReplaceCodes.Add(new ReplaceCode { ReplaceCommand = actualCmdProperty, ReplaceRef = replaceCode });
             //Proceed To Next
             regexMatch = regexMatch.NextMatch();
         }
+        #endregion
+
         return templatedContent;
     }
 
@@ -54,8 +83,6 @@ public static class GavinsAlgorithim
             return text;
         return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
     }
-
-
     private static List<ExtractedObjProperty> GetObjectProperties<T>(T value, List<ObjectSemanticsKeyValue> parameters = null) where T : new()
     {
         List<ExtractedObjProperty> extractedObjProperties = new List<ExtractedObjProperty>();
@@ -108,6 +135,13 @@ public static class GavinsAlgorithim
 public class TemplatedContent
 {
     public string Template { get; set; }
+    public List<ReplaceObjLoopCode> ReplaceObjLoopCodes { get; set; } = new List<ReplaceObjLoopCode>();
+    public List<ReplaceCode> ReplaceCodes { get; set; } = new List<ReplaceCode>();
+}
+public class ReplaceObjLoopCode
+{
+    public string ReplaceRef { get; set; }
+    public string ObjLoopTemplate { get; set; }
     public List<ReplaceCode> ReplaceCodes { get; set; } = new List<ReplaceCode>();
 }
 public class ReplaceCode
