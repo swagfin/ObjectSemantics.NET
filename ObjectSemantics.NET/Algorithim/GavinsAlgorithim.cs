@@ -1,6 +1,5 @@
 using ObjectSemantics.NET;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -64,25 +63,12 @@ public static class GavinsAlgorithim
         {
             try
             {
-
-                if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && prop.PropertyType != typeof(string))
+                extractedObjProperties.Add(new ExtractedObjProperty
                 {
-
-                }
-                else if (prop.PropertyType.IsClass && prop.PropertyType != typeof(string))
-                {
-
-                }
-                else
-                {
-                    extractedObjProperties.Add(new ExtractedObjProperty
-                    {
-                        Type = prop.PropertyType,
-                        Name = prop.Name,
-                        OriginalValue = value == null ? null : prop.GetValue(value)
-                    });
-                }
-
+                    Type = prop.PropertyType,
+                    Name = prop.Name,
+                    OriginalValue = value == null ? null : prop.GetValue(value)
+                });
             }
             catch { }
         }
