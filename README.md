@@ -22,8 +22,7 @@ https://nuget.org/packages/ObjectSemantics.NET
     {
         services.AddObjectSemantics(new ObjectSemanticsOptions
         {
-            TemplatesDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates"),
-            ReserveTemplatesInMemory = true
+            TemplatesDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates")
             //other configs
         });
         services.AddControllers();
@@ -40,7 +39,6 @@ class Program
       IObjectSemantics objectSemantics = new ObjectSemanticsLogic(new ObjectSemanticsOptions
       {
           CreateTemplatesDirectoryIfNotExist = true,
-          ReserveTemplatesInMemory = false,
           SupportedTemplateFileExtensions = new string[] { ".html" },
           TemplatesDirectory = Path.Combine(Environment.CurrentDirectory, "Samples")
       });

@@ -7,10 +7,6 @@
         /// </summary>
         public string TemplatesDirectory { get; set; }
         /// <summary>
-        /// Suitable when the service is declared once thus improving performance by saving Templates contents in Memory
-        /// </summary>
-        public bool ReserveTemplatesInMemory { get; set; } = true;
-        /// <summary>
         /// Will create template Base Directory if it Doesn't exist
         /// </summary>
         public bool CreateTemplatesDirectoryIfNotExist { get; set; } = true;

@@ -10,10 +10,8 @@ using System.Text.RegularExpressions;
 public static class GavinsAlgorithim
 {
 
-    public static string GenerateFromTemplate<T>(T record, TemplatedContent originTemplateContent, List<ObjectSemanticsKeyValue> parameterKeyValues = null) where T : new()
+    public static string GenerateFromTemplate<T>(T record, TemplatedContent clonedTemplate, List<ObjectSemanticsKeyValue> parameterKeyValues = null) where T : new()
     {
-        //To Prevent from Modifying 
-        TemplatedContent clonedTemplate = new TemplatedContent { Template = originTemplateContent.Template, ReplaceCodes = originTemplateContent.ReplaceCodes, ReplaceObjLoopCodes = originTemplateContent.ReplaceObjLoopCodes };
         //Get Object's Properties
         List<ExtractedObjProperty> objProperties = GetObjectProperties(record, parameterKeyValues);
 

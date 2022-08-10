@@ -13,7 +13,6 @@ namespace ObjectSemantics.NET.Demo.Core
             IObjectSemantics objectSemantics = new ObjectSemanticsLogic(new ObjectSemanticsOptions
             {
                 CreateTemplatesDirectoryIfNotExist = true,
-                ReserveTemplatesInMemory = false,
                 SupportedTemplateFileExtensions = new string[] { ".html" },
                 TemplatesDirectory = Path.Combine(Environment.CurrentDirectory, "Samples")
             });
