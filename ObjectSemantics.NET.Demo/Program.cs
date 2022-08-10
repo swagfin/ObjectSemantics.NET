@@ -12,53 +12,36 @@ namespace ObjectSemantics.NET.Demo
             IObjectSemantics objectSemantics = new ObjectSemanticsLogic(new ObjectSemanticsOptions
             {
                 CreateTemplatesDirectoryIfNotExist = true,
-                ReserveTemplatesInMemory = true,
+                ReserveTemplatesInMemory = false,
                 SupportedTemplateFileExtensions = new string[] { ".html" },
                 TemplatesDirectory = Path.Combine(Environment.CurrentDirectory, "Samples")
             });
 
-
-            Student newStudent = new Student
-            {
-                StudentName = "Steve",
-                Balance = 1200,
-                RegDate = DateTime.Now,
-                Invoices = null
-            };
-            List<ObjectSemanticsKeyValue> semanticsKeyValues = new List<ObjectSemanticsKeyValue>
+            List<ObjectSemanticsKeyValue> headers = new List<ObjectSemanticsKeyValue>
             {
                  new ObjectSemanticsKeyValue{ Key ="CompanyName",  Value= "CRUDSOFT TECHNOLOGIES" },
                  new ObjectSemanticsKeyValue{ Key ="CompanyEmail",  Value= "georgewainaina18@gmail.com" },
-                 new ObjectSemanticsKeyValue{ Key ="CompanyEmployees",  Value= "1,298" },
+                 new ObjectSemanticsKeyValue{ Key ="CompanyEmployees",  Value= 1289 },
             };
 
-            string singleRecordHtml = objectSemantics.GenerateTemplate(newStudent, "record.html", semanticsKeyValues);
 
-            //Proceed
-            List<Student> students = new List<Student>
-              {
-                new Student
-                {
-                    StudentName="George",
-                    Balance= 2320,
-                    RegDate= DateTime.Now,
-                    Invoices = new List<Invoice>
+            Student student = new Student
+            {
+                StudentName = "George",
+                Balance = 2320,
+                RegDate = DateTime.Now,
+                Invoices = new List<Invoice>
                      {
                           new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate=DateTime.Now.Date.AddDays(-1) },
                           new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate=DateTime.Now.Date.AddDays(-2) }
                      }
-                },
-                new Student
-                {
-                    StudentName="Steve",
-                    Balance= 1200,
-                    RegDate= DateTime.Now,
-                    Invoices= null
-                },
-              };
+            };
 
-            string htmlWithData = objectSemantics.GenerateTemplate(students, "list.html");
-            string htmlWithChildrenData = objectSemantics.GenerateTemplate(students, "listWithChildren.html");
+            //TESTING 
+            //string htmlWithData = objectSemantics.GenerateTemplate(student, "record.html", headers);
+
+            string htmlWithData = objectSemantics.GenerateTemplate(student, "recordWithChildren.html", headers);
+
             Console.WriteLine(htmlWithData);
 
 

@@ -9,7 +9,7 @@ namespace ObjectSemantics.NET.Logic
     public class ObjectSemanticsLogic : IObjectSemantics
     {
         private ObjectSemanticsOptions Options { get; set; } = new ObjectSemanticsOptions();
-        private ConcurrentDictionary<string, List<string>> TemplateLines { get; set; } = new ConcurrentDictionary<string, List<string>>();
+        private ConcurrentDictionary<string, TemplatedContent> TemplateFiles { get; set; } = new ConcurrentDictionary<string, TemplatedContent>();
         private string DefaultTemplatesPath { get; } = Path.Combine(Environment.CurrentDirectory, "Templates");
 
         public ObjectSemanticsLogic(ObjectSemanticsOptions objectSemanticsOptions)
@@ -32,21 +32,22 @@ namespace ObjectSemantics.NET.Logic
             catch { }
         }
 
-        private List<string> GetTemplateContents(string templateName)
+        private TemplatedContent GetTemplateContents(string templateName)
         {
-            if (this.TemplateLines.TryGetValue(templateName, out List<string> _lines))
-                return _lines;
+            if (this.TemplateFiles.TryGetValue(templateName, out TemplatedContent _templateContents))
+                return _templateContents;
             //Look in Directory 
             string altenativePath = Path.Combine(this.Options.TemplatesDirectory, templateName);
             if (!File.Exists(altenativePath))
                 throw new Exception($"Template doesn't seem to exist in directory: {altenativePath}");
-            string[] allLines = File.ReadAllLines(altenativePath);
-            if (allLines.Length == 0)
-                return new List<string>();
-            //Try Upsert in Memory
+            string allFileContents = File.ReadAllText(altenativePath);
+            TemplatedContent template = GavinsAlgorithim.GenerateTemplateFromFile(allFileContents);
+            if (template == null)
+                throw new Exception($"Error Generating template from specified File: {altenativePath}");
+            //Check if Memory persistance Enabled
             if (this.Options.ReserveTemplatesInMemory)
-                this.TemplateLines.TryAdd(templateName, allLines.ToList());
-            return allLines.ToList();
+                this.TemplateFiles.TryAdd(templateName, template);
+            return template;
         }
         private void InitTemplatesToMemory()
         {
@@ -61,13 +62,12 @@ namespace ObjectSemantics.NET.Logic
                     foreach (FileInfo file in allTemplateFiles)
                         try
                         {
-                            string[] fileLines = File.ReadAllLines(file.FullName);
-                            TemplateLines.TryAdd(file.Name, (fileLines.Length > 0) ? fileLines.ToList() : new List<string>());
+                            string allFileContents = File.ReadAllText(file.FullName);
+                            TemplatedContent template = GavinsAlgorithim.GenerateTemplateFromFile(allFileContents);
+                            if (template != null)
+                                this.TemplateFiles.TryAdd(file.Name, template);
                         }
-                        catch (Exception ex)
-                        {
-                            TemplateLines.TryAdd(file.Name, new List<string> { ex.Message });
-                        }
+                        catch { }
             }
             catch { }
         }
@@ -76,16 +76,8 @@ namespace ObjectSemantics.NET.Logic
         {
             if (record == null)
                 return string.Empty;
-            List<string> templateLines = GetTemplateContents(templateName);
-            return record.GeneratFromObj(templateLines, additionalKeyValues);
-        }
-
-        public string GenerateTemplate<T>(List<T> records, string templateName, List<ObjectSemanticsKeyValue> additionalKeyValues = null) where T : new()
-        {
-            if (records == null || records.Count == 0)
-                return string.Empty;
-            List<string> templateLines = GetTemplateContents(templateName);
-            return records.GeneratFromObjCollection(templateLines, additionalKeyValues);
+            TemplatedContent template = GetTemplateContents(templateName);
+            return GavinsAlgorithim.GenerateFromTemplate(record, template, additionalKeyValues);
         }
 
     }
