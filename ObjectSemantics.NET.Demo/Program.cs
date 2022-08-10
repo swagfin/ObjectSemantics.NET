@@ -25,37 +25,23 @@ namespace ObjectSemantics.NET.Demo
             };
 
 
-
-            //Proceed
-            List<Student> students = new List<Student>
-              {
-                new Student
-                {
-                    StudentName="George",
-                    Balance= 2320,
-                    RegDate= DateTime.Now,
-                    Invoices = new List<Invoice>
+            Student student = new Student
+            {
+                StudentName = "George",
+                Balance = 2320,
+                RegDate = DateTime.Now,
+                Invoices = new List<Invoice>
                      {
                           new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate=DateTime.Now.Date.AddDays(-1) },
                           new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate=DateTime.Now.Date.AddDays(-2) }
                      }
-                },
-                new Student
-                {
-                    StudentName="Steve",
-                    Balance= 1200,
-                    RegDate= DateTime.Now,
-                    Invoices= null
-                },
-              };
+            };
 
             //TESTING 
-            //string htmlWithData = objectSemantics.GenerateTemplate(students[0], "record.html", headers);
+            //string htmlWithData = objectSemantics.GenerateTemplate(student, "record.html", headers);
 
+            string htmlWithData = objectSemantics.GenerateTemplate(student, "recordWithChildren.html", headers);
 
-            string htmlWithData = objectSemantics.GenerateTemplate(students[0], "recordWithChildren.html", headers);
-
-            string htmlWithChildrenData = objectSemantics.GenerateTemplate(students, "listWithChildren.html", headers);
             Console.WriteLine(htmlWithData);
 
 

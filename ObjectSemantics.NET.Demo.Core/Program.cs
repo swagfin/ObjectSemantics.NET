@@ -13,20 +13,32 @@ namespace ObjectSemantics.NET.Demo.Core
             IObjectSemantics objectSemantics = new ObjectSemanticsLogic(new ObjectSemanticsOptions
             {
                 CreateTemplatesDirectoryIfNotExist = true,
-                ReserveTemplatesInMemory = true,
+                ReserveTemplatesInMemory = false,
                 SupportedTemplateFileExtensions = new string[] { ".html" },
                 TemplatesDirectory = Path.Combine(Environment.CurrentDirectory, "Samples")
             });
 
-            List<Student> students = new List<Student>
+            List<ObjectSemanticsKeyValue> headers = new List<ObjectSemanticsKeyValue>
             {
-                new Student{ StudentName="George", Balance= 2320, RegDate= DateTime.Now },
-                new Student{ StudentName="Steve", Balance= 1200, RegDate= DateTime.Now },
+                 new ObjectSemanticsKeyValue{ Key ="CompanyName",  Value= "CRUDSOFT TECHNOLOGIES" },
+                 new ObjectSemanticsKeyValue{ Key ="CompanyEmail",  Value= "georgewainaina18@gmail.com" },
+                 new ObjectSemanticsKeyValue{ Key ="CompanyEmployees",  Value= 1289 },
             };
 
-            string htmlWithData = objectSemantics.GenerateTemplate(students, "record.html");
-            Console.WriteLine(htmlWithData);
 
+            Student student = new Student
+            {
+                StudentName = "George",
+                Balance = 2320,
+                RegDate = DateTime.Now
+            };
+
+            //TESTING 
+            //string htmlWithData = objectSemantics.GenerateTemplate(student, "record.html", headers);
+
+            string htmlWithData = objectSemantics.GenerateTemplate(student, "recordWithChildren.html", headers);
+
+            Console.WriteLine(htmlWithData);
 
             Console.ReadLine();
             Environment.Exit(0);

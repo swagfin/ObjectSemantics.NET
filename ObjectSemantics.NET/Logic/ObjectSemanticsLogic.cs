@@ -80,14 +80,5 @@ namespace ObjectSemantics.NET.Logic
             return GavinsAlgorithim.GenerateFromTemplate(record, template, additionalKeyValues);
         }
 
-        public string GenerateTemplate<T>(List<T> records, string templateName, List<ObjectSemanticsKeyValue> additionalKeyValues = null) where T : new()
-        {
-            if (records == null || records.Count == 0)
-                return string.Empty;
-            //  List<string> templateLines = GetTemplateContents(templateName);
-            // return records.GenerateFromObjCollection(templateLines, additionalKeyValues);
-            return String.Empty;
-        }
-
     }
 }
