@@ -16,9 +16,9 @@
 Support for .net dependency injection
 v.1.0.0.1
 Support for Obj Collection and Enumerables</PackageReleaseNotes>
-    <AssemblyVersion>2.0.0.2</AssemblyVersion>
-    <FileVersion>2.0.0.2</FileVersion>
-    <Version>2.0.0.2</Version>
+    <AssemblyVersion>2.0.0.3</AssemblyVersion>
+    <FileVersion>2.0.0.3</FileVersion>
+    <Version>2.0.0.3</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <ApplicationIcon></ApplicationIcon>
   </PropertyGroup>

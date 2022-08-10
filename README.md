@@ -40,21 +40,36 @@ https://nuget.org/packages/ObjectSemantics.NET
             IObjectSemantics objectSemantics = new ObjectSemanticsLogic(new ObjectSemanticsOptions
             {
                 CreateTemplatesDirectoryIfNotExist = true,
-                ReserveTemplatesInMemory = true,
+                ReserveTemplatesInMemory = false,
                 SupportedTemplateFileExtensions = new string[] { ".html" },
                 TemplatesDirectory = Path.Combine(Environment.CurrentDirectory, "Samples")
             });
-
-            List<Student> students = new List<Student>
+			//Add Custom Headers as well
+            List<ObjectSemanticsKeyValue> headers = new List<ObjectSemanticsKeyValue>
             {
-                new Student{ StudentName="George", Balance= 2320, RegDate= DateTime.Now },
-                new Student{ StudentName="Steve", Balance= 1200, RegDate= DateTime.Now },
+                 new ObjectSemanticsKeyValue{ Key ="CompanyName",  Value= "CRUDSOFT TECHNOLOGIES" },
+                 new ObjectSemanticsKeyValue{ Key ="CompanyEmail",  Value= "georgewainaina18@gmail.com" },
+                 new ObjectSemanticsKeyValue{ Key ="CompanyEmployees",  Value= 1289 },
             };
 
-            string htmlWithData = objectSemantics.GenerateTemplate(students, "report.html");
+			//Example Object
+            Student student = new Student
+            {
+                StudentName = "George",
+                Balance = 2320,
+                RegDate = DateTime.Now,
+                Invoices = new List<Invoice>
+                     {
+                          new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate=DateTime.Now.Date.AddDays(-1) },
+                          new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate=DateTime.Now.Date.AddDays(-2) }
+                     }
+            };
+ 
+            string exampleOne = objectSemantics.GenerateTemplate(student, "record.html", headers);
+			//Or
+            string htmlWithData = objectSemantics.GenerateTemplate(student, "recordWithChildren.html", headers);
+
             Console.WriteLine(htmlWithData);
-
-
 
             Console.ReadLine();
             Environment.Exit(0);
@@ -75,51 +90,55 @@ https://nuget.org/packages/ObjectSemantics.NET
 ```html
 <h3>Supporting Stylish Whitespaces of {{ RegDate:yyyy-MM-dd }} | {{    RegDate:yyyy-MM-dd hh:mm    }} |  {{RegDate:hh tt    }} |  {{   RegDate:yyyy-dd hh:mm}}</h3>
     <hr />
+    <h6>Also Supports Additional Parameters</h6>
+    <h4>COMPANY NAME: {{ CompanyName }}</h4>
+    <h4>COMPANY EMAIL: {{ CompanyEmail }}</h4>
+    <h4>COMPANY EMPLOYEES: {{ CompanyEmployees}}</h4>
+
+    <h3>DATE OF REGISTRATION :  {{ RegDate:yyyy-MM-dd }} | {{    RegDate:yyyy-MM-dd hh:mm    }} |  {{RegDate:hh tt    }} |  {{   RegDate:yyyy-dd hh:mm}}</h3>
+    <br />
+    <h6>This data is protected by {{ CompanyName }} and licened by {{NoIdeaPeople}}</h6>
+    <hr />
+
+    <h4>{{ StudentName:uppercase }} DETAILS</h4>
+
+    <ol>
+        <li><strong>STUDENT NAME</strong>: {{ StudentName:uppercase }}</li>
+        <li><strong>STUDENT REG. DATE</strong>: {{ RegDate:yyyy-MM-dd hh:mm tt }}</li>
+        <li><strong>CURRENT BALANCE</strong>: Ksh. <span style="color:red;font-weight:bold;font-size:17px">{{ Balance:N2 }}</span> </li>
+    </ol>
+
+    <h4>{{ StudentName:uppercase }} INVOICES</h4>
+
     <table>
         <thead>
             <tr>
-                <th>NAME</th>
-                <th>REG DATE</th>
-                <th>BALANCE</th>
+                <th>NO</th>
+                <th>INVOICE REF</th>
+                <th colspan="2">NARRATION</th>
+                <th>AMOUNT</th>
+                <th>INVOICE DATE</th>
             </tr>
         </thead>
         <tbody>
-            {{ for-each-start }}
+            {{ for-each-start:invoices  }}
             <tr>
-                <td>{{ StudentName:uppercase }} and small letter is {{ StudentName:lowercase }} and Saved is {{ StudentName}}</td>
-                <td>{{ RegDate:yyyy-MM-dd hh:mm tt }}</td>
-                <td>{{ Balance:N2 }}</td>
+                <td>{{ Id }}</td>
+                <td>{{ RefNo }}</td>
+                <td colspan="2">{{ Narration }}</td>
+                <td>{{ Amount:N0 }}</td>
+                <td>{{ InvoiceDate:yyyy-MM-dd }}</td>
             </tr>
-            {{ for-each-end }}
+            {{ for-each-end:invoices }}
         </tbody>
     </table>
+
+    <h6>Recent Invoices</h6>
+    <ol>
+        {{ for-each-start:invoices   }}
+        <li>Invoice No: {{ RefNo }}  of {{ Narration }} amount {{ Amount:N0 }} </li>
+        {{ for-each-end:invoices }}
+    </ol>
 ```
 
 > See how its not affected my excessive whitespaces
-```html
-<h3>Supporting Stylish Whitespaces of 2022-07-31 | 2022-07-31 01:13 |  01 AM |  2022-31 01:13</h3>
-    <hr />
-    <table>
-        <thead>
-            <tr>
-                <th>NAME</th>
-                <th>REG DATE</th>
-                <th>BALANCE</th>
-            </tr>
-        </thead>
-        <tbody>
-
-            <tr>
-                <td>GEORGE and small letter is george and Saved is George</td>
-                <td>2022-07-31 01:13 AM</td>
-                <td>2,320.00</td>
-            </tr>
-
-            <tr>
-                <td>STEVE and small letter is steve and Saved is Steve</td>
-                <td>2022-07-31 01:13 AM</td>
-                <td>1,200.00</td>
-            </tr>
-        </tbody>
-    </table>
-```
