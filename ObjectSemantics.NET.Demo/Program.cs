@@ -41,14 +41,8 @@ namespace ObjectSemantics.NET.Demo
             //string htmlWithData = objectSemantics.GenerateTemplate(student, "record.html", headers);
 
             string htmlWithData = objectSemantics.GenerateTemplate(student, "recordWithChildren.html", headers);
-
-            student.StudentName = "Gladwel Wambui";
-            student.Balance = 0;
-            student.Invoices = new List<Invoice>();
-            htmlWithData = objectSemantics.GenerateTemplate(student, "recordWithChildren.html", headers);
-
+            //Display
             Console.WriteLine(htmlWithData);
-
 
             Console.ReadLine();
             Environment.Exit(0);
