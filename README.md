@@ -86,59 +86,8 @@ class Student
 ```
 
 ** Report Template File - Raw Template **
-> This is the raw html template defined in the templates folder
-```html
-<hr />
-<h6>Also Supports Additional Parameters</h6>
-<h4>COMPANY NAME: {{ CompanyName }}</h4>
-<h4>COMPANY EMAIL: {{ CompanyEmail }}</h4>
-<h4>COMPANY EMPLOYEES: {{ CompanyEmployees}}</h4>
-
-<h3>DATE OF REGISTRATION :  {{ RegDate:yyyy-MM-dd }} | {{    RegDate:yyyy-MM-dd hh:mm    }} |  {{RegDate:hh tt    }} |  {{   RegDate:yyyy-dd hh:mm}}</h3>
-<br />
-<h6>This data is protected by {{ CompanyName }} and licened by {{NoIdeaPeople}}</h6>
-<hr />
-
-<h4>{{ StudentName:uppercase }} DETAILS</h4>
-
-<ol>
-    <li><strong>STUDENT NAME</strong>: {{ StudentName:uppercase }}</li>
-    <li><strong>STUDENT REG. DATE</strong>: {{ RegDate:yyyy-MM-dd hh:mm tt }}</li>
-    <li><strong>CURRENT BALANCE</strong>: Ksh. <span style="color:red;font-weight:bold;font-size:17px">{{ Balance:N2 }}</span> </li>
-</ol>
-
-<h4>{{ StudentName:uppercase }} INVOICES</h4>
-
-<table>
-    <thead>
-        <tr>
-            <th>NO</th>
-            <th>INVOICE REF</th>
-            <th colspan="2">NARRATION</th>
-            <th>AMOUNT</th>
-            <th>INVOICE DATE</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{ for-each-start:invoices  }}
-        <tr>
-            <td>{{ Id }}</td>
-            <td>{{ RefNo }}</td>
-            <td colspan="2">{{ Narration }}</td>
-            <td>{{ Amount:N0 }}</td>
-            <td>{{ InvoiceDate:yyyy-MM-dd }}</td>
-        </tr>
-        {{ for-each-end:invoices }}
-    </tbody>
-</table>
-
-<h6>Recent Invoices</h6>
-<ol>
-    {{ for-each-start:invoices   }}
-    <li>Invoice No: {{ RefNo }}  of {{ Narration }} amount {{ Amount:N0 }} </li>
-    {{ for-each-end:invoices }}
-</ol>
-```
+> This is the raw html template file contents defined in the templates folder (HTML)
+# ![Result](https://github.com/swagfin/ObjectSemantics.NET/blob/5f0814c6513baffee7f78c99112d8777abaf4737/Screenshots/recordWithChildren.png)
 
 > See how its not affected my excessive whitespaces
 # ![Result](https://github.com/swagfin/ObjectSemantics.NET/blob/592e6404783b21dfab60dcc8087b0c23a5ce2b71/Screenshots/results-example.png)
