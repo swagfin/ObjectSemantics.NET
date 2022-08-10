@@ -88,7 +88,6 @@ class Student
 ** Report Template File - Raw Template **
 > This is the raw html template defined in the templates folder
 ```html
-<h3>Date Formatting of {{ RegDate:yyyy-MM-dd }} | {{    RegDate:yyyy-MM-dd hh:mm    }} |  {{RegDate:hh tt    }} |  {{   RegDate:yyyy-dd hh:mm}}</h3>
 <hr />
 <h6>Also Supports Additional Parameters</h6>
 <h4>COMPANY NAME: {{ CompanyName }}</h4>
