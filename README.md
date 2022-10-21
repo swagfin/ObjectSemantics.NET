@@ -86,6 +86,10 @@ class Student
 ** Report Template File - Raw Template **
 > This is the raw html template file contents defined in the templates folder (HTML)
 # ![Result](https://github.com/swagfin/ObjectSemantics.NET/blob/5f0814c6513baffee7f78c99112d8777abaf4737/Screenshots/recordWithChildren.png)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fswagfin%2FObjectSemantics.NET.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fswagfin%2FObjectSemantics.NET?ref=badge_shield)
 
 > See how its not affected my excessive whitespaces
 # ![Result](https://github.com/swagfin/ObjectSemantics.NET/blob/592e6404783b21dfab60dcc8087b0c23a5ce2b71/Screenshots/results-example.png)
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fswagfin%2FObjectSemantics.NET.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fswagfin%2FObjectSemantics.NET?ref=badge_large)
