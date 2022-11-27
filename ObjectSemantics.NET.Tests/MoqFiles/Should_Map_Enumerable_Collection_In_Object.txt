@@ -1,0 +1,10 @@
+﻿{{ StudentName }} Invoices
+{{ for-each-start:invoices  }}
+<tr>
+    <td>{{ Id }}</td>
+    <td>{{ RefNo }}</td>
+    <td>{{ Narration }}</td>
+    <td>{{ Amount:N0 }}</td>
+    <td>{{ InvoiceDate:yyyy-MM-dd }}</td>
+</tr>
+{{ for-each-end:invoices }}
