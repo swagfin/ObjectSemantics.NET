@@ -39,12 +39,28 @@ namespace ObjectSemantics.NET.Logic
                 throw new Exception($"Error Generating template from specified File: {altenativePath}");
             return template;
         }
+        private TemplatedContent GetTemplateContents(ObjectSemanticsTemplate templateFile)
+        {
+            if (templateFile == null)
+                throw new Exception("Template Object can't be NULL");
+            TemplatedContent template = GavinsAlgorithim.GenerateTemplateFromFile(templateFile.FileContents);
+            if (template == null)
+                throw new Exception($"Error Generating template from specified Template Name: {templateFile.Name}");
+            return template;
+        }
         public string GenerateTemplate<T>(T record, string templateName, List<ObjectSemanticsKeyValue> additionalKeyValues = null) where T : new()
         {
             if (record == null)
                 return string.Empty;
             TemplatedContent template = GetTemplateContents(templateName);
             return GavinsAlgorithim.GenerateFromTemplate(record, template, additionalKeyValues);
+        }
+        public string GenerateTemplate<T>(T record, ObjectSemanticsTemplate template, List<ObjectSemanticsKeyValue> additionalKeyValues = null) where T : new()
+        {
+            if (record == null)
+                return string.Empty;
+            TemplatedContent templateContents = GetTemplateContents(template);
+            return GavinsAlgorithim.GenerateFromTemplate(record, templateContents, additionalKeyValues);
         }
     }
 }
