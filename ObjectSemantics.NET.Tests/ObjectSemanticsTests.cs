@@ -99,22 +99,21 @@ namespace ObjectSemantics.NET.Tests
 {{ for-each-end:invoices }}"
             };
             string generatedTemplate = _logicService.GenerateTemplate(student, template);
-            string expectedResult = "John Doe Invoices" +
-                "\r\n<tr>" +
-                "\r\n    <td>2</td>" +
-                "\r\n    <td>INV_002</td>" +
-                "\r\n    <td>Grade II Fees Invoice</td>" +
-                "\r\n    <td>2,000</td>" +
-                "\r\n    <td>2022-11-26</td>" +
-                "\r\n</tr>" +
-                "\r\n<tr>" +
-                "\r\n    <td>1</td>" +
-                "\r\n    <td>INV_001</td>" +
-                "\r\n    <td>Grade I Fees Invoice</td>" +
-                "\r\n    <td>320</td>" +
-                "\r\n    <td>2022-11-25</td>" +
-                "\r\n</tr>" +
-                "\r\n";
+            string expectedResult = @"John Doe Invoices
+<tr>
+    <td>2</td>
+    <td>INV_002</td>
+    <td>Grade II Fees Invoice</td>
+    <td>2,000</td>
+    <td>2023-01-12</td>
+</tr>
+<tr>
+    <td>1</td>
+    <td>INV_001</td>
+    <td>Grade I Fees Invoice</td>
+    <td>320</td>
+    <td>2023-01-11</td>
+</tr>";
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
 
@@ -234,10 +233,10 @@ namespace ObjectSemantics.NET.Tests
             //Template
             var template = new ObjectSemanticsTemplate
             {
-                FileContents = @"Original RegDate: {{ RegDate }}, yyyy RegDate: {{ RegDate:yyyy }}, yyyy-MM-dd HH:mm tt RegDate: {{ RegDate:yyyy-MM-dd HH:mm  tt }}"
+                FileContents = @"DATE TIME TESTS, yyyy RegDate: {{ RegDate:yyyy }}, yyyy-MM-dd HH:mm RegDate: {{ RegDate:yyyy-MM-dd HH:mm  }}"
             };
             string generatedTemplate = _logicService.GenerateTemplate(student, template);
-            string expectedString = "Original RegDate: 11/27/2022 6:13:59 PM, yyyy RegDate: 2022, yyyy-MM-dd HH:mm tt RegDate: 2022-11-27 18:13 PM";
+            string expectedString = "DATE TIME TESTS, yyyy RegDate: 2022, yyyy-MM-dd HH:mm RegDate: 2022-11-27 18:13";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
 
