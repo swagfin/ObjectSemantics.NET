@@ -43,7 +43,7 @@ public static class GavinsAlgorithim
                     rowContentTemplater.Append(activeRow);
                 }
 
-                objLoop.ObjLoopTemplate = rowContentTemplater.ToString(); //Assign Auto Generated
+                objLoop.ObjLoopTemplate = rowContentTemplater.ToString().RemoveLastInstanceOfString('\r', '\n'); //Assign Auto Generated
                 //Replace the main Loop area
                 clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, objLoop.ReplaceRef, objLoop.ObjLoopTemplate);
             }
