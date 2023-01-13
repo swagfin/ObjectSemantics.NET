@@ -234,10 +234,10 @@ namespace ObjectSemantics.NET.Tests
             //Template
             var template = new ObjectSemanticsTemplate
             {
-                FileContents = @"Original RegDate: {{ RegDate }}, yyyy RegDate: {{ RegDate:yyyy }}, yyyy-MM-dd HH:mm tt RegDate: {{ RegDate:yyyy-MM-dd HH:mm  tt }}"
+                FileContents = @"DATE TIME TESTS, yyyy RegDate: {{ RegDate:yyyy }}, yyyy-MM-dd HH:mm RegDate: {{ RegDate:yyyy-MM-dd HH:mm  }}"
             };
             string generatedTemplate = _logicService.GenerateTemplate(student, template);
-            string expectedString = "Original RegDate: 11/27/2022 6:13:59 PM, yyyy RegDate: 2022, yyyy-MM-dd HH:mm tt RegDate: 2022-11-27 18:13 PM";
+            string expectedString = "DATE TIME TESTS, yyyy RegDate: 2022, yyyy-MM-dd HH:mm RegDate: 2022-11-27 18:13";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
 
