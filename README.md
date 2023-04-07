@@ -14,28 +14,13 @@ Install-Package ObjectSemantics.NET
 ```
 https://nuget.org/packages/ObjectSemantics.NET
 
-## Usage Example
-** .NET Core API/Web Apps via Dependency Injection
+**USAGE**
 ```cs
-    // DI injected service registrations
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services.AddSingleton<ObjectSemantics>();
-        services.AddControllers();
-    }
-```
-
-**.NET and .NET Core Apps/Consoles**
-```cs
+using ObjectSemantics.NET;
 class Program
 {
   static void Main(string[] args)
   {
-
-    ObjectSemantics objectSemantics = new ObjectSemantics(new ObjectSemanticsOptions
-    {
-        //configs
-    });
 	  
     Student student = new Student
     {
@@ -58,7 +43,7 @@ class Program
                         </ol>"
     };
 
-    string htmlWithData = objectSemantics.GenerateTemplate(student, template);
+    string htmlWithData = TemplateMapper.MapFromTemplate(student, template);
 
     Console.WriteLine(htmlWithData);
 

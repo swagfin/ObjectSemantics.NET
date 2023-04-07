@@ -8,7 +8,7 @@
 </Description>
     <Copyright>Crudsoft Technologies @ 2022</Copyright>
     <PackageProjectUrl>https://github.com/swagfin/ObjectSemantics.NET</PackageProjectUrl>
-    <PackageIcon>icon-full.jpg</PackageIcon>
+    <PackageIcon>icon.jpg</PackageIcon>
     <PackageIconUrl />
     <RepositoryUrl>https://github.com/swagfin/ObjectSemantics.NET</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
@@ -16,22 +16,37 @@
 Support for .net dependency injection
 v.1.0.0.1
 Support for Obj Collection and Enumerables</PackageReleaseNotes>
-    <AssemblyVersion>4.0.1.1</AssemblyVersion>
-    <FileVersion>4.0.1.1</FileVersion>
-    <Version>4.0.1</Version>
+    <AssemblyVersion>5.0.1.1</AssemblyVersion>
+    <FileVersion>5.0.1.1</FileVersion>
+    <Version>5.0.1</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <ApplicationIcon></ApplicationIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>Object Mapper ObjectMapper AutoMapper</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="icon-full.jpg">
+    <Compile Remove="Logic\**" />
+    <EmbeddedResource Remove="Logic\**" />
+    <None Remove="Logic\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
       <Pack>True</Pack>
-      <PackagePath></PackagePath>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Logic\" />
+    <None Update="icon.jpg">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
