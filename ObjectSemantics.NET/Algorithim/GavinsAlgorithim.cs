@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 public static class GavinsAlgorithim
 {
 
-    public static string GenerateFromTemplate<T>(T record, TemplatedContent clonedTemplate, List<ObjectSemanticsKeyValue> parameterKeyValues = null, TemplateGeneratorOptions options = null) where T : new()
+    public static string GenerateFromTemplate<T>(T record, TemplatedContent clonedTemplate, List<ObjectSemanticsKeyValue> parameterKeyValues = null, TemplateMapperOptions options = null) where T : new()
     {
         //Get Object's Properties
         List<ExtractedObjProperty> objProperties = GetObjectProperties(record, parameterKeyValues);
@@ -67,7 +67,7 @@ public static class GavinsAlgorithim
         return clonedTemplate.Template;
     }
 
-    internal static TemplatedContent GenerateTemplateFromFile(string fileContent, TemplateGeneratorOptions options)
+    internal static TemplatedContent GenerateTemplateFromFile(string fileContent, TemplateMapperOptions options)
     {
         TemplatedContent templatedContent = new TemplatedContent { Template = fileContent };
 

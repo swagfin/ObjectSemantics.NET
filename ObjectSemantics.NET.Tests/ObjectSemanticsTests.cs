@@ -21,7 +21,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"My Name is: {{ StudentName }}"
             };
-            string generatedTemplate = TemplateMapper.MapFromTemplate(student, template);
+            string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedString = "My Name is: George Waynne";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
@@ -54,7 +54,7 @@ namespace ObjectSemantics.NET.Tests
 </tr>
 {{ for-each-end:invoices }}"
             };
-            string generatedTemplate = TemplateMapper.MapFromTemplate(student, template);
+            string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = "John Doe Invoices" +
                 "\r\n<tr>" +
                 "\r\n    <td>2</td>" +
@@ -93,7 +93,7 @@ namespace ObjectSemantics.NET.Tests
                  new ObjectSemanticsKeyValue{ Key ="CompanyEmail",  Value= "test.inc@test.com" },
                  new ObjectSemanticsKeyValue{ Key ="Employees",  Value= 1289 },
             };
-            string generatedTemplate = TemplateMapper.MapFromTemplate(student, template, additionalParams);
+            string generatedTemplate = TemplateMapper.Map(student, template, additionalParams);
             string expectedString = "My Name is: George Waynne | CompanyName: TEST INC. | CompanyEmail: test.inc@test.com | Employees: 1289";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
@@ -112,7 +112,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"Unknown Object example: {{StudentIdentityCardXyx}}"
             };
-            string generatedTemplate = TemplateMapper.MapFromTemplate(student, template);
+            string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedString = "Unknown Object example: {{StudentIdentityCardXyx}}";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
@@ -131,7 +131,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"StudentName is: {{            StudentName       }}"
             };
-            string generatedTemplate = TemplateMapper.MapFromTemplate(student, template);
+            string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedString = "StudentName is: George Waynne";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
@@ -149,7 +149,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"Original StudentName: {{ StudentName }}, Uppercase StudentName: {{ StudentName:uppercase }}, Lowercase StudentName: {{ StudentName:lowercase }}"
             };
-            string generatedTemplate = TemplateMapper.MapFromTemplate(student, template);
+            string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedString = "Original StudentName: WILLiaM, Uppercase StudentName: WILLIAM, Lowercase StudentName: william";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
@@ -168,7 +168,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"Original Balance: {{ Balance }}, #,##0 Balance: {{ Balance:#,##0 }}, N5 Balance: {{ Balance:N5 }}"
             };
-            string generatedTemplate = TemplateMapper.MapFromTemplate(student, template);
+            string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedString = "Original Balance: 20000.5788, #,##0 Balance: 20,001, N5 Balance: 20,000.57880";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
@@ -186,7 +186,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"Original RegDate: {{ RegDate }}, yyyy RegDate: {{ RegDate:yyyy }}, yyyy-MM-dd HH:mm tt RegDate: {{ RegDate:yyyy-MM-dd HH:mm  tt }}"
             };
-            string generatedTemplate = TemplateMapper.MapFromTemplate(student, template);
+            string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedString = "Original RegDate: 11/27/2022 6:13:59 PM, yyyy RegDate: 2022, yyyy-MM-dd HH:mm tt RegDate: 2022-11-27 18:13 PM";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }

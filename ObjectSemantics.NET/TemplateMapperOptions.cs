@@ -1,6 +1,6 @@
 ﻿namespace ObjectSemantics.NET
 {
-    public class TemplateGeneratorOptions
+    public class TemplateMapperOptions
     {
 
     }

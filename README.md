@@ -45,7 +45,7 @@ class Program
                         </ol>"
     };
 
-    string htmlWithData = TemplateMapper.MapFromTemplate(student, template);
+    string htmlWithData = TemplateMapper.Map(student, template);
 
     Console.WriteLine(htmlWithData);
 

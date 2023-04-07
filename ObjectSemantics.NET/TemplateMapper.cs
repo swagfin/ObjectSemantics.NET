@@ -14,11 +14,11 @@ namespace ObjectSemantics.NET
         /// <param name="additionalKeyValues">Additional Key Value parameters that you may need mapped to file</param>
         /// <param name="options">Custom Options and configurations for the Template Generator</param>
         /// <returns></returns>
-        public static string MapFromTemplate<T>(T record, ObjectSemanticsTemplate template, List<ObjectSemanticsKeyValue> additionalKeyValues = null, TemplateGeneratorOptions options = null) where T : new()
+        public static string Map<T>(T record, ObjectSemanticsTemplate template, List<ObjectSemanticsKeyValue> additionalKeyValues = null, TemplateMapperOptions options = null) where T : new()
         {
             if (record == null) return string.Empty;
             if (template == null) throw new Exception("Template Object can't be NULL");
-            if (options == null) options = new TemplateGeneratorOptions();
+            if (options == null) options = new TemplateMapperOptions();
             TemplatedContent templatedContent = GavinsAlgorithim.GenerateTemplateFromFile(template.FileContents, options);
             if (templatedContent == null) throw new Exception($"Error Generating template from specified Template Name: {template.Name}");
             return GavinsAlgorithim.GenerateFromTemplate(record, templatedContent, additionalKeyValues, options);
