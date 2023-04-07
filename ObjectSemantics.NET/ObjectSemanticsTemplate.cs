@@ -4,7 +4,9 @@ namespace ObjectSemantics.NET
 {
     public class ObjectSemanticsTemplate
     {
-        public string Name { get; set; } = Guid.NewGuid().ToString();
+        public string Name { get; set; } = "default.template";
         public string FileContents { get; set; }
+        public string Author { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
     }
 }

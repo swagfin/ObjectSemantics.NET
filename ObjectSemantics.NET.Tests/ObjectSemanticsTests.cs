@@ -1,27 +1,20 @@
-using ObjectSemantics.NET.Logic;
 using ObjectSemantics.NET.Tests.MoqModels;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Xunit;
 
 namespace ObjectSemantics.NET.Tests
 {
     public class ObjectSemanticsTests
     {
-        private readonly IObjectSemantics _logicService;
+        private readonly ObjectSemantics _logicService;
         public ObjectSemanticsTests()
         {
-            //Create Single Instance Service
-            this._logicService = new ObjectSemanticsLogic(new ObjectSemanticsOptions
+            this._logicService = new ObjectSemantics(new ObjectSemanticsOptions
             {
-                CreateTemplatesDirectoryIfNotExist = true,
-                TemplatesDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "MoqFiles")
+                //configs
             });
-
         }
-
-
 
         [Fact]
         public void Should_Map_Object_To_Template_From_TemplateObject()
@@ -41,35 +34,6 @@ namespace ObjectSemantics.NET.Tests
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
 
-        [Fact]
-        public void Should_Map_Object_To_Template_From_TemplateFile()
-        {
-            //Create Model
-            Student student = new Student
-            {
-                StudentName = "George Waynne",
-                Balance = 2510
-            };
-            string generatedTemplate = _logicService.GenerateTemplate(student, $"template-example.txt");
-            string expectedString = "My Name is: George Waynne and my balance is: 2510";
-            Assert.Equal(expectedString, generatedTemplate, false, true, true);
-        }
-
-        [Fact]
-        public void Should_Throw_Exception_If_Template_File_Is_Missing()
-        {
-            //Create Model
-            Student student = new Student
-            {
-                StudentName = "George Waynne",
-                Balance = 2510
-            };
-            Exception ex = Assert.Throws<Exception>(() => _logicService.GenerateTemplate(student, $"{Guid.NewGuid()}.txt"));
-            Assert.Contains("Template doesn't seem to exist in directory:", ex.Message);
-        }
-
-
-
         //Loop Object Tests
         [Fact]
         public void Should_Map_Enumerable_Collection_In_Object()
@@ -80,8 +44,8 @@ namespace ObjectSemantics.NET.Tests
                 StudentName = "John Doe",
                 Invoices = new List<Invoice>
                 {
-                     new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate=DateTime.Now.Date.AddDays(-1) },
-                     new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate=DateTime.Now.Date.AddDays(-2) }
+                     new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate= new DateTime(2023, 04, 01) },
+                     new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate= new DateTime(2022, 08, 01)  }
                 }
             };
             //Template
@@ -99,25 +63,23 @@ namespace ObjectSemantics.NET.Tests
 {{ for-each-end:invoices }}"
             };
             string generatedTemplate = _logicService.GenerateTemplate(student, template);
-            string expectedResult = @"John Doe Invoices
-<tr>
-    <td>2</td>
-    <td>INV_002</td>
-    <td>Grade II Fees Invoice</td>
-    <td>2,000</td>
-    <td>2023-01-12</td>
-</tr>
-<tr>
-    <td>1</td>
-    <td>INV_001</td>
-    <td>Grade I Fees Invoice</td>
-    <td>320</td>
-    <td>2023-01-11</td>
-</tr>";
+            string expectedResult = "John Doe Invoices" +
+                "\r\n<tr>" +
+                "\r\n    <td>2</td>" +
+                "\r\n    <td>INV_002</td>" +
+                "\r\n    <td>Grade II Fees Invoice</td>" +
+                "\r\n    <td>2,000</td>" +
+                "\r\n    <td>2023-04-01</td>" +
+                "\r\n</tr>" +
+                "\r\n<tr>" +
+                "\r\n    <td>1</td>" +
+                "\r\n    <td>INV_001</td>" +
+                "\r\n    <td>Grade I Fees Invoice</td>" +
+                "\r\n    <td>320</td>" +
+                "\r\n    <td>2022-08-01</td>" +
+                "\r\n</tr>";
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
-
-
 
         [Fact]
         public void Should_Map_Additional_Parameters()
@@ -164,7 +126,6 @@ namespace ObjectSemantics.NET.Tests
         }
 
 
-
         [Fact]
         public void Should_Ignore_Whitespaces_Inside_CurlyBrackets()
         {
@@ -182,8 +143,6 @@ namespace ObjectSemantics.NET.Tests
             string expectedString = "StudentName is: George Waynne";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
-
-
 
         [Fact]
         public void Should_Accept_String_To_String_Formatting()
@@ -233,10 +192,10 @@ namespace ObjectSemantics.NET.Tests
             //Template
             var template = new ObjectSemanticsTemplate
             {
-                FileContents = @"DATE TIME TESTS, yyyy RegDate: {{ RegDate:yyyy }}, yyyy-MM-dd HH:mm RegDate: {{ RegDate:yyyy-MM-dd HH:mm  }}"
+                FileContents = @"Original RegDate: {{ RegDate }}, yyyy RegDate: {{ RegDate:yyyy }}, yyyy-MM-dd HH:mm tt RegDate: {{ RegDate:yyyy-MM-dd HH:mm  tt }}"
             };
             string generatedTemplate = _logicService.GenerateTemplate(student, template);
-            string expectedString = "DATE TIME TESTS, yyyy RegDate: 2022, yyyy-MM-dd HH:mm RegDate: 2022-11-27 18:13";
+            string expectedString = "Original RegDate: 11/27/2022 6:13:59 PM, yyyy RegDate: 2022, yyyy-MM-dd HH:mm tt RegDate: 2022-11-27 18:13 PM";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
 
