@@ -1,0 +1,25 @@
+name: .NET Ensure Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.x
+    - name: Restore Nuget Packages
+      run: dotnet restore ObjectSemantics.NET/ObjectSemantics.NET.csproj
+    - name: Build Project
+      run: dotnet build ObjectSemantics.NET/ObjectSemantics.NET.csproj --no-restore
+    - name: Test
+      run: dotnet test ObjectSemantics.NET/ObjectSemantics.NET.csproj --no-build --verbosity normal

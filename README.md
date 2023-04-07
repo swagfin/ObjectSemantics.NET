@@ -20,11 +20,7 @@ https://nuget.org/packages/ObjectSemantics.NET
     // DI injected service registrations
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddObjectSemantics(new ObjectSemanticsOptions
-        {
-            TemplatesDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates")
-            //other configs
-        });
+        services.AddSingleton<ObjectSemantics>();
         services.AddControllers();
     }
 ```
@@ -36,41 +32,38 @@ class Program
   static void Main(string[] args)
   {
 
-      IObjectSemantics objectSemantics = new ObjectSemanticsLogic(new ObjectSemanticsOptions
-      {
-          CreateTemplatesDirectoryIfNotExist = true,
-          SupportedTemplateFileExtensions = new string[] { ".html" },
-          TemplatesDirectory = Path.Combine(Environment.CurrentDirectory, "Samples")
-      });
-	  //Add Custom Headers as well
-      List<ObjectSemanticsKeyValue> headers = new List<ObjectSemanticsKeyValue>
-      {
-           new ObjectSemanticsKeyValue{ Key ="CompanyName",  Value= "CRUDSOFT TECHNOLOGIES" },
-           new ObjectSemanticsKeyValue{ Key ="CompanyEmail",  Value= "georgewainaina18@gmail.com" },
-           new ObjectSemanticsKeyValue{ Key ="CompanyEmployees",  Value= 1289 },
-      };
+    ObjectSemantics objectSemantics = new ObjectSemantics(new ObjectSemanticsOptions
+    {
+        //configs
+    });
+	  
+    Student student = new Student
+    {
+        StudentName = "George",
+        Invoices = new List<Invoice>
+                  {
+                    new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate=DateTime.Now.Date.AddDays(-1) },
+                    new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate=DateTime.Now.Date.AddDays(-2) }
+                  }
+    };
 
-	  //Example Object
-      Student student = new Student
-      {
-          StudentName = "George",
-          Balance = 2320,
-          RegDate = DateTime.Now,
-          Invoices = new List<Invoice>
-          {
-             new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate=DateTime.Now.Date.AddDays(-1) },
-             new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate=DateTime.Now.Date.AddDays(-2) }
-          }
-      };
 
-      string exampleOne = objectSemantics.GenerateTemplate(student, "record.html", headers);
-	  //Or
-      string htmlWithData = objectSemantics.GenerateTemplate(student, "recordWithChildren.html", headers);
+    ObjectSemanticsTemplate template = new ObjectSemanticsTemplate
+    {
+        FileContents = @"<h6>{{ StudentName:uppercase }}  Invoices</h6>
+                        <ol>
+                            {{ for-each-start:invoices   }}
+                                <li>Invoice No: {{ RefNo }}  of {{ Narration }} amount {{ Amount:N0 }} </li>
+                            {{ for-each-end:invoices }}
+                        </ol>"
+    };
 
-      Console.WriteLine(htmlWithData);
+    string htmlWithData = objectSemantics.GenerateTemplate(student, template);
 
-      Console.ReadLine();
-      Environment.Exit(0);
+    Console.WriteLine(htmlWithData);
+
+    Console.ReadLine();
+    Environment.Exit(0);
   }
 }
 
