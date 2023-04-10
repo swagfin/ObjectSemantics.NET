@@ -98,7 +98,6 @@ public static class GavinsAlgorithim
             string _replaceCode = string.Format("REPLACE_IF_CONDITION_{0}", Guid.NewGuid().ToString().ToUpper());
             string subBlock = templatedContent.Template.GetSubstringByIndexStartAndEnd(regexIfConditionMatch.Index + regexIfConditionMatch.Length, regexIfConditionMatchEnd.Index - 1);
             //#Replace Template Block with unique Code
-            //templatedContent.Template = templatedContent.Template.ReplaceFirstOccurrence(subBlock, _replaceCode);
             templatedContent.Template = templatedContent.Template.ReplaceByIndexStartAndEnd(regexIfConditionMatch.Index, (regexIfConditionMatchEnd.Index - 1) + regexIfConditionMatchEnd.Length, _replaceCode);
             //#Append Condition Code
             templatedContent.ReplaceIfConditionCodes.Add(new ReplaceIfConditionCode
@@ -116,8 +115,8 @@ public static class GavinsAlgorithim
         #endregion
 
         #region Generate Obj Looop
-        Match regexLoopMatch = Regex.Match(templatedContent.Template, "{{(.+?)for-each-start:(.+?)}}", RegexOptions.IgnoreCase);
-        Match regexLoopEnd = Regex.Match(templatedContent.Template, "{{(.+?)for-each-end:(.+?)}}", RegexOptions.IgnoreCase);
+        Match regexLoopMatch = Regex.Match(templatedContent.Template, "{{\\s*for-each-start:([^()]+?)\\s*}}", RegexOptions.IgnoreCase);
+        Match regexLoopEnd = Regex.Match(templatedContent.Template, "{{\\s*for-each-end:([^()]+?)\\s*}}", RegexOptions.IgnoreCase);
         while (regexLoopMatch.Success && regexLoopEnd.Success)
         {
             int startAtIndex = templatedContent.Template.IndexOf(regexLoopMatch.Value); //Getting again index just incase it was replaced
@@ -128,7 +127,7 @@ public static class GavinsAlgorithim
             string replaceCode = string.Format("REPLACE_LOOP_{0}", Guid.NewGuid().ToString().ToUpper());
             templatedContent.Template = Regex.Replace(templatedContent.Template, subBlock, replaceCode, RegexOptions.IgnoreCase);
             //Loop Target Object Name
-            string targetObjName = regexLoopMatch.Value.Replace("{", string.Empty).Replace("}", string.Empty).Trim().Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
+            string targetObjName = (regexLoopMatch.Groups.Count >= 1) ? regexLoopMatch.Groups[1].Value?.Trim()?.ToString()?.ToLower()?.Replace(" ", string.Empty) : string.Empty;
             //Obj
             ReplaceObjLoopCode replaceObjLoopCode = new ReplaceObjLoopCode { ReplaceRef = replaceCode, TargetObjectName = targetObjName };
             //Extra Loop Contents
