@@ -15,6 +15,27 @@ public static class GavinsAlgorithim
         //Get Object's Properties
         List<ExtractedObjProperty> objProperties = GetObjectProperties(record, parameterKeyValues);
 
+        #region Replace If Conditions
+        foreach (ReplaceIfConditionCode ifCondition in clonedTemplate.ReplaceIfConditionCodes)
+        {
+            ExtractedObjProperty property = objProperties.FirstOrDefault(x => x.Name.ToUpper().Equals(ifCondition.IfPropertyName.ToUpper()));
+            if (property != null)
+            {
+                if (property.IsPropertyValueConditionPassed(ifCondition.IfConditionValue, ifCondition.IfConditionType))
+                {
+                    //Condition Passed
+                    TemplatedContent templatedIfContent = GenerateTemplateFromFileContents(ifCondition.IfConditionTemplate, options);
+                    string templatedIfContentMapped = GenerateFromTemplate(record, templatedIfContent, parameterKeyValues, options);
+                    clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, ifCondition.ReplaceRef, templatedIfContentMapped);
+                }
+                else
+                    clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, ifCondition.ReplaceRef, string.Empty);
+            }
+            else
+                clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, ifCondition.ReplaceRef, $"[IF-CONDITION EXCEPTION]: unrecognized property: [{ifCondition.IfPropertyName}]");
+        }
+        #endregion
+
         #region Replace Obj Loop Attributes
         foreach (ReplaceObjLoopCode objLoop in clonedTemplate.ReplaceObjLoopCodes)
         {
@@ -63,31 +84,30 @@ public static class GavinsAlgorithim
                 clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, replaceCode.ReplaceRef, replaceCode.ReplaceCommand);
         }
         #endregion
-
         return clonedTemplate.Template;
     }
 
-    internal static TemplatedContent GenerateTemplateFromFile(string fileContent, TemplateMapperOptions options)
+    internal static TemplatedContent GenerateTemplateFromFileContents(string fileContent, TemplateMapperOptions options)
     {
         TemplatedContent templatedContent = new TemplatedContent { Template = fileContent };
         #region If Condition
-        Match regexIfConditionMatch = Regex.Match(templatedContent.Template, @"{{\s*if-start:\s*([^()]+?)\(\s*(!?=)\s*([^()]+?)\s*\)\s*}}", RegexOptions.IgnoreCase);
-        Match regexIfConditionMatchEnd = Regex.Match(templatedContent.Template, "{{(.+?)if-end:(.+?)}}", RegexOptions.IgnoreCase);
+        Match regexIfConditionMatch = Regex.Match(templatedContent.Template, @"{{\s*if-start:\s*([^()]+?)\(\s*(!?=|[<>]=?)\s*([^()]+?)\s*\)\s*}}", RegexOptions.IgnoreCase); //#Match =, !=, >, >=, <, and <=.
+        Match regexIfConditionMatchEnd = Regex.Match(templatedContent.Template, @"{{\s*if-end:([^()]+?)\s*}}", RegexOptions.IgnoreCase);
         while (regexIfConditionMatch.Success && regexIfConditionMatchEnd.Success)
         {
-            int startAtIndex = templatedContent.Template.IndexOf(regexIfConditionMatch.Value); //Getting again index just incase it was replaced
-            int endOfCodeIndex = templatedContent.Template.IndexOf(regexIfConditionMatchEnd.Value); //Getting again index just incase it was replaced
-            int endAtIndex = (endOfCodeIndex + regexIfConditionMatchEnd.Length) - startAtIndex;
-            string subBlock = templatedContent.Template.Substring(startAtIndex, endAtIndex);
-            //#Replace Code
-            string replaceCode = string.Format("REPLACE_IF_CONDITION_{0}", Guid.NewGuid().ToString().ToUpper());
-            templatedContent.Template = Regex.Replace(templatedContent.Template, subBlock, replaceCode, RegexOptions.IgnoreCase);
+            string _replaceCode = string.Format("REPLACE_IF_CONDITION_{0}", Guid.NewGuid().ToString().ToUpper());
+            string subBlock = templatedContent.Template.GetSubstringByIndexStartAndEnd(regexIfConditionMatch.Index + regexIfConditionMatch.Length, regexIfConditionMatchEnd.Index - 1);
+            //#Replace Template Block with unique Code
+            //templatedContent.Template = templatedContent.Template.ReplaceFirstOccurrence(subBlock, _replaceCode);
+            templatedContent.Template = templatedContent.Template.ReplaceByIndexStartAndEnd(regexIfConditionMatch.Index, (regexIfConditionMatchEnd.Index - 1) + regexIfConditionMatchEnd.Length, _replaceCode);
             //#Append Condition Code
             templatedContent.ReplaceIfConditionCodes.Add(new ReplaceIfConditionCode
             {
+                ReplaceRef = _replaceCode,
                 IfPropertyName = (regexIfConditionMatch.Groups.Count >= 1) ? regexIfConditionMatch.Groups[1].Value?.Trim()?.ToString()?.ToLower()?.Replace(" ", string.Empty) : "unspecified",
                 IfConditionType = (regexIfConditionMatch.Groups.Count >= 2) ? regexIfConditionMatch.Groups[2].Value?.Trim()?.ToString()?.ToLower()?.Replace(" ", string.Empty) : "unspecified",
-                IfConditionValue = (regexIfConditionMatch.Groups.Count >= 3) ? regexIfConditionMatch.Groups[3].Value?.Trim()?.ToString()?.ToLower() : "unspecified"
+                IfConditionValue = (regexIfConditionMatch.Groups.Count >= 3) ? regexIfConditionMatch.Groups[3].Value?.Trim()?.ToString()?.ToLower() : "unspecified",
+                IfConditionTemplate = subBlock
             });
             //Move Next (Both)
             regexIfConditionMatch = regexIfConditionMatch.NextMatch();
@@ -162,7 +182,7 @@ public static class GavinsAlgorithim
         int pos = text.IndexOf(search);
         if (pos < 0)
             return text;
-        return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
+        return string.Format("{0}{1}{2}", text.Substring(0, pos), replace, text.Substring(pos + search.Length));
     }
     private static List<ExtractedObjProperty> GetObjectProperties<T>(T value, List<ObjectSemanticsKeyValue> parameters = null) where T : new()
     {

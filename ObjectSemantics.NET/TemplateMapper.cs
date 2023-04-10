@@ -19,7 +19,7 @@ namespace ObjectSemantics.NET
             if (record == null) return string.Empty;
             if (template == null) throw new Exception("Template Object can't be NULL");
             if (options == null) options = new TemplateMapperOptions();
-            TemplatedContent templatedContent = GavinsAlgorithim.GenerateTemplateFromFile(template.FileContents, options);
+            TemplatedContent templatedContent = GavinsAlgorithim.GenerateTemplateFromFileContents(template.FileContents, options);
             if (templatedContent == null) throw new Exception($"Error Generating template from specified Template Name: {template.Name}");
             return GavinsAlgorithim.GenerateFromTemplate(record, templatedContent, additionalKeyValues, options);
         }
