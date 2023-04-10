@@ -12,13 +12,11 @@
     <PackageIconUrl />
     <RepositoryUrl>https://github.com/swagfin/ObjectSemantics.NET</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
-    <PackageReleaseNotes>v.2.0.0.1
-Support for .net dependency injection
-v.1.0.0.1
-Support for Obj Collection and Enumerables</PackageReleaseNotes>
-    <AssemblyVersion>5.0.1.1</AssemblyVersion>
-    <FileVersion>5.0.1.1</FileVersion>
-    <Version>5.0.1</Version>
+    <PackageReleaseNotes>v.5.1.2
+Added support for if condition statements</PackageReleaseNotes>
+    <AssemblyVersion>5.1.2.1</AssemblyVersion>
+    <FileVersion>5.1.2.1</FileVersion>
+    <Version>5.1.2</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <ApplicationIcon></ApplicationIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
