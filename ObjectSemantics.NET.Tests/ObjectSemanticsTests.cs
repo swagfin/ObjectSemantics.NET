@@ -77,6 +77,46 @@ namespace ObjectSemantics.NET.Tests
         }
 
         [Fact]
+        public void Should_Map_Multiple_Enumerable_Collection_On_Same_Template()
+        {
+            //Create Model
+            Student student = new Student
+            {
+                StudentName = "John Doe",
+                Invoices = new List<Invoice>
+                {
+                     new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate= new DateTime(2023, 04, 01) },
+                     new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate= new DateTime(2022, 08, 01)  }
+                }
+            };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = @"
+{{ StudentName }} Invoices
+LOOP #1
+{{ for-each-start:invoices  }}
+    <h5>{{ Id }} On Loop #1</h5>
+{{ for-each-end:invoices }}
+LOOP #2
+{{ for-each-start:invoices  }}
+    <h5>{{ Id }} On Loop #2</h5>
+{{ for-each-end:invoices }}
+"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = "\r\nJohn Doe Invoices" +
+                "\r\nLOOP #1" +
+                "\r\n    <h5>2 On Loop #1</h5>" +
+                "\r\n    <h5>1 On Loop #1</h5>" +
+                "\r\nLOOP #2" +
+                "\r\n    <h5>2 On Loop #2</h5>" +
+                "\r\n    <h5>1 On Loop #2</h5>" +
+                "\r\n"; ;
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+        [Fact]
         public void Should_Map_Additional_Parameters()
         {
             //Create Model
