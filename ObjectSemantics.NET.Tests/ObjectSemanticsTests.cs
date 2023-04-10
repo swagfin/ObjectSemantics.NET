@@ -73,6 +73,33 @@ namespace ObjectSemantics.NET.Tests
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
 
+
+        [Fact]
+        public void Should_Act_On_If_Conditional_Statements()
+        {
+            //Create Model
+            Student student = new Student
+            {
+                StudentName = "John Doe",
+                Invoices = new List<Invoice>
+                {
+                     new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate= new DateTime(2023, 04, 01) },
+                     new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate= new DateTime(2022, 08, 01)  }
+                }
+            };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = @"Conditinal Statement
+{{ if-start:invoice(!=null) }}
+Howddy condition executed
+{{ if-end:invoices }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = "Howddy condition executed";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
         [Fact]
         public void Should_Map_Additional_Parameters()
         {

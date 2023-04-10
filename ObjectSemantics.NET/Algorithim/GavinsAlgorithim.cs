@@ -70,6 +70,30 @@ public static class GavinsAlgorithim
     internal static TemplatedContent GenerateTemplateFromFile(string fileContent, TemplateMapperOptions options)
     {
         TemplatedContent templatedContent = new TemplatedContent { Template = fileContent };
+        #region If Condition
+        Match regexIfConditionMatch = Regex.Match(templatedContent.Template, @"{{\s*if-start:\s*([^()]+?)\(\s*(!?=)\s*([^()]+?)\s*\)\s*}}", RegexOptions.IgnoreCase);
+        Match regexIfConditionMatchEnd = Regex.Match(templatedContent.Template, "{{(.+?)if-end:(.+?)}}", RegexOptions.IgnoreCase);
+        while (regexIfConditionMatch.Success && regexIfConditionMatchEnd.Success)
+        {
+            int startAtIndex = templatedContent.Template.IndexOf(regexIfConditionMatch.Value); //Getting again index just incase it was replaced
+            int endOfCodeIndex = templatedContent.Template.IndexOf(regexIfConditionMatchEnd.Value); //Getting again index just incase it was replaced
+            int endAtIndex = (endOfCodeIndex + regexIfConditionMatchEnd.Length) - startAtIndex;
+            string subBlock = templatedContent.Template.Substring(startAtIndex, endAtIndex);
+            //#Replace Code
+            string replaceCode = string.Format("REPLACE_IF_CONDITION_{0}", Guid.NewGuid().ToString().ToUpper());
+            templatedContent.Template = Regex.Replace(templatedContent.Template, subBlock, replaceCode, RegexOptions.IgnoreCase);
+            //#Append Condition Code
+            templatedContent.ReplaceIfConditionCodes.Add(new ReplaceIfConditionCode
+            {
+                IfPropertyName = (regexIfConditionMatch.Groups.Count >= 1) ? regexIfConditionMatch.Groups[1].Value?.Trim()?.ToString()?.ToLower()?.Replace(" ", string.Empty) : "unspecified",
+                IfConditionType = (regexIfConditionMatch.Groups.Count >= 2) ? regexIfConditionMatch.Groups[2].Value?.Trim()?.ToString()?.ToLower()?.Replace(" ", string.Empty) : "unspecified",
+                IfConditionValue = (regexIfConditionMatch.Groups.Count >= 3) ? regexIfConditionMatch.Groups[3].Value?.Trim()?.ToString()?.ToLower() : "unspecified"
+            });
+            //Move Next (Both)
+            regexIfConditionMatch = regexIfConditionMatch.NextMatch();
+            regexIfConditionMatchEnd = regexIfConditionMatchEnd.NextMatch();
+        }
+        #endregion
 
         #region Generate Obj Looop
         Match regexLoopMatch = Regex.Match(templatedContent.Template, "{{(.+?)for-each-start:(.+?)}}", RegexOptions.IgnoreCase);
@@ -113,8 +137,6 @@ public static class GavinsAlgorithim
             regexLoopMatch = regexLoopMatch.NextMatch();
             regexLoopEnd = regexLoopEnd.NextMatch();
         }
-
-
         #endregion
 
         #region Generate direct targets
