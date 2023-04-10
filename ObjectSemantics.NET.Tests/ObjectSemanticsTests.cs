@@ -8,6 +8,9 @@ namespace ObjectSemantics.NET.Tests
     public class ObjectSemanticsTests
     {
 
+        #region Basic Functions Tests
+
+
         [Fact]
         public void Should_Map_Object_To_Template_From_TemplateObject()
         {
@@ -136,6 +139,10 @@ namespace ObjectSemantics.NET.Tests
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
 
+        #endregion
+
+
+        #region Text and Data Formatting Tests
         [Fact]
         public void Should_Accept_String_To_String_Formatting()
         {
@@ -191,5 +198,298 @@ namespace ObjectSemantics.NET.Tests
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
 
+
+        #endregion
+
+
+        #region IF Conditional Tests
+
+        [Fact]
+        public void Should_Act_On_IfCondition_SingleLine()
+        {
+            //Create Model
+            Student student = new Student
+            {
+                StudentName = "John Doe",
+                Invoices = new List<Invoice>
+                {
+                     new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate= new DateTime(2023, 04, 01) },
+                     new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate= new DateTime(2022, 08, 01)  }
+                }
+            };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = "IsEnabled: {{ if-start:invoices(!=null) }}YES{{ if-end:invoices }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = "IsEnabled: YES";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+
+        [Fact]
+        public void Should_Act_On_IfCondition_SingleLine_With_Attribute()
+        {
+            //Create Model
+            Student student = new Student
+            {
+                StudentName = "John Doe",
+                Invoices = new List<Invoice>
+                {
+                     new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate= new DateTime(2023, 04, 01) },
+                     new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate= new DateTime(2022, 08, 01)  }
+                }
+            };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = "InvoicedPerson: {{ if-start:invoices(!=null) }}{{StudentName}}{{ if-end:invoices }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = "InvoicedPerson: John Doe";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+
+        [Fact]
+        public void Should_Act_On_IfCondition_MultiLine()
+        {
+            //Create Model
+            Student student = new Student
+            {
+                StudentName = "John Doe",
+                Invoices = new List<Invoice>
+                {
+                     new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate= new DateTime(2023, 04, 01) },
+                     new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate= new DateTime(2022, 08, 01)  }
+                }
+            };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = @"status
+{{ if-start:invoices(!=null) }}
+<h4>condition--passed</h4>
+{{ if-end:invoices }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = "status\r\n\r\n<h4>condition--passed</h4>\r\n";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+
+        [Fact]
+        public void Should_Act_On_IfCondition_MultiLine_With_Attribute()
+        {
+            //Create Model
+            Student student = new Student
+            {
+                StudentName = "John Doe",
+                Invoices = new List<Invoice>
+                {
+                     new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate= new DateTime(2023, 04, 01) },
+                     new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate= new DateTime(2022, 08, 01)  }
+                }
+            };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = @"status
+{{ if-start:invoices(!=null) }}
+<h4>Hi, I have invoices for {{ StudentName }} </h4>
+{{ if-end:invoices }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = "status\r\n\r\n<h4>Hi, I have invoices for John Doe </h4>\r\n";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+
+        [Fact]
+        public void Should_Act_On_IfCondition_Having_Loop_As_Child()
+        {
+            //Create Model
+            Student student = new Student
+            {
+                StudentName = "John Doe",
+                Invoices = new List<Invoice>
+                {
+                     new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate= new DateTime(2023, 04, 01) },
+                     new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate= new DateTime(2022, 08, 01)  }
+                }
+            };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = @"
+{{ if-start:invoices(!=null) }}
+{{ StudentName }} Invoices
+{{ for-each-start:invoices  }}
+<tr>
+    <td>{{ Id }}</td>
+    <td>{{ RefNo }}</td>
+</tr>
+{{ for-each-end:invoices }}
+{{ if-end:invoices }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = "\r\n\r\nJohn Doe Invoices" +
+                "\r\n<tr>" +
+                "\r\n    <td>2</td>" +
+                "\r\n    <td>INV_002</td>" +
+                "\r\n</tr>" +
+                "\r\n<tr>" +
+                "\r\n    <td>1</td>" +
+                "\r\n    <td>INV_001</td>" +
+                "\r\n</tr>\r\n"; ;
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+
+        //#Match =, !=, >, >=, <, and <=.
+
+        [Theory]
+        [InlineData("=", 5000)]
+        [InlineData("!=", 0)]
+        [InlineData(">", 2000)]
+        [InlineData("<=", 5001)]
+        [InlineData("<", 5001)]
+        public void Should_Act_On_IfCondition_Equality_Checks(string condition, double amount)
+        {
+            //Create Model
+            Student student = new Student { Balance = 5000 };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = string.Format("{2} if-start:balance({0}{1}) {3} {0} passed {2} if-end:balance {3}", condition, amount, "{{", "}}")
+            };
+
+            string expectedResult = string.Format(" {0} passed ", condition);
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+
+        [Fact]
+        public void Should_Act_On_IfCondition_Simple_Property_String_Equality()
+        {
+            //Create Model
+            Student student = new Student { StudentName = "John Doe" };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = "{{ if-start:studentName(=John Doe) }} YES, i am John Doe {{ if-end:studentName }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = " YES, i am John Doe ";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+
+        [Fact]
+        public void Should_Act_On_IfCondition_IEnumerable_Tests_Equall()
+        {
+            //Create Model
+            Student student = new Student
+            {
+                StudentName = "John Doe",
+                Invoices = new List<Invoice>
+                {
+                     new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate= new DateTime(2023, 04, 01) },
+                     new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate= new DateTime(2022, 08, 01)  }
+                }
+            };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = "{{ if-start:invoices(=2) }} 2 records {{ if-end:invoices }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = " 2 records ";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+
+        [Fact]
+        public void Should_Act_On_IfCondition_IEnumerable_Tests_NotEqualNull()
+        {
+            //Create Model
+            Student student = new Student
+            {
+                StudentName = "John Doe",
+                Invoices = new List<Invoice>
+                {
+                     new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate= new DateTime(2023, 04, 01) },
+                     new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate= new DateTime(2022, 08, 01)  }
+                }
+            };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = "{{ if-start:invoices(!=null) }} is not NULL {{ if-end:invoices }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = " is not NULL ";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+        [Fact]
+        public void Should_Act_On_IfCondition_IEnumerable_Tests_NULL_Object_Behaviour()
+        {
+            //Create Model
+            Student student = new Student
+            {
+                StudentName = "John Doe",
+                Invoices = null
+            };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = "{{ if-start:invoices(=null) }} is NULL {{ if-end:invoices }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = " is NULL ";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+        [Fact]
+        public void Should_Act_On_IfCondition_IEnumerable_Tests_Count_NULL_Object_Behaviour()
+        {
+            //Create Model
+            Student student = new Student
+            {
+                StudentName = "John Doe",
+                Invoices = null
+            };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = "{{ if-start:invoices(=0) }} no records {{ if-end:invoices }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = " no records ";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+        [Fact]
+        public void Should_Act_On_IfCondition_IEnumerable_Tests_Count_Object_Behaviour()
+        {
+            //Create Model
+            Student student = new Student
+            {
+                StudentName = "John Doe",
+                Invoices = new List<Invoice>()
+            };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = "{{ if-start:invoices(=null) }} no records {{ if-end:invoices }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = " no records ";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+        #endregion
     }
 }
