@@ -530,6 +530,95 @@ LOOP #2
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
 
+
+
+        [Theory]
+        [InlineData(5000)]
+        [InlineData(2000)]
+        public void Should_Act_On_IfCondition_Having_ElseIf_Inline(double amount)
+        {
+            //Create Model
+            Student student = new Student { Balance = amount };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = "{{ if-start:Balance(=5000) }} --ok-passed-- {{ else-if }} --error-failed-- {{ if-end:Balance }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = (amount == 5000) ? " --ok-passed-- " : " --error-failed-- ";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+        [Theory]
+        [InlineData(5000)]
+        [InlineData(2000)]
+        public void Should_Act_On_IfCondition_Having_ElseIf_MultiLine(double amount)
+        {
+            //Create Model
+            Student student = new Student { Balance = amount };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = @"
+{{ if-start:Balance(=5000) }}
+--ok-passed--
+{{ else-if }}
+--error-failed--
+{{ if-end:Balance }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = (amount == 5000) ? "\r\n\r\n--ok-passed--\r\n" : "\r\n\r\n--error-failed--\r\n";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Should_Act_On_IfCondition_Having_ElseIf_Having_A_LoopBlock(bool populateInvoices)
+        {
+            //Create Model
+            Student student = new Student
+            {
+                StudentName = "John Doe",
+                Invoices = (populateInvoices)
+                           ? new List<Invoice>
+                                {
+                                    new Invoice { Id = 2, RefNo = "INV_002", Narration = "Grade II Fees Invoice", Amount = 2000, InvoiceDate = new DateTime(2023, 04, 01) },
+                                    new Invoice { Id = 1, RefNo = "INV_001", Narration = "Grade I Fees Invoice", Amount = 320, InvoiceDate = new DateTime(2022, 08, 01) }
+                                }
+                           : null
+            };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = @"
+{{ if-start:invoices(=null) }}
+-- no invoices found --
+{{ else-if }}
+{{ for-each-start:invoices  }}
+<tr>
+    <td>{{ Id }}</td>
+    <td>{{ RefNo }}</td>
+</tr>
+{{ for-each-end:invoices }}
+{{ if-end:invoices }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = (populateInvoices) ? "\r\n" +
+                "\r\n<tr>" +
+                "\r\n    <td>2</td>" +
+                "\r\n    <td>INV_002</td>" +
+                "\r\n</tr>" +
+                "\r\n<tr>" +
+                "\r\n    <td>1</td>" +
+                "\r\n    <td>INV_001</td>" +
+                "\r\n</tr>\r\n"
+
+            : "\r\n\r\n-- no invoices found --\r\n";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
         #endregion
     }
 }

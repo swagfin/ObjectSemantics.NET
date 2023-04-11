@@ -24,9 +24,16 @@ public static class GavinsAlgorithim
                 if (property.IsPropertyValueConditionPassed(ifCondition.IfConditionValue, ifCondition.IfConditionType))
                 {
                     //Condition Passed
-                    TemplatedContent templatedIfContent = GenerateTemplateFromFileContents(ifCondition.IfConditionTemplate, options);
+                    TemplatedContent templatedIfContent = GenerateTemplateFromFileContents(ifCondition.IfConditionTrueTemplate, options);
                     string templatedIfContentMapped = GenerateFromTemplate(record, templatedIfContent, parameterKeyValues, options);
                     clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, ifCondition.ReplaceRef, templatedIfContentMapped);
+                }
+                else if (!string.IsNullOrEmpty(ifCondition.IfConditionFalseTemplate))
+                {
+                    //If Else Condition Block
+                    TemplatedContent templatedIfContent = GenerateTemplateFromFileContents(ifCondition.IfConditionFalseTemplate, options);
+                    string templatedIfElseContentMapped = GenerateFromTemplate(record, templatedIfContent, parameterKeyValues, options);
+                    clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, ifCondition.ReplaceRef, templatedIfElseContentMapped);
                 }
                 else
                     clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, ifCondition.ReplaceRef, string.Empty);
@@ -99,14 +106,17 @@ public static class GavinsAlgorithim
             string subBlock = templatedContent.Template.GetSubstringByIndexStartAndEnd(regexIfConditionMatch.Index + regexIfConditionMatch.Length, regexIfConditionMatchEnd.Index - 1);
             //#Replace Template Block with unique Code
             templatedContent.Template = templatedContent.Template.ReplaceByIndexStartAndEnd(regexIfConditionMatch.Index, (regexIfConditionMatchEnd.Index - 1) + regexIfConditionMatchEnd.Length, _replaceCode);
+            //Determine if subBlock has Else Condition
+            string[] elseIfSplits = Regex.Split(subBlock, @"{{\s*else-if\s*}}", RegexOptions.IgnoreCase);
             //#Append Condition Code
             templatedContent.ReplaceIfConditionCodes.Add(new ReplaceIfConditionCode
             {
                 ReplaceRef = _replaceCode,
-                IfPropertyName = (regexIfConditionMatch.Groups.Count >= 1) ? regexIfConditionMatch.Groups[1].Value?.Trim()?.ToString()?.ToLower()?.Replace(" ", string.Empty) : "unspecified",
-                IfConditionType = (regexIfConditionMatch.Groups.Count >= 2) ? regexIfConditionMatch.Groups[2].Value?.Trim()?.ToString()?.ToLower()?.Replace(" ", string.Empty) : "unspecified",
-                IfConditionValue = (regexIfConditionMatch.Groups.Count >= 3) ? regexIfConditionMatch.Groups[3].Value?.Trim()?.ToString()?.ToLower() : "unspecified",
-                IfConditionTemplate = subBlock
+                IfPropertyName = (regexIfConditionMatch.Groups.Count >= 1) ? regexIfConditionMatch.Groups[1].Value?.ToString().Trim().ToLower()?.Replace(" ", string.Empty) : "unspecified",
+                IfConditionType = (regexIfConditionMatch.Groups.Count >= 2) ? regexIfConditionMatch.Groups[2].Value?.ToString().Trim().ToLower()?.Replace(" ", string.Empty) : "unspecified",
+                IfConditionValue = (regexIfConditionMatch.Groups.Count >= 3) ? regexIfConditionMatch.Groups[3].Value?.ToString()?.Trim().ToLower() : "unspecified",
+                IfConditionTrueTemplate = (elseIfSplits?.Length >= 2) ? elseIfSplits[0] : subBlock,
+                IfConditionFalseTemplate = (elseIfSplits?.Length >= 2) ? elseIfSplits[1] : string.Empty
             });
             //Move Next (Both)
             regexIfConditionMatch = regexIfConditionMatch.NextMatch();
