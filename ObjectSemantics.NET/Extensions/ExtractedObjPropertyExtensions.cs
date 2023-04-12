@@ -18,7 +18,13 @@ namespace ObjectSemantics.NET
                 {
                     string v1 = property.OriginalValue?.ToString()?.Trim().ToLower() ?? string.Empty;
                     string v2 = GetConvertibleValue<string>(valueComparer)?.Trim().ToLower() ?? string.Empty;
-                    return string.Compare(v1, v2, true) == 0;
+                    switch (criteria)
+                    {
+                        case "=": return v1 == v2;
+                        case "!=": return v1 != v2;
+                        default:
+                            return string.Compare(v1, v2, true) == 0;
+                    }
                 }
                 else if (property.Type == typeof(int) || property.Type == typeof(double) || property.Type == typeof(long) || property.Type == typeof(float) || property.Type == typeof(decimal))
                 {

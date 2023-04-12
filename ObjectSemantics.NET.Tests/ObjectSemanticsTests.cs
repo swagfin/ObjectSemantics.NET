@@ -562,7 +562,7 @@ LOOP #2
         [InlineData(null)]
         [InlineData("John Doe")]
         [InlineData("")]
-        public void Should_Act_On_IfCondition_Having_ElseIf_MultiLine_StringTest(string studentName)
+        public void Should_Act_On_IfCondition_Having_ElseIf_MultiLine_String_EquallsNull(string studentName)
         {
             //Create Model
             Student student = new Student { StudentName = studentName };
@@ -571,13 +571,61 @@ LOOP #2
             {
                 FileContents = @"
 {{ if-start:StudentName(=NULL) }}
---is null--
+--ok-passed--
 {{ else-if }}
---not-null--
+--error-failed--
 {{ if-end:Balance }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
-            string expectedResult = (string.IsNullOrEmpty(studentName)) ? "\r\n\r\n--is null--\r\n" : "\r\n\r\n--not-null--\r\n";
+            string expectedResult = string.IsNullOrEmpty(studentName) ? "\r\n\r\n--ok-passed--\r\n" : "\r\n\r\n--error-failed--\r\n";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("John Doe")]
+        [InlineData("")]
+        public void Should_Act_On_IfCondition_Having_ElseIf_MultiLine_String_NotEquallsNull(string studentName)
+        {
+            //Create Model
+            Student student = new Student { StudentName = studentName };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = @"
+{{ if-start:StudentName(!=NULL) }}
+--ok-passed--
+{{ else-if }}
+--error-failed--
+{{ if-end:Balance }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = (!string.IsNullOrEmpty(studentName)) ? "\r\n\r\n--ok-passed--\r\n" : "\r\n\r\n--error-failed--\r\n";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("John Doe")]
+        [InlineData("")]
+        public void Should_Act_On_IfCondition_Having_ElseIf_MultiLine_String_Equalls(string studentName)
+        {
+            //Create Model
+            Student student = new Student { StudentName = studentName };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = @"
+{{ if-start:StudentName(=John Doe) }}
+--ok-passed--
+{{ else-if }}
+--error-failed--
+{{ if-end:Balance }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = (studentName == "John Doe") ? "\r\n\r\n--ok-passed--\r\n" : "\r\n\r\n--error-failed--\r\n";
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
 
