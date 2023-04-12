@@ -260,7 +260,7 @@ LOOP #2
             //Template
             var template = new ObjectSemanticsTemplate
             {
-                FileContents = "IsEnabled: {{ if-start:invoices(!=null) }}YES{{ if-end:invoices }}"
+                FileContents = "IsEnabled: {{ #if(invoices!=null) }}YES{{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = "IsEnabled: YES";
@@ -284,7 +284,7 @@ LOOP #2
             //Template
             var template = new ObjectSemanticsTemplate
             {
-                FileContents = "InvoicedPerson: {{ if-start:invoices(!=null) }}{{StudentName}}{{ if-end:invoices }}"
+                FileContents = "InvoicedPerson: {{ #if(invoices!=null) }}{{StudentName}}{{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = "InvoicedPerson: John Doe";
@@ -309,9 +309,9 @@ LOOP #2
             var template = new ObjectSemanticsTemplate
             {
                 FileContents = @"status
-{{ if-start:invoices(!=null) }}
+{{ #if(invoices!=null) }}
 <h4>condition--passed</h4>
-{{ if-end:invoices }}"
+{{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = "status\r\n\r\n<h4>condition--passed</h4>\r\n";
@@ -336,9 +336,9 @@ LOOP #2
             var template = new ObjectSemanticsTemplate
             {
                 FileContents = @"status
-{{ if-start:invoices(!=null) }}
+{{ #if(invoices!=null) }}
 <h4>Hi, I have invoices for {{ StudentName }} </h4>
-{{ if-end:invoices }}"
+{{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = "status\r\n\r\n<h4>Hi, I have invoices for John Doe </h4>\r\n";
@@ -363,7 +363,7 @@ LOOP #2
             var template = new ObjectSemanticsTemplate
             {
                 FileContents = @"
-{{ if-start:invoices(!=null) }}
+{{ #if (invoices != null) }}
 {{ StudentName }} Invoices
 {{ for-each-start:invoices  }}
 <tr>
@@ -371,7 +371,7 @@ LOOP #2
     <td>{{ RefNo }}</td>
 </tr>
 {{ for-each-end:invoices }}
-{{ if-end:invoices }}"
+{{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = "\r\n\r\nJohn Doe Invoices" +
@@ -390,7 +390,7 @@ LOOP #2
         //#Match =, !=, >, >=, <, and <=.
 
         [Theory]
-        [InlineData("=", 5000)]
+        [InlineData("==", 5000)]
         [InlineData("!=", 0)]
         [InlineData(">", 2000)]
         [InlineData("<=", 5001)]
@@ -402,15 +402,13 @@ LOOP #2
             //Template
             var template = new ObjectSemanticsTemplate
             {
-                FileContents = string.Format("{2} if-start:balance({0}{1}) {3} {0} passed {2} if-end:balance {3}", condition, amount, "{{", "}}")
+                FileContents = string.Format("{2} #if(balance{0}{1}) {3} {0} passed {2} #endif {3}", condition, amount, "{{", "}}")
             };
 
             string expectedResult = string.Format(" {0} passed ", condition);
             string generatedTemplate = TemplateMapper.Map(student, template);
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
-
-
 
 
 
@@ -430,7 +428,7 @@ LOOP #2
             //Template
             var template = new ObjectSemanticsTemplate
             {
-                FileContents = "{{ if-start:invoices(=2) }} 2 records {{ if-end:invoices }}"
+                FileContents = "{{ #if(invoices==2) }} 2 records {{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = " 2 records ";
@@ -454,7 +452,7 @@ LOOP #2
             //Template
             var template = new ObjectSemanticsTemplate
             {
-                FileContents = "{{ if-start:invoices(!=null) }} is not NULL {{ if-end:invoices }}"
+                FileContents = "{{ #if(invoices!=null) }} is not NULL {{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = " is not NULL ";
@@ -473,7 +471,7 @@ LOOP #2
             //Template
             var template = new ObjectSemanticsTemplate
             {
-                FileContents = "{{ if-start:invoices(=null) }} is NULL {{ if-end:invoices }}"
+                FileContents = "{{ #if(invoices==null) }} is NULL {{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = " is NULL ";
@@ -491,7 +489,7 @@ LOOP #2
             //Template
             var template = new ObjectSemanticsTemplate
             {
-                FileContents = "{{ if-start:invoices(=0) }} no records {{ if-end:invoices }}"
+                FileContents = "{{ #if(invoices==0) }} no records {{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = " no records ";
@@ -510,7 +508,7 @@ LOOP #2
             //Template
             var template = new ObjectSemanticsTemplate
             {
-                FileContents = "{{ if-start:invoices(=null) }} no records {{ if-end:invoices }}"
+                FileContents = "{{ #if(invoices==null) }} no records {{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = " no records ";
@@ -529,7 +527,7 @@ LOOP #2
             //Template
             var template = new ObjectSemanticsTemplate
             {
-                FileContents = "{{ if-start:Balance(=5000) }} --ok-passed-- {{ else-if }} --error-failed-- {{ if-end:Balance }}"
+                FileContents = "{{ #if(Balance==5000) }} --ok-passed-- {{ #else }} --error-failed-- {{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = (amount == 5000) ? " --ok-passed-- " : " --error-failed-- ";
@@ -547,11 +545,11 @@ LOOP #2
             var template = new ObjectSemanticsTemplate
             {
                 FileContents = @"
-{{ if-start:Balance(=5000) }}
+{{ #if(Balance==5000) }}
 --ok-passed--
-{{ else-if }}
+{{ #else }}
 --error-failed--
-{{ if-end:Balance }}"
+{{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = (amount == 5000) ? "\r\n\r\n--ok-passed--\r\n" : "\r\n\r\n--error-failed--\r\n";
@@ -570,11 +568,11 @@ LOOP #2
             var template = new ObjectSemanticsTemplate
             {
                 FileContents = @"
-{{ if-start:StudentName(=NULL) }}
+{{ #if(StudentName==NULL) }}
 --ok-passed--
-{{ else-if }}
+{{ #else }}
 --error-failed--
-{{ if-end:StudentName }}"
+{{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = string.IsNullOrEmpty(studentName) ? "\r\n\r\n--ok-passed--\r\n" : "\r\n\r\n--error-failed--\r\n";
@@ -593,17 +591,16 @@ LOOP #2
             var template = new ObjectSemanticsTemplate
             {
                 FileContents = @"
-{{ if-start:StudentName(!=NULL) }}
+{{ #if(StudentName!=NULL) }}
 --ok-passed--
-{{ else-if }}
+{{ #else }}
 --error-failed--
-{{ if-end:StudentName }}"
+{{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = (!string.IsNullOrEmpty(studentName)) ? "\r\n\r\n--ok-passed--\r\n" : "\r\n\r\n--error-failed--\r\n";
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
-
 
 
         [Theory]
@@ -618,11 +615,11 @@ LOOP #2
             var template = new ObjectSemanticsTemplate
             {
                 FileContents = @"
-{{ if-start:StudentName(=John Doe) }}
+{{ #if(StudentName==John Doe) }}
 --ok-passed--
-{{ else-if }}
+{{ #else }}
 --error-failed--
-{{ if-end:StudentName }}"
+{{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = (studentName == "John Doe") ? "\r\n\r\n--ok-passed--\r\n" : "\r\n\r\n--error-failed--\r\n";
@@ -638,7 +635,7 @@ LOOP #2
             //Template
             var template = new ObjectSemanticsTemplate
             {
-                FileContents = "{{ if-start:studentName(=John Doe) }} YES, i am John Doe {{ if-end:studentName }}"
+                FileContents = "{{ #if(studentName==John Doe) }} YES, i am John Doe {{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = " YES, i am John Doe ";
@@ -667,16 +664,16 @@ LOOP #2
             var template = new ObjectSemanticsTemplate
             {
                 FileContents = @"
-{{ if-start:invoices(=null) }}
+{{ #if(invoices==null) }}
 -- no invoices found --
-{{ else-if }}
+{{ #else }}
 {{ for-each-start:invoices  }}
 <tr>
     <td>{{ Id }}</td>
     <td>{{ RefNo }}</td>
 </tr>
 {{ for-each-end:invoices }}
-{{ if-end:invoices }}"
+{{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = (populateInvoices) ? "\r\n" +
@@ -692,6 +689,25 @@ LOOP #2
             : "\r\n\r\n-- no invoices found --\r\n";
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
+
+
+
+
+        [Fact]
+        public void Should_Act_On_IfCondition_Having_Multiple_IF_Condition_Blocks_SingleLine()
+        {
+            //Create Model
+            Student student = new Student { StudentName = "John Doe", Balance = 2000 };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = "{{ #if(studentName==John Doe) }} YES, i am John Doe {{ #endif }} | {{ #if(Balance==2000) }} YES, my balance is 2000 {{ #endif }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = " YES, i am John Doe |  YES, my balance is 2000 ";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
         #endregion
     }
 }

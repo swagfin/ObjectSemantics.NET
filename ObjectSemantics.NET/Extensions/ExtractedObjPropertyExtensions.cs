@@ -20,7 +20,7 @@ namespace ObjectSemantics.NET
                     string v2 = GetConvertibleValue<string>(valueComparer)?.Trim().ToLower() ?? string.Empty;
                     switch (criteria)
                     {
-                        case "=": return v1 == v2;
+                        case "==": return v1 == v2;
                         case "!=": return v1 != v2;
                         default:
                             return string.Compare(v1, v2, true) == 0;
@@ -32,7 +32,7 @@ namespace ObjectSemantics.NET
                     double v2 = Convert.ToDouble(GetConvertibleValue<double>(valueComparer));
                     switch (criteria)
                     {
-                        case "=": return v1 == v2;
+                        case "==": return v1 == v2;
                         case "!=": return v1 != v2;
                         case ">": return v1 > v2;
                         case ">=": return v1 >= v2;
@@ -47,7 +47,7 @@ namespace ObjectSemantics.NET
                     DateTime v2 = Convert.ToDateTime(GetConvertibleValue<DateTime>(valueComparer));
                     switch (criteria)
                     {
-                        case "=": return v1 == v2;
+                        case "==": return v1 == v2;
                         case "!=": return v1 != v2;
                         case ">": return v1 > v2;
                         case ">=": return v1 >= v2;
@@ -62,7 +62,7 @@ namespace ObjectSemantics.NET
                     double v2 = Convert.ToDouble(GetConvertibleValue<double>(valueComparer));
                     switch (criteria)
                     {
-                        case "=": return v1 == v2;
+                        case "==": return v1 == v2;
                         case "!=": return v1 != v2;
                         case ">": return v1 > v2;
                         case ">=": return v1 >= v2;
