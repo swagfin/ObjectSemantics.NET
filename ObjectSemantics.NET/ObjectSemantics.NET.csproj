@@ -12,12 +12,13 @@
     <PackageIconUrl />
     <RepositoryUrl>https://github.com/swagfin/ObjectSemantics.NET</RepositoryUrl>
     <RepositoryType>Github</RepositoryType>
-    <PackageReleaseNotes>v.5.1.5
+    <PackageReleaseNotes>v.6.0.1
 Added support for if condition statements with ElseIf
-Optimized performance</PackageReleaseNotes>
-    <AssemblyVersion>5.1.5.1</AssemblyVersion>
-    <FileVersion>5.1.5.1</FileVersion>
-    <Version>5.1.5</Version>
+Single Line ForLoop
+[BREAKING CHANGE]: forloop statement changes</PackageReleaseNotes>
+    <AssemblyVersion>6.0.1.1</AssemblyVersion>
+    <FileVersion>6.0.1.1</FileVersion>
+    <Version>6.0.1</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <ApplicationIcon></ApplicationIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
