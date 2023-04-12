@@ -7,7 +7,7 @@ namespace ObjectSemantics.NET
     {
         private static T GetConvertibleValue<T>(string value) where T : IConvertible
         {
-            return (value == "null" || string.IsNullOrEmpty(value)) ? default : (T)Convert.ChangeType(value, typeof(T));
+            return (string.IsNullOrEmpty(value) || value?.ToLower()?.Trim() == "null") ? default : (T)Convert.ChangeType(value, typeof(T));
         }
         public static bool IsPropertyValueConditionPassed(this ExtractedObjProperty property, string valueComparer, string criteria)
         {
@@ -15,10 +15,14 @@ namespace ObjectSemantics.NET
             {
                 if (property == null) return false;
                 else if (property.Type == typeof(string))
-                    return string.Compare(property.OriginalValue.ToString()?.Trim(), GetConvertibleValue<string>(valueComparer)?.Trim(), true) == 0;
+                {
+                    string v1 = property.OriginalValue?.ToString()?.Trim().ToLower() ?? string.Empty;
+                    string v2 = GetConvertibleValue<string>(valueComparer)?.Trim().ToLower() ?? string.Empty;
+                    return string.Compare(v1, v2, true) == 0;
+                }
                 else if (property.Type == typeof(int) || property.Type == typeof(double) || property.Type == typeof(long) || property.Type == typeof(float) || property.Type == typeof(decimal))
                 {
-                    double v1 = Convert.ToDouble(property.OriginalValue);
+                    double v1 = Convert.ToDouble(property.OriginalValue ?? "0");
                     double v2 = Convert.ToDouble(GetConvertibleValue<double>(valueComparer));
                     switch (criteria)
                     {
@@ -63,7 +67,6 @@ namespace ObjectSemantics.NET
                 }
                 else
                     return false;
-
             }
             catch { return false; }
         }

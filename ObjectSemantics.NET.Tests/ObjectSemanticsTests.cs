@@ -411,20 +411,7 @@ LOOP #2
         }
 
 
-        [Fact]
-        public void Should_Act_On_IfCondition_Simple_Property_String_Equality()
-        {
-            //Create Model
-            Student student = new Student { StudentName = "John Doe" };
-            //Template
-            var template = new ObjectSemanticsTemplate
-            {
-                FileContents = "{{ if-start:studentName(=John Doe) }} YES, i am John Doe {{ if-end:studentName }}"
-            };
-            string generatedTemplate = TemplateMapper.Map(student, template);
-            string expectedResult = " YES, i am John Doe ";
-            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
-        }
+
 
 
         [Fact]
@@ -571,6 +558,44 @@ LOOP #2
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
 
+        [Theory]
+        [InlineData(null)]
+        [InlineData("John Doe")]
+        [InlineData("")]
+        public void Should_Act_On_IfCondition_Having_ElseIf_MultiLine_StringTest(string studentName)
+        {
+            //Create Model
+            Student student = new Student { StudentName = studentName };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = @"
+{{ if-start:StudentName(=NULL) }}
+--is null--
+{{ else-if }}
+--not-null--
+{{ if-end:Balance }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = (string.IsNullOrEmpty(studentName)) ? "\r\n\r\n--is null--\r\n" : "\r\n\r\n--not-null--\r\n";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+
+        [Fact]
+        public void Should_Act_On_IfCondition_Simple_Property_String_Equality()
+        {
+            //Create Model
+            Student student = new Student { StudentName = "John Doe" };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = "{{ if-start:studentName(=John Doe) }} YES, i am John Doe {{ if-end:studentName }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = " YES, i am John Doe ";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
 
 
         [Theory]
