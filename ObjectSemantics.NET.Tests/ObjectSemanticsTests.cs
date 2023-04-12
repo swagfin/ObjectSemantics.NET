@@ -574,7 +574,7 @@ LOOP #2
 --ok-passed--
 {{ else-if }}
 --error-failed--
-{{ if-end:Balance }}"
+{{ if-end:StudentName }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = string.IsNullOrEmpty(studentName) ? "\r\n\r\n--ok-passed--\r\n" : "\r\n\r\n--error-failed--\r\n";
@@ -597,7 +597,7 @@ LOOP #2
 --ok-passed--
 {{ else-if }}
 --error-failed--
-{{ if-end:Balance }}"
+{{ if-end:StudentName }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = (!string.IsNullOrEmpty(studentName)) ? "\r\n\r\n--ok-passed--\r\n" : "\r\n\r\n--error-failed--\r\n";
@@ -622,7 +622,7 @@ LOOP #2
 --ok-passed--
 {{ else-if }}
 --error-failed--
-{{ if-end:Balance }}"
+{{ if-end:StudentName }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
             string expectedResult = (studentName == "John Doe") ? "\r\n\r\n--ok-passed--\r\n" : "\r\n\r\n--error-failed--\r\n";
