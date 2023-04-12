@@ -47,7 +47,7 @@ namespace ObjectSemantics.NET.Tests
             var template = new ObjectSemanticsTemplate
             {
                 FileContents = @"{{ StudentName }} Invoices
-{{ for-each-start:invoices  }}
+{{ #foreach(invoices)  }}
 <tr>
     <td>{{ Id }}</td>
     <td>{{ RefNo }}</td>
@@ -55,26 +55,53 @@ namespace ObjectSemantics.NET.Tests
     <td>{{ Amount:N0 }}</td>
     <td>{{ InvoiceDate:yyyy-MM-dd }}</td>
 </tr>
-{{ for-each-end:invoices }}"
+{{ #endforeach }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
-            string expectedResult = "John Doe Invoices" +
-                "\r\n<tr>" +
-                "\r\n    <td>2</td>" +
-                "\r\n    <td>INV_002</td>" +
-                "\r\n    <td>Grade II Fees Invoice</td>" +
-                "\r\n    <td>2,000</td>" +
-                "\r\n    <td>2023-04-01</td>" +
-                "\r\n</tr>" +
-                "\r\n<tr>" +
-                "\r\n    <td>1</td>" +
-                "\r\n    <td>INV_001</td>" +
-                "\r\n    <td>Grade I Fees Invoice</td>" +
-                "\r\n    <td>320</td>" +
-                "\r\n    <td>2022-08-01</td>" +
-                "\r\n</tr>";
+            string expectedResult = @"John Doe Invoices
+
+<tr>
+    <td>2</td>
+    <td>INV_002</td>
+    <td>Grade II Fees Invoice</td>
+    <td>2,000</td>
+    <td>2023-04-01</td>
+</tr>
+
+<tr>
+    <td>1</td>
+    <td>INV_001</td>
+    <td>Grade I Fees Invoice</td>
+    <td>320</td>
+    <td>2022-08-01</td>
+</tr>";
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
+
+
+        [Fact]
+        public void Should_Map_Enumerable_Collection_SingleLine_Test()
+        {
+            //Create Model
+            Student student = new Student
+            {
+                StudentName = "John Doe",
+                Invoices = new List<Invoice>
+                {
+                     new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate= new DateTime(2023, 04, 01) },
+                     new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate= new DateTime(2022, 08, 01)  }
+                }
+            };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = @"{{ #foreach(invoices)  }} [{{RefNo}}] {{ #endforeach }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = " [INV_002] [INV_001] ";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
 
         [Fact]
         public void Should_Map_Multiple_Enumerable_Collection_On_Same_Template()
@@ -95,24 +122,27 @@ namespace ObjectSemantics.NET.Tests
                 FileContents = @"
 {{ StudentName }} Invoices
 LOOP #1
-{{ for-each-start:invoices  }}
+{{ #foreach(invoices)  }}
     <h5>{{ Id }} On Loop #1</h5>
-{{ for-each-end:invoices }}
+{{ #endforeach }}
 LOOP #2
-{{ for-each-start:invoices  }}
+{{ #foreach(invoices)  }}
     <h5>{{ Id }} On Loop #2</h5>
-{{ for-each-end:invoices }}
-"
+{{ #endforeach }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
-            string expectedResult = "\r\nJohn Doe Invoices" +
-                "\r\nLOOP #1" +
-                "\r\n    <h5>2 On Loop #1</h5>" +
-                "\r\n    <h5>1 On Loop #1</h5>" +
-                "\r\nLOOP #2" +
-                "\r\n    <h5>2 On Loop #2</h5>" +
-                "\r\n    <h5>1 On Loop #2</h5>" +
-                "\r\n"; ;
+            string expectedResult = @"
+John Doe Invoices
+LOOP #1
+
+    <h5>2 On Loop #1</h5>
+
+    <h5>1 On Loop #1</h5>
+LOOP #2
+
+    <h5>2 On Loop #2</h5>
+
+    <h5>1 On Loop #2</h5>";
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
 
@@ -156,7 +186,7 @@ LOOP #2
                 FileContents = @"Unknown Object example: {{StudentIdentityCardXyx}}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
-            string expectedString = "Unknown Object example: {{StudentIdentityCardXyx}}";
+            string expectedString = "Unknown Object example: {{ StudentIdentityCardXyx }}";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
 
@@ -365,24 +395,29 @@ LOOP #2
                 FileContents = @"
 {{ #if (invoices != null) }}
 {{ StudentName }} Invoices
-{{ for-each-start:invoices  }}
+{{ #foreach(invoices)  }}
 <tr>
     <td>{{ Id }}</td>
     <td>{{ RefNo }}</td>
 </tr>
-{{ for-each-end:invoices }}
+{{ #endforeach }}
 {{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
-            string expectedResult = "\r\n\r\nJohn Doe Invoices" +
-                "\r\n<tr>" +
-                "\r\n    <td>2</td>" +
-                "\r\n    <td>INV_002</td>" +
-                "\r\n</tr>" +
-                "\r\n<tr>" +
-                "\r\n    <td>1</td>" +
-                "\r\n    <td>INV_001</td>" +
-                "\r\n</tr>\r\n"; ;
+            string expectedResult = @"
+
+John Doe Invoices
+
+<tr>
+    <td>2</td>
+    <td>INV_002</td>
+</tr>
+
+<tr>
+    <td>1</td>
+    <td>INV_001</td>
+</tr>
+";
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
 
@@ -667,26 +702,33 @@ LOOP #2
 {{ #if(invoices==null) }}
 -- no invoices found --
 {{ #else }}
-{{ for-each-start:invoices  }}
+{{ #foreach(invoices)  }}
 <tr>
     <td>{{ Id }}</td>
     <td>{{ RefNo }}</td>
 </tr>
-{{ for-each-end:invoices }}
+{{ #endforeach }}
 {{ #endif }}"
             };
             string generatedTemplate = TemplateMapper.Map(student, template);
-            string expectedResult = (populateInvoices) ? "\r\n" +
-                "\r\n<tr>" +
-                "\r\n    <td>2</td>" +
-                "\r\n    <td>INV_002</td>" +
-                "\r\n</tr>" +
-                "\r\n<tr>" +
-                "\r\n    <td>1</td>" +
-                "\r\n    <td>INV_001</td>" +
-                "\r\n</tr>\r\n"
+            string expectedResult = (populateInvoices) ? @"
 
-            : "\r\n\r\n-- no invoices found --\r\n";
+
+<tr>
+    <td>2</td>
+    <td>INV_002</td>
+</tr>
+
+<tr>
+    <td>1</td>
+    <td>INV_001</td>
+</tr>
+"
+
+: @"
+
+-- no invoices found --
+";
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
 
