@@ -708,6 +708,39 @@ LOOP #2
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
 
+        [Theory]
+        [InlineData(null)]
+        [InlineData("John Doe")]
+        [InlineData("")]
+        public void Should_Act_On_IfCondition_Having_Multiple_IF_Condition_Blocks_MultiLine(string studentName)
+        {
+            //Create Model
+            Student student = new Student { StudentName = studentName };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = @"
+#Test 1
+{{ #if(StudentName!=NULL) }}
+--ok-passed--
+{{ #else }}
+--error-failed--
+{{ #endif }}
+#Test 2
+{{ #if(StudentName==John Doe) }}
+--I am, John Doe--
+{{ #else }}
+--I am NOT--
+{{ #endif }}"
+
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = (studentName == "John Doe")
+                ?
+                "\r\n#Test 1\r\n\r\n--ok-passed--\r\n\r\n#Test 2\r\n\r\n--I am, John Doe--\r\n"
+                : "\r\n#Test 1\r\n\r\n--error-failed--\r\n\r\n#Test 2\r\n\r\n--I am NOT--\r\n";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
         #endregion
     }
 }
