@@ -16,22 +16,22 @@ public static class GavinsAlgorithim
         List<ExtractedObjProperty> objProperties = GetObjectProperties(record, parameterKeyValues);
 
         #region Replace If Conditions
-        foreach (ReplaceIfConditionCode ifCondition in clonedTemplate.ReplaceIfConditionCodes)
+        foreach (ReplaceIfOperationCode ifCondition in clonedTemplate.ReplaceIfConditionCodes)
         {
             ExtractedObjProperty property = objProperties.FirstOrDefault(x => x.Name.ToUpper().Equals(ifCondition.IfPropertyName.ToUpper()));
             if (property != null)
             {
-                if (property.IsPropertyValueConditionPassed(ifCondition.IfConditionValue, ifCondition.IfConditionType))
+                if (property.IsPropertyValueConditionPassed(ifCondition.IfOperationValue, ifCondition.IfOperationType))
                 {
                     //Condition Passed
-                    TemplatedContent templatedIfContent = GenerateTemplateFromFileContents(ifCondition.IfConditionTrueTemplate, options);
+                    TemplatedContent templatedIfContent = GenerateTemplateFromFileContents(ifCondition.IfOperationTrueTemplate, options);
                     string templatedIfContentMapped = GenerateFromTemplate(record, templatedIfContent, parameterKeyValues, options);
                     clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, ifCondition.ReplaceRef, templatedIfContentMapped);
                 }
-                else if (!string.IsNullOrEmpty(ifCondition.IfConditionFalseTemplate))
+                else if (!string.IsNullOrEmpty(ifCondition.IfOperationFalseTemplate))
                 {
                     //If Else Condition Block
-                    TemplatedContent templatedIfContent = GenerateTemplateFromFileContents(ifCondition.IfConditionFalseTemplate, options);
+                    TemplatedContent templatedIfContent = GenerateTemplateFromFileContents(ifCondition.IfOperationFalseTemplate, options);
                     string templatedIfElseContentMapped = GenerateFromTemplate(record, templatedIfContent, parameterKeyValues, options);
                     clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, ifCondition.ReplaceRef, templatedIfElseContentMapped);
                 }
@@ -98,29 +98,26 @@ public static class GavinsAlgorithim
     {
         TemplatedContent templatedContent = new TemplatedContent { Template = fileContent };
         #region If Condition
-        Match regexIfConditionMatch = Regex.Match(templatedContent.Template, @"{{\s*if-start:\s*([^()]+?)\(\s*(!?=|[<>]=?)\s*([^()]+?)\s*\)\s*}}", RegexOptions.IgnoreCase); //#Match =, !=, >, >=, <, and <=.
-        Match regexIfConditionMatchEnd = Regex.Match(templatedContent.Template, @"{{\s*if-end:([^()]+?)\s*}}", RegexOptions.IgnoreCase);
-        while (regexIfConditionMatch.Success && regexIfConditionMatchEnd.Success)
+        //Match =, !=, >, >=, <, and <=.
+        //Without ElseIf-> {{\s*#if\s*\(\s*(\w+)\s*([!=<>]=?|<|>)\s*([\w\s.-]+)\s*\)\s*}}([\s\S]*?){{\s*#endif\s*}}
+        string _matchWithElseIf = @"{{\s*#if\s*\(\s*(?<param>\w+)\s*(?<operator>==|!=|>=|<=|>|<)\s*(?<value>[^)]+)\s*\)\s*}}(?<code>[\s\S]*?)(?:{{\s*#else\s*}}(?<else>[\s\S]*?))?{{\s*#endif\s*}}";
+        while (Regex.IsMatch(templatedContent.Template, _matchWithElseIf))
         {
-            string _replaceCode = string.Format("REPLACE_IF_CONDITION_{0}", Guid.NewGuid().ToString().ToUpper());
-            string subBlock = templatedContent.Template.GetSubstringByIndexStartAndEnd(regexIfConditionMatch.Index + regexIfConditionMatch.Length, regexIfConditionMatchEnd.Index - 1);
-            //#Replace Template Block with unique Code
-            templatedContent.Template = templatedContent.Template.ReplaceByIndexStartAndEnd(regexIfConditionMatch.Index, (regexIfConditionMatchEnd.Index - 1) + regexIfConditionMatchEnd.Length, _replaceCode);
-            //Determine if subBlock has Else Condition
-            string[] elseIfSplits = Regex.Split(subBlock, @"{{\s*else-if\s*}}", RegexOptions.IgnoreCase);
-            //#Append Condition Code
-            templatedContent.ReplaceIfConditionCodes.Add(new ReplaceIfConditionCode
+            templatedContent.Template = Regex.Replace(templatedContent.Template, _matchWithElseIf, match =>
             {
-                ReplaceRef = _replaceCode,
-                IfPropertyName = (regexIfConditionMatch.Groups.Count >= 1) ? regexIfConditionMatch.Groups[1].Value?.ToString().Trim().ToLower()?.Replace(" ", string.Empty) : "unspecified",
-                IfConditionType = (regexIfConditionMatch.Groups.Count >= 2) ? regexIfConditionMatch.Groups[2].Value?.ToString().Trim().ToLower()?.Replace(" ", string.Empty) : "unspecified",
-                IfConditionValue = (regexIfConditionMatch.Groups.Count >= 3) ? regexIfConditionMatch.Groups[3].Value?.ToString()?.Trim().ToLower() : "unspecified",
-                IfConditionTrueTemplate = (elseIfSplits?.Length >= 2) ? elseIfSplits[0] : subBlock,
-                IfConditionFalseTemplate = (elseIfSplits?.Length >= 2) ? elseIfSplits[1] : string.Empty
+                string _replaceCode = string.Format("R_IF_BLOCK_{0}", Guid.NewGuid().ToString().ToUpper());
+                templatedContent.ReplaceIfConditionCodes.Add(new ReplaceIfOperationCode
+                {
+                    ReplaceRef = _replaceCode,
+                    IfPropertyName = match.Groups[1].Value?.ToString().Trim().ToLower().Replace(" ", string.Empty),
+                    IfOperationType = match.Groups[2].Value?.ToString().Trim().ToLower().Replace(" ", string.Empty),
+                    IfOperationValue = match.Groups[3].Value?.ToString().Trim(),
+                    IfOperationTrueTemplate = match.Groups[4].Value?.ToString(),
+                    IfOperationFalseTemplate = (match.Groups.Count >= 6) ? match.Groups[5].Value?.ToString() : string.Empty
+                });
+                // Return Replacement
+                return _replaceCode;
             });
-            //Move Next (Both)
-            regexIfConditionMatch = regexIfConditionMatch.NextMatch();
-            regexIfConditionMatchEnd = regexIfConditionMatchEnd.NextMatch();
         }
         #endregion
 
