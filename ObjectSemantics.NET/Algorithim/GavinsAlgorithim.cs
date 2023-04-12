@@ -101,7 +101,7 @@ public static class GavinsAlgorithim
         //Match =, !=, >, >=, <, and <=.
         //Without ElseIf-> {{\s*#if\s*\(\s*(\w+)\s*([!=<>]=?|<|>)\s*([\w\s.-]+)\s*\)\s*}}([\s\S]*?){{\s*#endif\s*}}
         string _matchWithElseIf = @"{{\s*#if\s*\(\s*(?<param>\w+)\s*(?<operator>==|!=|>=|<=|>|<)\s*(?<value>[^)]+)\s*\)\s*}}(?<code>[\s\S]*?)(?:{{\s*#else\s*}}(?<else>[\s\S]*?))?{{\s*#endif\s*}}";
-        while (Regex.IsMatch(templatedContent.Template, _matchWithElseIf))
+        while (Regex.IsMatch(templatedContent.Template, _matchWithElseIf, RegexOptions.IgnoreCase))
         {
             templatedContent.Template = Regex.Replace(templatedContent.Template, _matchWithElseIf, match =>
             {
@@ -117,7 +117,7 @@ public static class GavinsAlgorithim
                 });
                 // Return Replacement
                 return _replaceCode;
-            });
+            }, RegexOptions.IgnoreCase);
         }
         #endregion
 
