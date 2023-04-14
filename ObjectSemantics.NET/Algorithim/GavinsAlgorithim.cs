@@ -26,20 +26,20 @@ public static class GavinsAlgorithim
                     //Condition Passed
                     TemplatedContent templatedIfContent = GenerateTemplateFromFileContents(ifCondition.IfOperationTrueTemplate, options);
                     string templatedIfContentMapped = GenerateFromTemplate(record, templatedIfContent, parameterKeyValues, options);
-                    clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, ifCondition.ReplaceRef, templatedIfContentMapped);
+                    clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(ifCondition.ReplaceRef, templatedIfContentMapped);
                 }
                 else if (!string.IsNullOrEmpty(ifCondition.IfOperationFalseTemplate))
                 {
                     //If Else Condition Block
                     TemplatedContent templatedIfContent = GenerateTemplateFromFileContents(ifCondition.IfOperationFalseTemplate, options);
                     string templatedIfElseContentMapped = GenerateFromTemplate(record, templatedIfContent, parameterKeyValues, options);
-                    clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, ifCondition.ReplaceRef, templatedIfElseContentMapped);
+                    clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(ifCondition.ReplaceRef, templatedIfElseContentMapped);
                 }
                 else
-                    clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, ifCondition.ReplaceRef, string.Empty);
+                    clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(ifCondition.ReplaceRef, string.Empty);
             }
             else
-                clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, ifCondition.ReplaceRef, $"[IF-CONDITION EXCEPTION]: unrecognized property: [{ifCondition.IfPropertyName}]");
+                clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(ifCondition.ReplaceRef, $"[IF-CONDITION EXCEPTION]: unrecognized property: [{ifCondition.IfPropertyName}]");
         }
         #endregion
 
@@ -63,20 +63,19 @@ public static class GavinsAlgorithim
                     {
                         ExtractedObjProperty objProperty = rowRecordValues.FirstOrDefault(x => x.Name.ToUpper().Equals(objLoopCode.TargetPropertyName.ToUpper()));
                         if (objProperty != null)
-                            activeRow = ReplaceFirstOccurrence(activeRow, objLoopCode.ReplaceRef, GetValueFromPropertyFormatted(objProperty, objLoopCode.FormattingCommand));
+                            activeRow = activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, objProperty.GetValueFromPropertyFormatted(objLoopCode.FormattingCommand));
                         else
-                            activeRow = ReplaceFirstOccurrence(activeRow, objLoopCode.ReplaceRef, objLoopCode.ReplaceCommand);
+                            activeRow = activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, objLoopCode.ReplaceCommand);
                     }
                     //Append Record row
                     rowContentTemplater.Append(activeRow);
                 }
-
                 objLoop.ObjLoopTemplate = rowContentTemplater.ToString().RemoveLastInstanceOfString('\r', '\n'); //Assign Auto Generated
                 //Replace the main Loop area
-                clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, objLoop.ReplaceRef, objLoop.ObjLoopTemplate);
+                clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(objLoop.ReplaceRef, objLoop.ObjLoopTemplate);
             }
             else
-                clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, objLoop.ReplaceRef, string.Empty);
+                clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(objLoop.ReplaceRef, string.Empty);
 
         }
         #endregion
@@ -86,9 +85,9 @@ public static class GavinsAlgorithim
         {
             ExtractedObjProperty property = objProperties.FirstOrDefault(x => x.Name.ToUpper().Equals(replaceCode.TargetPropertyName.ToUpper()));
             if (property != null)
-                clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, replaceCode.ReplaceRef, GetValueFromPropertyFormatted(property, replaceCode.FormattingCommand));
+                clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(replaceCode.ReplaceRef, property.GetValueFromPropertyFormatted(replaceCode.FormattingCommand));
             else
-                clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, replaceCode.ReplaceRef, @"{{ ##command## }}".Replace("##command##", replaceCode.ReplaceCommand));
+                clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(replaceCode.ReplaceRef, @"{{ ##command## }}".Replace("##command##", replaceCode.ReplaceCommand));
         }
         #endregion
         return clonedTemplate.Template;
@@ -184,13 +183,7 @@ public static class GavinsAlgorithim
         return templatedContent;
     }
 
-    private static string ReplaceFirstOccurrence(this string text, string search, string replace)
-    {
-        int pos = text.IndexOf(search);
-        if (pos < 0)
-            return text;
-        return string.Format("{0}{1}{2}", text.Substring(0, pos), replace, text.Substring(pos + search.Length));
-    }
+
     private static List<ExtractedObjProperty> GetObjectProperties<T>(T value, List<ObjectSemanticsKeyValue> parameters = null) where T : new()
     {
         List<ExtractedObjProperty> extractedObjProperties = new List<ExtractedObjProperty>();
@@ -236,28 +229,5 @@ public static class GavinsAlgorithim
         return list;
     }
 
-    private static string GetValueFromPropertyFormatted(ExtractedObjProperty p, string customFormattingValue)
-    {
-        if (string.IsNullOrWhiteSpace(customFormattingValue))
-            return p.StringFormatted;
-        if (p.Type.Equals(typeof(int)))
-            return int.Parse(p.StringFormatted).ToString(customFormattingValue);
-        else if (p.Type.Equals(typeof(double)))
-            return double.Parse(p.StringFormatted).ToString(customFormattingValue);
-        else if (p.Type.Equals(typeof(long)))
-            return long.Parse(p.StringFormatted).ToString(customFormattingValue);
-        else if (p.Type.Equals(typeof(float)))
-            return float.Parse(p.StringFormatted).ToString(customFormattingValue);
-        else if (p.Type.Equals(typeof(decimal)))
-            return decimal.Parse(p.StringFormatted).ToString(customFormattingValue);
-        else if (p.Type.Equals(typeof(DateTime)))
-            return DateTime.Parse(p.StringFormatted).ToString(customFormattingValue);
-        //Custom Formats
-        else if (customFormattingValue.ToLower().Equals("uppercase"))
-            return p.StringFormatted?.ToUpper();
-        else if (customFormattingValue.ToLower().Equals("lowercase"))
-            return p.StringFormatted?.ToLower();
-        else
-            return p.StringFormatted?.ToUpper();
-    }
+
 }
