@@ -29,8 +29,8 @@ class Program
         StudentName = "George",
         Invoices = new List<Invoice>
                   {
-                    new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate=DateTime.Now.Date.AddDays(-1) },
-                    new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate=DateTime.Now.Date.AddDays(-2) }
+                    new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000 },
+                    new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320 }
                   }
     };
 
@@ -39,9 +39,9 @@ class Program
     {
         FileContents = @"<h6>{{ StudentName:uppercase }}  Invoices</h6>
                         <ol>
-                            {{ for-each-start:invoices   }}
+                            {{ #foreach(invoices)   }}
                                 <li>Invoice No: {{ RefNo }}  of {{ Narration }} amount {{ Amount:N0 }} </li>
-                            {{ for-each-end:invoices }}
+                            {{ #endforeach }}
                         </ol>"
     };
 

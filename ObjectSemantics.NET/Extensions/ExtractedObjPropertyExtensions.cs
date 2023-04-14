@@ -5,6 +5,31 @@ namespace ObjectSemantics.NET
 {
     public static class ExtractedObjPropertyExtensions
     {
+        public static string GetValueFromPropertyFormatted(this ExtractedObjProperty p, string customFormattingValue)
+        {
+            if (string.IsNullOrWhiteSpace(customFormattingValue))
+                return p.StringFormatted;
+            if (p.Type.Equals(typeof(int)))
+                return int.Parse(p.StringFormatted).ToString(customFormattingValue);
+            else if (p.Type.Equals(typeof(double)))
+                return double.Parse(p.StringFormatted).ToString(customFormattingValue);
+            else if (p.Type.Equals(typeof(long)))
+                return long.Parse(p.StringFormatted).ToString(customFormattingValue);
+            else if (p.Type.Equals(typeof(float)))
+                return float.Parse(p.StringFormatted).ToString(customFormattingValue);
+            else if (p.Type.Equals(typeof(decimal)))
+                return decimal.Parse(p.StringFormatted).ToString(customFormattingValue);
+            else if (p.Type.Equals(typeof(DateTime)))
+                return DateTime.Parse(p.StringFormatted).ToString(customFormattingValue);
+            //Custom Formats
+            else if (customFormattingValue.ToLower().Equals("uppercase"))
+                return p.StringFormatted?.ToUpper();
+            else if (customFormattingValue.ToLower().Equals("lowercase"))
+                return p.StringFormatted?.ToLower();
+            else
+                return p.StringFormatted?.ToUpper();
+        }
+
         private static T GetConvertibleValue<T>(string value) where T : IConvertible
         {
             return (string.IsNullOrEmpty(value) || value?.ToLower()?.Trim() == "null") ? default : (T)Convert.ChangeType(value, typeof(T));

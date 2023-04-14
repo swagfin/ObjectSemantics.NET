@@ -10,14 +10,14 @@ public class ReplaceCode
     {
         get
         {
-            return ReplaceCommand.Replace("{", string.Empty).Replace("}", string.Empty).Trim().Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+            return ReplaceCommand?.Trim().Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
         }
     }
     public string FormattingCommand
     {
         get
         {
-            Match hasFormatting = Regex.Match(ReplaceCommand, "{{--command--:(.+)}}".Replace("--command--", TargetPropertyName), RegexOptions.IgnoreCase);
+            Match hasFormatting = Regex.Match(ReplaceCommand, "##command##:(.+)".Replace("##command##", TargetPropertyName), RegexOptions.IgnoreCase);
             if (hasFormatting.Success)
                 return hasFormatting.Groups[1].Value;
             return string.Empty;

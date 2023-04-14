@@ -26,20 +26,20 @@ public static class GavinsAlgorithim
                     //Condition Passed
                     TemplatedContent templatedIfContent = GenerateTemplateFromFileContents(ifCondition.IfOperationTrueTemplate, options);
                     string templatedIfContentMapped = GenerateFromTemplate(record, templatedIfContent, parameterKeyValues, options);
-                    clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, ifCondition.ReplaceRef, templatedIfContentMapped);
+                    clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(ifCondition.ReplaceRef, templatedIfContentMapped);
                 }
                 else if (!string.IsNullOrEmpty(ifCondition.IfOperationFalseTemplate))
                 {
                     //If Else Condition Block
                     TemplatedContent templatedIfContent = GenerateTemplateFromFileContents(ifCondition.IfOperationFalseTemplate, options);
                     string templatedIfElseContentMapped = GenerateFromTemplate(record, templatedIfContent, parameterKeyValues, options);
-                    clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, ifCondition.ReplaceRef, templatedIfElseContentMapped);
+                    clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(ifCondition.ReplaceRef, templatedIfElseContentMapped);
                 }
                 else
-                    clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, ifCondition.ReplaceRef, string.Empty);
+                    clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(ifCondition.ReplaceRef, string.Empty);
             }
             else
-                clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, ifCondition.ReplaceRef, $"[IF-CONDITION EXCEPTION]: unrecognized property: [{ifCondition.IfPropertyName}]");
+                clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(ifCondition.ReplaceRef, $"[IF-CONDITION EXCEPTION]: unrecognized property: [{ifCondition.IfPropertyName}]");
         }
         #endregion
 
@@ -63,20 +63,19 @@ public static class GavinsAlgorithim
                     {
                         ExtractedObjProperty objProperty = rowRecordValues.FirstOrDefault(x => x.Name.ToUpper().Equals(objLoopCode.TargetPropertyName.ToUpper()));
                         if (objProperty != null)
-                            activeRow = ReplaceFirstOccurrence(activeRow, objLoopCode.ReplaceRef, GetValueFromPropertyFormatted(objProperty, objLoopCode.FormattingCommand));
+                            activeRow = activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, objProperty.GetValueFromPropertyFormatted(objLoopCode.FormattingCommand));
                         else
-                            activeRow = ReplaceFirstOccurrence(activeRow, objLoopCode.ReplaceRef, objLoopCode.ReplaceCommand);
+                            activeRow = activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, objLoopCode.ReplaceCommand);
                     }
                     //Append Record row
                     rowContentTemplater.Append(activeRow);
                 }
-
                 objLoop.ObjLoopTemplate = rowContentTemplater.ToString().RemoveLastInstanceOfString('\r', '\n'); //Assign Auto Generated
                 //Replace the main Loop area
-                clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, objLoop.ReplaceRef, objLoop.ObjLoopTemplate);
+                clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(objLoop.ReplaceRef, objLoop.ObjLoopTemplate);
             }
             else
-                clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, objLoop.ReplaceRef, string.Empty);
+                clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(objLoop.ReplaceRef, string.Empty);
 
         }
         #endregion
@@ -86,9 +85,9 @@ public static class GavinsAlgorithim
         {
             ExtractedObjProperty property = objProperties.FirstOrDefault(x => x.Name.ToUpper().Equals(replaceCode.TargetPropertyName.ToUpper()));
             if (property != null)
-                clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, replaceCode.ReplaceRef, GetValueFromPropertyFormatted(property, replaceCode.FormattingCommand));
+                clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(replaceCode.ReplaceRef, property.GetValueFromPropertyFormatted(replaceCode.FormattingCommand));
             else
-                clonedTemplate.Template = ReplaceFirstOccurrence(clonedTemplate.Template, replaceCode.ReplaceRef, replaceCode.ReplaceCommand);
+                clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(replaceCode.ReplaceRef, @"{{ ##command## }}".Replace("##command##", replaceCode.ReplaceCommand));
         }
         #endregion
         return clonedTemplate.Template;
@@ -97,15 +96,16 @@ public static class GavinsAlgorithim
     internal static TemplatedContent GenerateTemplateFromFileContents(string fileContent, TemplateMapperOptions options)
     {
         TemplatedContent templatedContent = new TemplatedContent { Template = fileContent };
+        long _replaceKey = 0;
         #region If Condition
-        //Match =, !=, >, >=, <, and <=.
-        //Without ElseIf-> {{\s*#if\s*\(\s*(\w+)\s*([!=<>]=?|<|>)\s*([\w\s.-]+)\s*\)\s*}}([\s\S]*?){{\s*#endif\s*}}
+        //Matches ==, !=, >, >=, <, and <=
         string _matchWithElseIf = @"{{\s*#if\s*\(\s*(?<param>\w+)\s*(?<operator>==|!=|>=|<=|>|<)\s*(?<value>[^)]+)\s*\)\s*}}(?<code>[\s\S]*?)(?:{{\s*#else\s*}}(?<else>[\s\S]*?))?{{\s*#endif\s*}}";
-        while (Regex.IsMatch(templatedContent.Template, _matchWithElseIf))
+        while (Regex.IsMatch(templatedContent.Template, _matchWithElseIf, RegexOptions.IgnoreCase))
         {
             templatedContent.Template = Regex.Replace(templatedContent.Template, _matchWithElseIf, match =>
             {
-                string _replaceCode = string.Format("R_IF_BLOCK_{0}", Guid.NewGuid().ToString().ToUpper());
+                _replaceKey++;
+                string _replaceCode = string.Format("RIB_{0}", _replaceKey);
                 templatedContent.ReplaceIfConditionCodes.Add(new ReplaceIfOperationCode
                 {
                     ReplaceRef = _replaceCode,
@@ -117,79 +117,73 @@ public static class GavinsAlgorithim
                 });
                 // Return Replacement
                 return _replaceCode;
-            });
+            }, RegexOptions.IgnoreCase);
         }
         #endregion
 
         #region Generate Obj Looop
-        Match regexLoopMatch = Regex.Match(templatedContent.Template, "{{\\s*for-each-start:([^()]+?)\\s*}}", RegexOptions.IgnoreCase);
-        Match regexLoopEnd = Regex.Match(templatedContent.Template, "{{\\s*for-each-end:([^()]+?)\\s*}}", RegexOptions.IgnoreCase);
-        while (regexLoopMatch.Success && regexLoopEnd.Success)
+        string _matchLoopBlock = @"{{\s*#\s*foreach\s*\(\s*(\w+)\s*\)\s*\}\}([\s\S]*?)\{\{\s*#\s*endforeach\s*}}";
+        while (Regex.IsMatch(templatedContent.Template, _matchLoopBlock, RegexOptions.IgnoreCase))
         {
-            int startAtIndex = templatedContent.Template.IndexOf(regexLoopMatch.Value); //Getting again index just incase it was replaced
-            int endOfCodeIndex = templatedContent.Template.IndexOf(regexLoopEnd.Value); //Getting again index just incase it was replaced
-            int endAtIndex = (endOfCodeIndex + regexLoopEnd.Length) - startAtIndex;
-            string subBlock = templatedContent.Template.Substring(startAtIndex, endAtIndex);
-            //Replace Code Block
-            string replaceCode = string.Format("REPLACE_LOOP_{0}", Guid.NewGuid().ToString().ToUpper());
-            templatedContent.Template = Regex.Replace(templatedContent.Template, subBlock, replaceCode, RegexOptions.IgnoreCase);
-            //Loop Target Object Name
-            string targetObjName = (regexLoopMatch.Groups.Count >= 1) ? regexLoopMatch.Groups[1].Value?.Trim()?.ToString()?.ToLower()?.Replace(" ", string.Empty) : string.Empty;
-            //Obj
-            ReplaceObjLoopCode replaceObjLoopCode = new ReplaceObjLoopCode { ReplaceRef = replaceCode, TargetObjectName = targetObjName };
-            //Extra Loop Contents
-            Match subMatch = Regex.Match(subBlock, @"{{(.+?)}}", RegexOptions.IgnoreCase);
-            while (subMatch.Success)
+            templatedContent.Template = Regex.Replace(templatedContent.Template, _matchLoopBlock, match =>
             {
-                //Reclean again
-                string actualCmdProperty = string.Format(@"{0}{1}{2}", "{{", subMatch.Groups[1].Value.Trim(), "}}");
-                //Skip Loop Block
-                if (!actualCmdProperty.StartsWith("{{for-each-start:") && !actualCmdProperty.StartsWith("{{for-each-end:"))
+                _replaceKey++;
+                string _replaceCode = string.Format("RLB_{0}", _replaceKey);
+                ReplaceObjLoopCode objLoopCode = new ReplaceObjLoopCode
                 {
-                    //Replace Command Occurrence
-                    string replaceSubCode = string.Format("REPLACE_LOOP_RECORD_{0}", Guid.NewGuid().ToString().ToUpper());
-                    subBlock = ReplaceFirstOccurrence(subBlock, subMatch.Value, replaceSubCode);
-                    replaceObjLoopCode.ReplaceObjCodes.Add(new ReplaceCode { ReplaceCommand = actualCmdProperty, ReplaceRef = replaceSubCode });
+                    ReplaceRef = _replaceCode,
+                    TargetObjectName = match.Groups[1].Value?.ToString().Trim().ToLower().Replace(" ", string.Empty)
+                };
+                //Determine Forloop Elements
+                string loopBlock = match.Groups[2].Value?.ToString() ?? string.Empty;
+                string loopBlockRegex = @"{{(.+?)}}";
+                while (Regex.IsMatch(loopBlock, loopBlockRegex, RegexOptions.IgnoreCase))
+                {
+                    loopBlock = Regex.Replace(loopBlock, loopBlockRegex, loopBlockMatch =>
+                    {
+                        _replaceKey++;
+                        string _replaceLoopBlockCode = string.Format("RLBR_{0}", _replaceKey);
+                        objLoopCode.ReplaceObjCodes.Add(new ReplaceCode
+                        {
+                            ReplaceCommand = loopBlockMatch.Groups[1].Value?.Trim(),
+                            ReplaceRef = _replaceLoopBlockCode
+                        });
+                        return _replaceLoopBlockCode;
+                    }, RegexOptions.IgnoreCase);
                 }
-                else
-                    subBlock = ReplaceFirstOccurrence(subBlock, subMatch.Value, string.Empty);
-                //Proceed To Next
-                subMatch = subMatch.NextMatch();
-            }
-
-            replaceObjLoopCode.ObjLoopTemplate = Regex.Replace(subBlock, @"^\s+$[\r\n]*", string.Empty, RegexOptions.Multiline); //Assigning it here because we are modifying it above
-            templatedContent.ReplaceObjLoopCodes.Add(replaceObjLoopCode);
-            //Move Next (Both)
-            regexLoopMatch = regexLoopMatch.NextMatch();
-            regexLoopEnd = regexLoopEnd.NextMatch();
+                //#Just before return 
+                objLoopCode.ObjLoopTemplate = loopBlock;
+                templatedContent.ReplaceObjLoopCodes.Add(objLoopCode);
+                // Return Replacement
+                return _replaceCode;
+            }, RegexOptions.IgnoreCase);
         }
+
         #endregion
 
         #region Generate direct targets
-        Match regexMatch = Regex.Match(templatedContent.Template, @"{{(.+?)}}", RegexOptions.IgnoreCase);
-        while (regexMatch.Success)
+        string _paramRegex = @"{{(.+?)}}";
+        while (Regex.IsMatch(templatedContent.Template, _paramRegex, RegexOptions.IgnoreCase))
         {
-            //Reclean again
-            string actualCmdProperty = string.Format(@"{0}{1}{2}", "{{", regexMatch.Groups[1].Value.Trim(), "}}");
-            //Replace Command Occurrence
-            string replaceCode = string.Format("REPLACE_{0}", Guid.NewGuid().ToString().ToUpper());
-            templatedContent.Template = ReplaceFirstOccurrence(templatedContent.Template, regexMatch.Value, replaceCode);
-            templatedContent.ReplaceCodes.Add(new ReplaceCode { ReplaceCommand = actualCmdProperty, ReplaceRef = replaceCode });
-            //Proceed To Next
-            regexMatch = regexMatch.NextMatch();
+            templatedContent.Template = Regex.Replace(templatedContent.Template, _paramRegex, propertyMatch =>
+            {
+                _replaceKey++;
+                string _replaceCode = string.Format("RP_{0}", _replaceKey);
+                templatedContent.ReplaceCodes.Add(new ReplaceCode
+                {
+                    ReplaceCommand = propertyMatch.Groups[1].Value?.Trim(),
+                    ReplaceRef = _replaceCode
+                });
+                return _replaceCode;
+            }, RegexOptions.IgnoreCase);
         }
+
         #endregion
 
         return templatedContent;
     }
 
-    private static string ReplaceFirstOccurrence(this string text, string search, string replace)
-    {
-        int pos = text.IndexOf(search);
-        if (pos < 0)
-            return text;
-        return string.Format("{0}{1}{2}", text.Substring(0, pos), replace, text.Substring(pos + search.Length));
-    }
+
     private static List<ExtractedObjProperty> GetObjectProperties<T>(T value, List<ObjectSemanticsKeyValue> parameters = null) where T : new()
     {
         List<ExtractedObjProperty> extractedObjProperties = new List<ExtractedObjProperty>();
@@ -235,28 +229,5 @@ public static class GavinsAlgorithim
         return list;
     }
 
-    private static string GetValueFromPropertyFormatted(ExtractedObjProperty p, string customFormattingValue)
-    {
-        if (string.IsNullOrWhiteSpace(customFormattingValue))
-            return p.StringFormatted;
-        if (p.Type.Equals(typeof(int)))
-            return int.Parse(p.StringFormatted).ToString(customFormattingValue);
-        else if (p.Type.Equals(typeof(double)))
-            return double.Parse(p.StringFormatted).ToString(customFormattingValue);
-        else if (p.Type.Equals(typeof(long)))
-            return long.Parse(p.StringFormatted).ToString(customFormattingValue);
-        else if (p.Type.Equals(typeof(float)))
-            return float.Parse(p.StringFormatted).ToString(customFormattingValue);
-        else if (p.Type.Equals(typeof(decimal)))
-            return decimal.Parse(p.StringFormatted).ToString(customFormattingValue);
-        else if (p.Type.Equals(typeof(DateTime)))
-            return DateTime.Parse(p.StringFormatted).ToString(customFormattingValue);
-        //Custom Formats
-        else if (customFormattingValue.ToLower().Equals("uppercase"))
-            return p.StringFormatted?.ToUpper();
-        else if (customFormattingValue.ToLower().Equals("lowercase"))
-            return p.StringFormatted?.ToLower();
-        else
-            return p.StringFormatted?.ToUpper();
-    }
+
 }
