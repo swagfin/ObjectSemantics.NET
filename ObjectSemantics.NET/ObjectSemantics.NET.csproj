@@ -16,9 +16,9 @@
 Added support for if condition statements with ElseIf
 Single Line ForLoop
 [BREAKING CHANGE]: forloop statement changes</PackageReleaseNotes>
-    <AssemblyVersion>6.0.1.1</AssemblyVersion>
-    <FileVersion>6.0.1.1</FileVersion>
-    <Version>6.0.1</Version>
+    <AssemblyVersion>6.0.2.2</AssemblyVersion>
+    <FileVersion>6.0.2.2</FileVersion>
+    <Version>6.0.2</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <ApplicationIcon></ApplicationIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>

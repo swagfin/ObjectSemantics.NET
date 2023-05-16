@@ -11,4 +11,9 @@ namespace ObjectSemantics.NET.Tests.MoqModels
         public DateTime RegDate { get; set; } = DateTime.Now;
         public List<Invoice> Invoices { get; set; } = new List<Invoice>();
     }
+    class StudentClockInDetail
+    {
+        public DateTime? LastClockedInDate { get; set; } = null;
+        public long? LastClockedInPoints { get; set; } = null;
+    }
 }
