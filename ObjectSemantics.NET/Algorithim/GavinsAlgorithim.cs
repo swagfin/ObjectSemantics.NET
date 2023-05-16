@@ -63,7 +63,7 @@ public static class GavinsAlgorithim
                     {
                         ExtractedObjProperty objProperty = rowRecordValues.FirstOrDefault(x => x.Name.ToUpper().Equals(objLoopCode.TargetPropertyName.ToUpper()));
                         if (objProperty != null)
-                            activeRow = activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, objProperty.GetValueFromPropertyFormatted(objLoopCode.FormattingCommand));
+                            activeRow = activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, objProperty.GetPropertyDisplayString(objLoopCode.FormattingCommand, options));
                         else
                             activeRow = activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, objLoopCode.ReplaceCommand);
                     }
@@ -85,7 +85,7 @@ public static class GavinsAlgorithim
         {
             ExtractedObjProperty property = objProperties.FirstOrDefault(x => x.Name.ToUpper().Equals(replaceCode.TargetPropertyName.ToUpper()));
             if (property != null)
-                clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(replaceCode.ReplaceRef, property.GetValueFromPropertyFormatted(replaceCode.FormattingCommand));
+                clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(replaceCode.ReplaceRef, property.GetPropertyDisplayString(replaceCode.FormattingCommand, options));
             else
                 clonedTemplate.Template = clonedTemplate.Template.ReplaceFirstOccurrence(replaceCode.ReplaceRef, @"{{ ##command## }}".Replace("##command##", replaceCode.ReplaceCommand));
         }
