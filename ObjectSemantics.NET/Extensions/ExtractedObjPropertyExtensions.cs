@@ -11,26 +11,26 @@ namespace ObjectSemantics.NET
         {
             string formattedPropertyString = GetAppliedPropertyFormatting(p, stringFormatting);
             //Apply Options to Property value string
-            if (templateMapperOptions==null) return formattedPropertyString;
+            if (templateMapperOptions == null) return formattedPropertyString;
             if (templateMapperOptions.XmlCharEscaping)
                 formattedPropertyString = SecurityElement.Escape(formattedPropertyString);
             return formattedPropertyString;
         }
         private static string GetAppliedPropertyFormatting(this ExtractedObjProperty p, string customFormattingValue)
         {
-            if (string.IsNullOrWhiteSpace(customFormattingValue))
+            if (string.IsNullOrWhiteSpace(customFormattingValue) || p.OriginalValue == null)
                 return p.StringFormatted;
-            if (p.Type.Equals(typeof(int)))
+            if (p.Type.Equals(typeof(int)) || p.Type.Equals(typeof(int?)))
                 return int.Parse(p.StringFormatted).ToString(customFormattingValue);
-            else if (p.Type.Equals(typeof(double)))
+            else if (p.Type.Equals(typeof(double)) || p.Type.Equals(typeof(double?)))
                 return double.Parse(p.StringFormatted).ToString(customFormattingValue);
-            else if (p.Type.Equals(typeof(long)))
+            else if (p.Type.Equals(typeof(long)) || p.Type.Equals(typeof(long?)))
                 return long.Parse(p.StringFormatted).ToString(customFormattingValue);
-            else if (p.Type.Equals(typeof(float)))
+            else if (p.Type.Equals(typeof(float)) || p.Type.Equals(typeof(float?)))
                 return float.Parse(p.StringFormatted).ToString(customFormattingValue);
-            else if (p.Type.Equals(typeof(decimal)))
+            else if (p.Type.Equals(typeof(decimal)) || p.Type.Equals(typeof(decimal?)))
                 return decimal.Parse(p.StringFormatted).ToString(customFormattingValue);
-            else if (p.Type.Equals(typeof(DateTime)))
+            else if (p.Type.Equals(typeof(DateTime)) || p.Type.Equals(typeof(DateTime?)))
                 return DateTime.Parse(p.StringFormatted).ToString(customFormattingValue);
             //Custom Formats
             else if (customFormattingValue.ToLower().Equals("uppercase"))
