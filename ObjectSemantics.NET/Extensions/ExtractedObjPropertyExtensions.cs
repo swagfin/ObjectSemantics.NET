@@ -1,11 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
+
 namespace ObjectSemantics.NET
 {
     public static class ExtractedObjPropertyExtensions
     {
-        public static string GetValueFromPropertyFormatted(this ExtractedObjProperty p, string customFormattingValue)
+        public static string GetPropertyDisplayString(this ExtractedObjProperty p, string stringFormatting, TemplateMapperOptions templateMapperOptions)
+        {
+            string formattedPropertyString = GetAppliedPropertyFormatting(p, stringFormatting);
+            //Apply Options to Property value string
+            if (templateMapperOptions==null) return formattedPropertyString;
+            if (templateMapperOptions.XmlCharEscaping)
+                formattedPropertyString = SecurityElement.Escape(formattedPropertyString);
+            return formattedPropertyString;
+        }
+        private static string GetAppliedPropertyFormatting(this ExtractedObjProperty p, string customFormattingValue)
         {
             if (string.IsNullOrWhiteSpace(customFormattingValue))
                 return p.StringFormatted;
