@@ -11,8 +11,4 @@ public class ExtractedObjProperty
     {
         get { return typeof(IEnumerable).IsAssignableFrom(Type) && Type != typeof(string); }
     }
-    public bool IsClassObject
-    {
-        get { return Type.IsClass && Type != typeof(string); }
-    }
 }
