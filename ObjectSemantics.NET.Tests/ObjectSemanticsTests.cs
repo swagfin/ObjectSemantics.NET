@@ -29,7 +29,7 @@ namespace ObjectSemantics.NET.Tests
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
 
-        //Loop Object Tests
+        #region Loop Conditions Tests
         [Fact]
         public void Should_Map_Enumerable_Collection_In_Object()
         {
@@ -104,7 +104,7 @@ namespace ObjectSemantics.NET.Tests
 
 
         [Fact]
-        public void Should_Map_Multiple_Enumerable_Collection_On_Same_Template()
+        public void Should_Map_Multiple_Same_Property_Enumerable_Collection_On_Same_Template()
         {
             //Create Model
             Student student = new Student
@@ -145,6 +145,58 @@ LOOP #2
     <h5>1 On Loop #2</h5>";
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
+
+
+        [Fact]
+        public void Should_Map_Multiple_Different_Property_Enumerable_Collection_On_Same_Template()
+        {
+            //Create Model
+            Student student = new Student
+            {
+                StudentName = "John Doe",
+                Invoices = new List<Invoice>
+                {
+                     new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000, InvoiceDate= new DateTime(2023, 04, 01) },
+                     new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320, InvoiceDate= new DateTime(2022, 08, 01)  }
+                },
+                StudentClockInDetails = new List<StudentClockInDetail>
+                {
+                    new StudentClockInDetail{ LastClockedInDate = new DateTime(2024, 04, 01), LastClockedInPoints = 10 },
+                    new StudentClockInDetail{ LastClockedInDate = new DateTime(2024, 04, 02), LastClockedInPoints = 30 }
+                }
+            };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = @"
+{{ StudentName }} Invoices
+LOOP #1
+{{ #foreach(invoices)  }}
+    <h5>{{ Id }} On Loop #1</h5>
+{{ #endforeach }}
+LOOP #2
+{{ #foreach(studentClockInDetails)  }}
+    <h5>Got {{ LastClockedInPoints }} for {{ LastClockedInDate:yyyy-MM-dd }}</h5>
+{{ #endforeach }}"
+            };
+            string generatedTemplate = TemplateMapper.Map(student, template);
+            string expectedResult = @"
+John Doe Invoices
+LOOP #1
+
+    <h5>2 On Loop #1</h5>
+
+    <h5>1 On Loop #1</h5>
+LOOP #2
+
+    <h5>Got 10 for 2024-04-01</h5>
+
+    <h5>Got 30 for 2024-04-02</h5>";
+
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+        #endregion
 
         [Fact]
         public void Should_Map_Additional_Parameters()
