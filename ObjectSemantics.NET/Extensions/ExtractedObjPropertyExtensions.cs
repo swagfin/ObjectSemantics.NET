@@ -37,8 +37,14 @@ namespace ObjectSemantics.NET
                 return p.StringFormatted?.ToUpper();
             else if (customFormattingValue.ToLower().Equals("lowercase"))
                 return p.StringFormatted?.ToLower();
+            else if (customFormattingValue.ToLower().Equals("tomd5"))
+                return p.StringFormatted.ToMD5String();
+            else if (customFormattingValue.ToLower().Equals("tobase64"))
+                return p.StringFormatted.ToBase64String();
+            else if (customFormattingValue.ToLower().Equals("frombase64"))
+                return p.StringFormatted.FromBase64String();
             else
-                return p.StringFormatted?.ToUpper();
+                return p.StringFormatted;
         }
 
         private static T GetConvertibleValue<T>(string value) where T : IConvertible

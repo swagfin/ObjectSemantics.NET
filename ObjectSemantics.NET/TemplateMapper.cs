@@ -5,6 +5,20 @@ namespace ObjectSemantics.NET
 {
     public static class TemplateMapper
     {
+
+        /// <summary>
+        /// Generate a Data Template From Object Properties
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="record">Single Record of T that may include a Collection inside it</param>
+        /// <param name="additionalKeyValues">Additional Key Value parameters that you may need mapped to file</param>
+        /// <param name="options">Custom Options and configurations for the Template Generator</param>
+        /// <returns></returns>
+        public static string Map<T>(this ObjectSemanticsTemplate template, T record, List<ObjectSemanticsKeyValue> additionalKeyValues = null, TemplateMapperOptions options = null) where T : new()
+        {
+            return Map(record, template, additionalKeyValues, options);
+        }
+
         /// <summary>
         /// Generate a Data Template From Object Properties
         /// </summary>
