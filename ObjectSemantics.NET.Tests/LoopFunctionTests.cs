@@ -35,7 +35,7 @@ namespace ObjectSemantics.NET.Tests
 </tr>
 {{ #endforeach }}"
             };
-            string generatedTemplate = TemplateMapper.Map(student, template);
+            string generatedTemplate = template.Map(student);
             string expectedResult = @"John Doe Invoices
 
 <tr>
@@ -75,7 +75,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"{{ #foreach(invoices)  }} [{{RefNo}}] {{ #endforeach }}"
             };
-            string generatedTemplate = TemplateMapper.Map(student, template);
+            string generatedTemplate = template.Map(student);
             string expectedResult = " [INV_002] [INV_001] ";
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
@@ -108,7 +108,7 @@ LOOP #2
     <h5>{{ Id }} On Loop #2</h5>
 {{ #endforeach }}"
             };
-            string generatedTemplate = TemplateMapper.Map(student, template);
+            string generatedTemplate = template.Map(student);
             string expectedResult = @"
 John Doe Invoices
 LOOP #1
@@ -157,7 +157,7 @@ LOOP #2
     <h5>Got {{ LastClockedInPoints }} for {{ LastClockedInDate:yyyy-MM-dd }}</h5>
 {{ #endforeach }}"
             };
-            string generatedTemplate = TemplateMapper.Map(student, template);
+            string generatedTemplate = template.Map(student);
             string expectedResult = @"
 John Doe Invoices
 LOOP #1

@@ -31,7 +31,7 @@ var template = new ObjectSemanticsTemplate
 };
 
 // Map Object to Template
-string generatedTemplate = TemplateMapper.Map(student, template);
+string generatedTemplate = template.Map(student);
 
 // Output the result
 Console.WriteLine(generatedTemplate);
@@ -71,7 +71,7 @@ var template = new ObjectSemanticsTemplate
 };
 
 // Map Object to Template
-string generatedTemplate = TemplateMapper.Map(student, template);
+string generatedTemplate = template.Map(student);
 
 // Output the result
 Console.WriteLine(generatedTemplate);

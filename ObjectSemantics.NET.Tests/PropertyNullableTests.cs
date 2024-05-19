@@ -15,7 +15,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"Last Clocked In: {{ LastClockedInDate:yyyy-MM-dd }}"
             };
-            string generatedTemplate = TemplateMapper.Map(clockInDetails, template);
+            string generatedTemplate = template.Map(clockInDetails, template);
             string expectedString = "Last Clocked In: ";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
@@ -29,7 +29,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"Last Clocked In: {{ LastClockedInDate:yyyy-MM-dd }}"
             };
-            string generatedTemplate = TemplateMapper.Map(clockInDetails, template);
+            string generatedTemplate = template.Map(clockInDetails);
             string expectedString = $"Last Clocked In: {DateTime.Now:yyyy-MM-dd}";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
@@ -43,7 +43,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"Last Clocked In Points: {{ LastClockedInPoints:N2 }}"
             };
-            string generatedTemplate = TemplateMapper.Map(clockInDetails, template);
+            string generatedTemplate = template.Map(clockInDetails);
             string expectedString = "Last Clocked In Points: ";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
@@ -60,7 +60,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"Last Clocked In Points: {{ LastClockedInPoints:N2 }}"
             };
-            string generatedTemplate = TemplateMapper.Map(clockInDetails, template);
+            string generatedTemplate = template.Map(clockInDetails);
             string expectedString = $"Last Clocked In Points: {number:N2}";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }

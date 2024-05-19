@@ -19,7 +19,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"Original StudentName: {{ StudentName }}, Uppercase StudentName: {{ StudentName:UPPERCASE }}, Lowercase StudentName: {{ StudentName:lowercase }}"
             };
-            string generatedTemplate = TemplateMapper.Map(student, template);
+            string generatedTemplate = template.Map(student);
             string expectedString = "Original StudentName: WILLiaM, Uppercase StudentName: WILLIAM, Lowercase StudentName: william";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
@@ -38,7 +38,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"Original Balance: {{ Balance }}, #,##0 Balance: {{ Balance:#,##0 }}, N5 Balance: {{ Balance:N5 }}"
             };
-            string generatedTemplate = TemplateMapper.Map(student, template);
+            string generatedTemplate = template.Map(student);
             string expectedString = "Original Balance: 20000.5788, #,##0 Balance: 20,001, N5 Balance: 20,000.57880";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
@@ -56,7 +56,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"Original RegDate: {{ RegDate }}, yyyy RegDate: {{ RegDate:yyyy }}, yyyy-MM-dd HH:mm tt RegDate: {{ RegDate:yyyy-MM-dd HH:mm  tt }}"
             };
-            string generatedTemplate = TemplateMapper.Map(student, template);
+            string generatedTemplate = template.Map(student);
             string expectedString = "Original RegDate: 11/27/2022 6:13:59 PM, yyyy RegDate: 2022, yyyy-MM-dd HH:mm tt RegDate: 2022-11-27 18:13 PM";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
@@ -75,7 +75,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"Original String: {{ StudentName }} | To MD5 String: {{ StudentName:ToMD5 }}"
             };
-            string generatedTemplate = TemplateMapper.Map(student, template);
+            string generatedTemplate = template.Map(student);
             string expectedString = "Original String: John DOE | To MD5 String: 82AF64057A5F0D528CEE6F55D05823D7";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
@@ -94,7 +94,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"Original String: {{ StudentName }} | To BASE64 String: {{ StudentName:ToBase64 }}"
             };
-            string generatedTemplate = TemplateMapper.Map(student, template);
+            string generatedTemplate = template.Map(student);
             string expectedString = "Original String: John DOE | To BASE64 String: Sm9obiBET0U=";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
@@ -112,7 +112,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"Original String: {{ StudentName }} | From BASE64 String: {{ StudentName:FromBase64 }}"
             };
-            string generatedTemplate = TemplateMapper.Map(student, template);
+            string generatedTemplate = template.Map(student);
             string expectedString = "Original String: Sm9obiBET0U= | From BASE64 String: John DOE";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }

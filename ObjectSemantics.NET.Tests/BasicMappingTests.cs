@@ -19,7 +19,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"My Name is: {{ StudentName }}"
             };
-            string generatedTemplate = TemplateMapper.Map(student, template);
+            string generatedTemplate = template.Map(student);
             string expectedString = "My Name is: George Waynne";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
@@ -45,7 +45,7 @@ namespace ObjectSemantics.NET.Tests
                  new ObjectSemanticsKeyValue{ Key ="CompanyEmail",  Value= "test.inc@test.com" },
                  new ObjectSemanticsKeyValue{ Key ="Employees",  Value= 1289 },
             };
-            string generatedTemplate = TemplateMapper.Map(student, template, additionalParams);
+            string generatedTemplate = template.Map(student, additionalParams);
             string expectedString = "My Name is: George Waynne | CompanyName: TEST INC. | CompanyEmail: test.inc@test.com | Employees: 1289";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
@@ -64,7 +64,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"Unknown Object example: {{StudentIdentityCardXyx}}"
             };
-            string generatedTemplate = TemplateMapper.Map(student, template);
+            string generatedTemplate = template.Map(student);
             string expectedString = "Unknown Object example: {{ StudentIdentityCardXyx }}";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
@@ -83,7 +83,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"StudentName is: {{            StudentName       }}"
             };
-            string generatedTemplate = TemplateMapper.Map(student, template);
+            string generatedTemplate = template.Map(student);
             string expectedString = "StudentName is: George Waynne";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }

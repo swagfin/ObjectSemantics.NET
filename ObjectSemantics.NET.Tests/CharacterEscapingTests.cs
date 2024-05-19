@@ -16,7 +16,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"{{ StudentName }}"
             };
-            string generatedTemplate = TemplateMapper.Map(student, template, null, new TemplateMapperOptions
+            string generatedTemplate = template.Map(student, null, new TemplateMapperOptions
             {
                 XmlCharEscaping = true
             });
@@ -41,7 +41,7 @@ namespace ObjectSemantics.NET.Tests
             {
                 FileContents = @"{{ #foreach(invoices)  }} [{{ Narration }}] {{ #endforeach }}"
             };
-            string generatedTemplate = TemplateMapper.Map(student, template, null, new TemplateMapperOptions
+            string generatedTemplate = template.Map(student, null, new TemplateMapperOptions
             {
                 XmlCharEscaping = true
             });
