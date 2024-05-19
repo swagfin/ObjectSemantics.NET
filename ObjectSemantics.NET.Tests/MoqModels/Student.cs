@@ -10,6 +10,8 @@ namespace ObjectSemantics.NET.Tests.MoqModels
         public double Balance { get; set; }
         public DateTime RegDate { get; set; } = DateTime.Now;
         public List<Invoice> Invoices { get; set; } = new List<Invoice>();
+        public string[] ArrayOfString { get; set; } = new string[] { };
+        public double[] ArrayOfDouble { get; set; } = new double[] { };
         public List<StudentClockInDetail> StudentClockInDetails { get; set; } = new List<StudentClockInDetail>();
     }
     class StudentClockInDetail

@@ -64,6 +64,15 @@ public static class GavinsAlgorithim
                         ExtractedObjProperty objProperty = rowRecordValues.FirstOrDefault(x => x.Name.ToUpper().Equals(objLoopCode.TargetPropertyName.ToUpper()));
                         if (objProperty != null)
                             activeRow = activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, objProperty.GetPropertyDisplayString(objLoopCode.FormattingCommand, options));
+                        else if (objLoopCode.TargetPropertyName.Equals("."))
+                        {
+                            activeRow = activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, new ExtractedObjProperty
+                            {
+                                Name = objLoopCode.TargetPropertyName,
+                                Type = loopRow.GetType(),
+                                OriginalValue = loopRow
+                            }.GetPropertyDisplayString(objLoopCode.FormattingCommand, options));
+                        }
                         else
                             activeRow = activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, objLoopCode.ReplaceCommand);
                     }
@@ -213,7 +222,8 @@ public static class GavinsAlgorithim
             return list;
         Type myType = value.GetType();
         IList<PropertyInfo> props = new List<PropertyInfo>(myType.GetProperties());
-        foreach (PropertyInfo prop in props)
+        //loop (Skip properties that require index parameters (like Chars in string))
+        foreach (PropertyInfo prop in props.Where(x => x.GetIndexParameters().Length == 0))
         {
             try
             {

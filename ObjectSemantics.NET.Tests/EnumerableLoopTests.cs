@@ -5,7 +5,7 @@ using Xunit;
 
 namespace ObjectSemantics.NET.Tests
 {
-    public class LoopFunctionTests
+    public class EnumerableLoopTests
     {
 
         [Fact]
@@ -174,5 +174,49 @@ LOOP #2
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
 
+        [Fact]
+        public void Should_Map_Array_Of_String_With_Formatting()
+        {
+            //Create Model
+            Student student = new Student
+            {
+                ArrayOfString = new string[]
+                {
+                    "String 001",
+                    "String 002"
+                }
+            };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = @"{{ #foreach(ArrayOfString)  }} {{ . }} | {{ .:uppercase }} {{ #endforeach }}"
+            };
+            string generatedTemplate = template.Map(student);
+            string expectedResult = " String 001 | STRING 001  String 002 | STRING 002 ";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
+
+
+        [Fact]
+        public void Should_Map_Array_Of_Double_With_Formatting_Test()
+        {
+            //Create Model
+            Student student = new Student
+            {
+                ArrayOfDouble = new double[]
+                {
+                    1000.15,
+                    2000.22
+                }
+            };
+            //Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = @"{{ #foreach(ArrayOfDouble)  }} {{ . }} | {{ .:N0 }} {{ #endforeach }}"
+            };
+            string generatedTemplate = template.Map(student);
+            string expectedResult = " 1000.15 | 1,000  2000.22 | 2,000 ";
+            Assert.Equal(expectedResult, generatedTemplate, false, true, true);
+        }
     }
 }

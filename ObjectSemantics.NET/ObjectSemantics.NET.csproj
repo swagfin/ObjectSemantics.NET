@@ -9,17 +9,15 @@
 		<PackageIconUrl />
 		<RepositoryUrl>https://github.com/swagfin/ObjectSemantics.NET</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<PackageReleaseNotes>
-			v.6.0.3
-			1. Added encoding string formattings
-			ToMD5
-			ToBase64
-			FromBase64
-			2. added extention to allow mapping directly from Template
-		</PackageReleaseNotes>
-		<AssemblyVersion>6.0.3</AssemblyVersion>
-		<FileVersion>6.0.3</FileVersion>
-		<Version>6.0.3</Version>
+		<PackageReleaseNotes>. Added support for single arrays Loop Support
+. Added encoding string formattings
+  ToMD5
+  ToBase64
+  FromBase64
+. Added template extension method to allow mapping directly from Template</PackageReleaseNotes>
+		<AssemblyVersion>6.0.4</AssemblyVersion>
+		<FileVersion>6.0.4</FileVersion>
+		<Version>6.0.4</Version>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<ApplicationIcon></ApplicationIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
