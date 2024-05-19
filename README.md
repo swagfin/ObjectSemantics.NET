@@ -5,8 +5,7 @@ Simple Object to File Mapper that supports string formatting
 
 ## Overview
 
-* Mapping your object e.g. StudentDetails to a html Template that you define
-* Mapping a collection to enumerable or List to a html/text/ (predefined format)
+* Maps properties from a source object to a template string and returns the result. This is useful for dynamically generating strings based on object properties.
 
 ## Install 
 
@@ -16,51 +15,87 @@ Install-Package ObjectSemantics.NET
 ```
 https://nuget.org/packages/ObjectSemantics.NET
 
-**USAGE**
+**USAGE (Example 1)**
 ```cs
-using ObjectSemantics.NET;
-class Program
+// Create Model
+Student student = new Student
 {
-  static void Main(string[] args)
-  {
-	  
-    Student student = new Student
-    {
-        StudentName = "George",
-        Invoices = new List<Invoice>
-                  {
-                    new Invoice{  Id=2, RefNo="INV_002",Narration="Grade II Fees Invoice", Amount=2000 },
-                    new Invoice{  Id=1, RefNo="INV_001",Narration="Grade I Fees Invoice", Amount=320 }
-                  }
-    };
+    StudentName = "George Waynne",
+    Balance = 2510
+};
 
-
-    ObjectSemanticsTemplate template = new ObjectSemanticsTemplate
-    {
-        FileContents = @"<h6>{{ StudentName:uppercase }}  Invoices</h6>
-                        <ol>
-                            {{ #foreach(invoices)   }}
-                                <li>Invoice No: {{ RefNo }}  of {{ Narration }} amount {{ Amount:N0 }} </li>
-                            {{ #endforeach }}
-                        </ol>"
-    };
-
-    string htmlWithData = TemplateMapper.Map(student, template);
-
-    Console.WriteLine(htmlWithData);
-
-    Console.ReadLine();
-    Environment.Exit(0);
-  }
-}
-
-class Student
+// Define Template
+var template = new ObjectSemanticsTemplate
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
-    public string StudentName { get; set; }
-    public double Balance { get; set; }
-    public DateTime RegDate { get; set; } = DateTime.Now;
-}
+    FileContents = @"My Name is: {{ StudentName }} and my balance is {{ Balance:N2 }}"
+};
+
+// Map Object to Template
+string generatedTemplate = TemplateMapper.Map(student, template);
+
+// Output the result
+Console.WriteLine(generatedTemplate);
+```
+***Output***
+```console
+My Name is: George Waynne and my balance is 2,510.00
+```
+
+**USAGE (Example 2)**
+
+```csharp
+// Create Model
+Student student = new Student
+{
+    StudentName = "John Doe",
+    Invoices = new List<Invoice>
+    {
+         new Invoice{ Id = 2, RefNo = "INV_002", Narration = "Grade II Fees Invoice", Amount = 2000, InvoiceDate = new DateTime(2023, 04, 01) },
+         new Invoice{ Id = 1, RefNo = "INV_001", Narration = "Grade I Fees Invoice", Amount = 320, InvoiceDate = new DateTime(2022, 08, 01) }
+    }
+};
+
+// Define Template
+var template = new ObjectSemanticsTemplate
+{
+    FileContents = @"{{ StudentName }} Invoices
+{{ #foreach(Invoices)  }}
+<tr>
+    <td>{{ Id }}</td>
+    <td>{{ RefNo }}</td>
+    <td>{{ Narration }}</td>
+    <td>{{ Amount:N0 }}</td>
+    <td>{{ InvoiceDate:yyyy-MM-dd }}</td>
+</tr>
+{{ #endforeach }}"
+};
+
+// Map Object to Template
+string generatedTemplate = TemplateMapper.Map(student, template);
+
+// Output the result
+Console.WriteLine(generatedTemplate);
+```
+***Output***
+```console
+John Doe Invoices
+
+<tr>
+    <td>2</td>
+    <td>INV_002</td>
+    <td>Grade II Fees Invoice</td>
+    <td>2,000</td>
+    <td>2023-04-01</td>
+</tr>
+
+<tr>
+    <td>1</td>
+    <td>INV_001</td>
+    <td>Grade I Fees Invoice</td>
+    <td>320</td>
+    <td>2022-08-01</td>
+</tr>
+
 ```
 
 ## Check out more samples
