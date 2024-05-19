@@ -1,59 +1,61 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <Description>A library that allows you to Maps properties from a source object or class to a template string and returns the result. This is useful for dynamically generating strings based on object properties.</Description>
-    <Copyright>Crudsoft Technologies @ 2023</Copyright>
-    <PackageProjectUrl>https://github.com/swagfin/ObjectSemantics.NET</PackageProjectUrl>
-    <PackageIcon>icon.jpg</PackageIcon>
-    <PackageIconUrl />
-    <RepositoryUrl>https://github.com/swagfin/ObjectSemantics.NET</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageReleaseNotes>v.6.0.3
-1. Added encoding string formattings
-   ToMD5
-   ToBase64
-   FromBase64
-2. added extention to allow mapping directly from Template</PackageReleaseNotes>
-    <AssemblyVersion>6.0.3</AssemblyVersion>
-    <FileVersion>6.0.3</FileVersion>
-    <Version>6.0.3</Version>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <ApplicationIcon></ApplicationIcon>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>ObjectMapper;Mapper;Formatter;ClassMapper;ClassToString;TemplateMapper; AutoMapper</PackageTags>
-    <Title>ObjectSemantics.NET</Title>
-    <Authors>swagfin</Authors>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<Description>A library that allows you to Maps properties from a source object or class to a template string and returns the result. This is useful for dynamically generating strings based on object properties.</Description>
+		<Copyright>Crudsoft Technologies @ 2023</Copyright>
+		<PackageProjectUrl>https://github.com/swagfin/ObjectSemantics.NET</PackageProjectUrl>
+		<PackageIcon>icon.jpg</PackageIcon>
+		<PackageIconUrl />
+		<RepositoryUrl>https://github.com/swagfin/ObjectSemantics.NET</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageReleaseNotes>
+			v.6.0.3
+			1. Added encoding string formattings
+			ToMD5
+			ToBase64
+			FromBase64
+			2. added extention to allow mapping directly from Template
+		</PackageReleaseNotes>
+		<AssemblyVersion>6.0.3</AssemblyVersion>
+		<FileVersion>6.0.3</FileVersion>
+		<Version>6.0.3</Version>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<ApplicationIcon></ApplicationIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageTags>ObjectMapper;Mapper;Formatter;ClassMapper;ClassToString;TemplateMapper; AutoMapper</PackageTags>
+		<Title>ObjectSemantics.NET</Title>
+		<Authors>swagfin</Authors>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Logic\**" />
-    <EmbeddedResource Remove="Logic\**" />
-    <None Remove="Logic\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Logic\**" />
+		<EmbeddedResource Remove="Logic\**" />
+		<None Remove="Logic\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\SemanticBackup\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Include="..\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="icon.jpg">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Update="README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="icon.jpg">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Update="README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 
 </Project>
