@@ -13,13 +13,6 @@ This is especially useful when you want to dynamically generate content such as:
 - Reports or invoices
 - Config files
 - Logging output
-
-It supports:
-- ✅ Plain object property injection (`{{ PropertyName }}`)
-- ✅ Additional external parameters
-- ✅ Enumerable collections with looping (`#foreach`)
-- ✅ Built-in string, date, and number formatting
-
 ---
 
 ## 📦 Installation
@@ -71,8 +64,8 @@ Student student = new Student
     StudentName = "John Doe",
     Invoices = new List<Invoice>
     {
-        new Invoice { Id = 2, RefNo = "INV_002", Narration = "Grade II Fees Invoice", Amount = 2000, InvoiceDate = new DateTime(2023, 04, 01) },
-        new Invoice { Id = 1, RefNo = "INV_001", Narration = "Grade I Fees Invoice", Amount = 320, InvoiceDate = new DateTime(2022, 08, 01) }
+        new Invoice { Id = 2, RefNo = "INV_002", Narration = "Grade II Fees", Amount = 2000, InvoiceDate = new DateTime(2023, 04, 01) },
+        new Invoice { Id = 1, RefNo = "INV_001", Narration = "Grade I Fees", Amount = 320, InvoiceDate = new DateTime(2022, 08, 01) }
     }
 };
 
@@ -102,7 +95,7 @@ John Doe Invoices
 <tr>
     <td>2</td>
     <td>INV_002</td>
-    <td>Grade II Fees Invoice</td>
+    <td>Grade II Fees</td>
     <td>2,000</td>
     <td>2023-04-01</td>
 </tr>
@@ -110,7 +103,7 @@ John Doe Invoices
 <tr>
     <td>1</td>
     <td>INV_001</td>
-    <td>Grade I Fees Invoice</td>
+    <td>Grade I Fees</td>
     <td>320</td>
     <td>2022-08-01</td>
 </tr>
@@ -118,8 +111,38 @@ John Doe Invoices
 
 ---
 
-## 🧪 More Samples
+### Example 3: String Formatters
 
+Use format like `uppercase`, `lowercase`, `titlecase`, `length`.
+
+```csharp
+FileContents = "Uppercase: {{ StudentName:uppercase }}, Length: {{ StudentName:length }}"
+```
+Outputs:
+
+```
+Uppercase: ALICE, Length: 5
+```
+
+---
+
+### Example 4: If Conditionals (`if`)
+
+```csharp
+FileContents = @"
+{{ if Age >= 18 }}
+Adult
+{{ else }}
+Minor
+{{ end }}"
+```
+Outputs:
+
+```
+Adult
+```
+
+---
 Explore more usage examples and edge cases in the test project:
 
 📁 [`ObjectSemantics.NET.Tests`](./ObjectSemantics.NET.Tests)
