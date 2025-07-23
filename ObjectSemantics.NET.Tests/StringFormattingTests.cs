@@ -24,6 +24,31 @@ namespace ObjectSemantics.NET.Tests
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
         }
 
+        [Theory]
+        [InlineData("john doe", "John Doe")]
+        [InlineData("JANE DOE", "Jane Doe")]
+        [InlineData("aLiCe joHNsOn", "Alice Johnson")]
+        [InlineData("", "")]
+        [InlineData(null, "")]
+        public void Should_Convert_StudentName_To_TitleCase(string studentName, string expectedTitleCase)
+        {
+            // Create Model
+            Student student = new Student
+            {
+                StudentName = studentName
+            };
+
+            // Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = @"{{ StudentName:titlecase }}"
+            };
+
+            string generatedTemplate = template.Map(student);
+
+            Assert.Equal(expectedTitleCase, generatedTemplate, ignoreCase: false, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
+        }
+
 
         [Fact]
         public void Should_Accept_Number_To_String_Formatting()
@@ -115,6 +140,30 @@ namespace ObjectSemantics.NET.Tests
             string generatedTemplate = template.Map(student);
             string expectedString = "Original String: Sm9obiBET0U= | From BASE64 String: John DOE";
             Assert.Equal(expectedString, generatedTemplate, false, true, true);
+        }
+
+        [Theory]
+        [InlineData("Alice Johnson", "13")]
+        [InlineData("Bob", "3")]
+        [InlineData("", "0")]
+        [InlineData(null, "")]
+        public void Should_Return_Correct_Length_Of_StudentName(string studentName, string expectedLength)
+        {
+            // Create Model
+            Student student = new Student
+            {
+                StudentName = studentName
+            };
+
+            // Template
+            var template = new ObjectSemanticsTemplate
+            {
+                FileContents = @"{{ StudentName:length }}"
+            };
+
+            string generatedTemplate = template.Map(student);
+
+            Assert.Equal(expectedLength, generatedTemplate, ignoreCase: false, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
         }
     }
 }

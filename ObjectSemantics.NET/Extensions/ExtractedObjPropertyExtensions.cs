@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security;
 
@@ -43,6 +44,10 @@ namespace ObjectSemantics.NET
                 return p.StringFormatted.ToBase64String();
             else if (customFormattingValue.ToLower().Equals("frombase64"))
                 return p.StringFormatted.FromBase64String();
+            else if (customFormattingValue.ToLower().Equals("length"))
+                return p.StringFormatted?.Length.ToString();
+            else if (customFormattingValue.ToLower().Equals("titlecase"))
+                return CultureInfo.CurrentCulture.TextInfo.ToTitleCase(p.StringFormatted?.ToLower() ?? string.Empty);
             else
                 return p.StringFormatted;
         }
@@ -95,6 +100,17 @@ namespace ObjectSemantics.NET
                         case ">=": return v1 >= v2;
                         case "<": return v1 < v2;
                         case "<=": return v1 <= v2;
+                        default: return false;
+                    }
+                }
+                else if (property.Type == typeof(bool))
+                {
+                    bool v1 = Convert.ToBoolean(property.OriginalValue);
+                    bool v2 = Convert.ToBoolean(GetConvertibleValue<bool>(valueComparer));
+                    switch (criteria)
+                    {
+                        case "==": return v1 == v2;
+                        case "!=": return v1 != v2;
                         default: return false;
                     }
                 }
