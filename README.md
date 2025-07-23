@@ -126,26 +126,11 @@ Uppercase: ALICE, Length: 5
 
 ---
 
-### Example 4: If Conditionals (`if`)
+## 💡 More Examples & Documentation
 
-```csharp
-FileContents = @"
-{{ if Age >= 18 }}
-Adult
-{{ else }}
-Minor
-{{ end }}"
-```
-Outputs:
+Explore more usage examples and edge cases in the Wiki Page:
 
-```
-Adult
-```
-
----
-Explore more usage examples and edge cases in the test project:
-
-📁 [`ObjectSemantics.NET.Tests`](./ObjectSemantics.NET.Tests)
+📁 [`Wiki Page`](https://github.com/swagfin/ObjectSemantics.NET/wiki/%F0%9F%9B%A0-Usage-Guide)
 
 ---
 
