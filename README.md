@@ -1,65 +1,85 @@
 # ObjectSemantics.NET
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fswagfin%2FObjectSemantics.NET.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fswagfin%2FObjectSemantics.NET?ref=badge_shield)
 
-Simple Object to File Mapper that supports string formatting
+**Simple and flexible object-to-template string mapper with formatting support**
 
-## Overview
+## 🧠 Overview
 
-* Maps properties from a source object to a template string and returns the result. This is useful for dynamically generating strings based on object properties.
+**ObjectSemantics.NET** is a lightweight C# library that lets you inject object property values directly into string templates much like [Handlebars](https://handlebarsjs.com/) or Helm templates, but focused on .NET.
 
-## Install 
+This is especially useful when you want to dynamically generate content such as:
+- Email templates
+- HTML fragments
+- Reports or invoices
+- Config files
+- Logging output
 
-*NuGet Package*
-```
+It supports:
+- ✅ Plain object property injection (`{{ PropertyName }}`)
+- ✅ Additional external parameters
+- ✅ Enumerable collections with looping (`#foreach`)
+- ✅ Built-in string, date, and number formatting
+
+---
+
+## 📦 Installation
+
+Install from [NuGet](https://www.nuget.org/packages/ObjectSemantics.NET):
+
+```bash
 Install-Package ObjectSemantics.NET
 ```
-https://nuget.org/packages/ObjectSemantics.NET
 
-**USAGE (Example 1)**
-```cs
-// Create Model
+---
+
+## 🚀 Quick Start
+
+### Example 1: Basic Object Property Mapping
+
+```csharp
+// Create model
 Student student = new Student
 {
     StudentName = "George Waynne",
     Balance = 2510
 };
 
-// Define Template
+// Define template
 var template = new ObjectSemanticsTemplate
 {
     FileContents = @"My Name is: {{ StudentName }} and my balance is {{ Balance:N2 }}"
 };
 
-// Map Object to Template
-string generatedTemplate = template.Map(student);
+// Map object to template
+string result = template.Map(student);
 
-// Output the result
-Console.WriteLine(generatedTemplate);
+Console.WriteLine(result);
 ```
-***Output***
-```console
+
+**Output:**
+```
 My Name is: George Waynne and my balance is 2,510.00
 ```
 
-**USAGE (Example 2)**
+---
+
+### Example 2: Mapping Enumerable Collections
 
 ```csharp
-// Create Model
 Student student = new Student
 {
     StudentName = "John Doe",
     Invoices = new List<Invoice>
     {
-         new Invoice{ Id = 2, RefNo = "INV_002", Narration = "Grade II Fees Invoice", Amount = 2000, InvoiceDate = new DateTime(2023, 04, 01) },
-         new Invoice{ Id = 1, RefNo = "INV_001", Narration = "Grade I Fees Invoice", Amount = 320, InvoiceDate = new DateTime(2022, 08, 01) }
+        new Invoice { Id = 2, RefNo = "INV_002", Narration = "Grade II Fees Invoice", Amount = 2000, InvoiceDate = new DateTime(2023, 04, 01) },
+        new Invoice { Id = 1, RefNo = "INV_001", Narration = "Grade I Fees Invoice", Amount = 320, InvoiceDate = new DateTime(2022, 08, 01) }
     }
 };
 
-// Define Template
 var template = new ObjectSemanticsTemplate
 {
     FileContents = @"{{ StudentName }} Invoices
-{{ #foreach(Invoices)  }}
+{{ #foreach(Invoices) }}
 <tr>
     <td>{{ Id }}</td>
     <td>{{ RefNo }}</td>
@@ -70,14 +90,13 @@ var template = new ObjectSemanticsTemplate
 {{ #endforeach }}"
 };
 
-// Map Object to Template
-string generatedTemplate = template.Map(student);
+string result = template.Map(student);
 
-// Output the result
-Console.WriteLine(generatedTemplate);
+Console.WriteLine(result);
 ```
-***Output***
-```console
+
+**Output:**
+```
 John Doe Invoices
 
 <tr>
@@ -95,11 +114,23 @@ John Doe Invoices
     <td>320</td>
     <td>2022-08-01</td>
 </tr>
-
 ```
 
-## Check out more samples
-[ObjectSemantics.NET.Tests](https://github.com/swagfin/ObjectSemantics.NET/tree/master/ObjectSemantics.NET.Tests)
+---
 
-## License
+## 🧪 More Samples
+
+Explore more usage examples and edge cases in the test project:
+
+📁 [`ObjectSemantics.NET.Tests`](./ObjectSemantics.NET.Tests)
+
+---
+
+## 🤝 Contributing
+
+Feel free to open issues or contribute improvements via pull requests!
+
+---
+
+## 📄 MIT License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fswagfin%2FObjectSemantics.NET.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fswagfin%2FObjectSemantics.NET?ref=badge_large)
