@@ -238,6 +238,4 @@ public static class GavinsAlgorithim
         }
         return list;
     }
-
-
 }
