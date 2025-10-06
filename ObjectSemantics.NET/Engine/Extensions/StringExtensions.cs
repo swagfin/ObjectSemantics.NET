@@ -3,7 +3,7 @@ using System.Text;
 
 namespace ObjectSemantics.NET.Engine.Extensions
 {
-    public static class StringExtensions
+    internal static class StringExtensions
     {
         public static string ReplaceFirstOccurrence(this string text, string search, string replace)
         {

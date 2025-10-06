@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 
 namespace ObjectSemantics.NET.Engine
 {
-    public static class EngineAlgorithim
+    internal static class EngineAlgorithim
     {
         private static readonly ConcurrentDictionary<Type, PropertyInfo[]> PropertyCache = new ConcurrentDictionary<Type, PropertyInfo[]>();
 

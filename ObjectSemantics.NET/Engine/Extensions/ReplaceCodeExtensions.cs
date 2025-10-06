@@ -2,7 +2,7 @@
 
 namespace ObjectSemantics.NET.Engine.Extensions
 {
-    public static class ReplaceCodeExtensions
+    internal static class ReplaceCodeExtensions
     {
         public static string GetTargetPropertyName(this ReplaceCode code)
         {

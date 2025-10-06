@@ -1,6 +1,6 @@
 ﻿namespace ObjectSemantics.NET.Engine.Models
 {
-    public class ReplaceIfOperationCode
+    internal class ReplaceIfOperationCode
     {
         public string IfPropertyName { get; set; }
         public string IfOperationType { get; set; }

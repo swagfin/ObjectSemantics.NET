@@ -7,7 +7,7 @@ using System.Security;
 
 namespace ObjectSemantics.NET.Engine.Extensions
 {
-    public static class ExtractedObjPropertyExtensions
+    internal static class ExtractedObjPropertyExtensions
     {
         public static string GetPropertyDisplayString(this ExtractedObjProperty p, string stringFormatting, TemplateMapperOptions options)
         {

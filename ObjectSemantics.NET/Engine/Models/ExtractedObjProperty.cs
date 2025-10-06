@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace ObjectSemantics.NET.Engine.Models
 {
-    public class ExtractedObjProperty
+    internal class ExtractedObjProperty
     {
         public Type Type { get; set; }
         public string Name { get; set; }

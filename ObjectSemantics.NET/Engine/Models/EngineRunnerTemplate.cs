@@ -2,7 +2,7 @@
 
 namespace ObjectSemantics.NET.Engine.Models
 {
-    public class EngineRunnerTemplate
+    internal class EngineRunnerTemplate
     {
         public string Template { get; set; }
         public List<ReplaceObjLoopCode> ReplaceObjLoopCodes { get; set; } = new List<ReplaceObjLoopCode>();

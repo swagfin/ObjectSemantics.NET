@@ -2,7 +2,7 @@
 
 namespace ObjectSemantics.NET.Engine.Models
 {
-    public class ReplaceObjLoopCode
+    internal class ReplaceObjLoopCode
     {
         public string ReplaceRef { get; set; }
         public string TargetObjectName { get; set; }

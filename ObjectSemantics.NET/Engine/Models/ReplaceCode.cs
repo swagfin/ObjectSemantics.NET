@@ -1,6 +1,6 @@
 ﻿namespace ObjectSemantics.NET.Engine.Models
 {
-    public class ReplaceCode
+    internal class ReplaceCode
     {
         public string ReplaceRef { get; set; }
         public string ReplaceCommand { get; set; }
