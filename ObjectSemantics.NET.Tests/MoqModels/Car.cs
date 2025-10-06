@@ -14,9 +14,6 @@ namespace ObjectSemantics.NET.Tests.MoqModels
         public bool? IsLiked { get; set; } = null;
         public DateTime ManufactureDate { get; set; }
         public DateTime? LastServiceDate { get; set; }
-        public Guid UniqueId { get; set; }
-        public char Rating { get; set; }
-        public byte SafetyScore { get; set; }
         public long Mileage { get; set; }
         public short NumberOfDoors { get; set; }
     }

@@ -58,6 +58,33 @@ namespace ObjectSemantics.NET.Tests
         }
 
         [Theory]
+        [InlineData(150000L)]
+        [InlineData(6000L)]
+        public void Should_Map_From_Long(long mileage)
+        {
+            Car car = new Car()
+            {
+                Mileage = mileage
+            };
+            string result = car.Map("Mileage: {{ Mileage }}");
+            Assert.Equal($"Mileage: {mileage}", result, false, true, true);
+        }
+
+        [Theory]
+        [InlineData((short)4)]
+        [InlineData((short)2)]
+        public void Should_Map_From_Short(short doors)
+        {
+            Car car = new Car()
+            {
+                NumberOfDoors = doors
+            };
+            string result = car.Map("Doors: {{ NumberOfDoors }}");
+            Assert.Equal($"Doors: {doors}", result, false, true, true);
+        }
+
+
+        [Theory]
         [InlineData(20000)]
         [InlineData(50_000)]
         [InlineData(100000)]
