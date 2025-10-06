@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<Description>A library that allows you to Maps properties from a source object or class to a template string and returns the result. This is useful for dynamically generating strings based on object properties.</Description>
-		<Copyright>Crudsoft Technologies @ 2023</Copyright>
+		<Copyright>Crudsoft Technologies @ 2025</Copyright>
 		<PackageProjectUrl>https://github.com/swagfin/ObjectSemantics.NET</PackageProjectUrl>
 		<PackageIcon>icon.jpg</PackageIcon>
 		<PackageIconUrl />
@@ -27,12 +27,6 @@
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<Compile Remove="Logic\**" />
-		<EmbeddedResource Remove="Logic\**" />
-		<None Remove="Logic\**" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="..\LICENSE">

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace ObjectSemantics.NET
+namespace ObjectSemantics.NET.Engine.Extensions
 {
     public static class StringExtensions
     {
@@ -17,6 +17,7 @@ namespace ObjectSemantics.NET
             int index = value.LastIndexOf(removeString, StringComparison.Ordinal);
             return index < 0 ? value : value.Remove(index, removeString.Length);
         }
+
         public static string RemoveLastInstanceOfString(this string value, params char[] chars)
         {
             foreach (char c in chars)

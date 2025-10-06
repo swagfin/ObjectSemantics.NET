@@ -1,11 +1,12 @@
-﻿using System;
+﻿using ObjectSemantics.NET.Engine;
+using ObjectSemantics.NET.Engine.Models;
+using System;
 using System.Collections.Generic;
 
 namespace ObjectSemantics.NET
 {
     public static class TemplateMapper
     {
-
         /// <summary>
         /// Generate a Data Template From Object Properties
         /// </summary>
@@ -33,9 +34,8 @@ namespace ObjectSemantics.NET
             if (record == null) return string.Empty;
             if (template == null) throw new Exception("Template Object can't be NULL");
             if (options == null) options = new TemplateMapperOptions();
-            TemplatedContent templatedContent = GavinsAlgorithim.GenerateTemplateFromFileContents(template.FileContents, options);
-            if (templatedContent == null) throw new Exception($"Error Generating template from specified Template Name: {template.Name}");
-            return GavinsAlgorithim.GenerateFromTemplate(record, templatedContent, additionalKeyValues, options);
+            EngineRunnerTemplate runnerTemplate = EngineAlgorithim.GenerateRunnerTemplate(template.FileContents);
+            return runnerTemplate == null ? throw new Exception($"Error Generating template from specified Template Name: {template.Name}") : EngineAlgorithim.GenerateFromTemplate(record, runnerTemplate, additionalKeyValues, options);
         }
     }
 }

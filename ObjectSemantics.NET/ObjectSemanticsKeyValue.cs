@@ -1,11 +1,15 @@
-﻿using System;
-
-namespace ObjectSemantics.NET
+﻿namespace ObjectSemantics.NET
 {
     public class ObjectSemanticsKeyValue
     {
+        public ObjectSemanticsKeyValue() { }
+        public ObjectSemanticsKeyValue(string key, object value)
+        {
+            Key = key;
+            Value = value;
+        }
+
         public string Key { get; set; }
         public object Value { get; set; }
-        public Type Type { get { return Value.GetType(); } }
     }
 }
