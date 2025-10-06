@@ -21,7 +21,7 @@ namespace ObjectSemantics.NET.Engine
 
         private static readonly Regex DirectParamRegex = new Regex(@"{{(.+?)}}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        public static string GenerateFromTemplate<T>(T record, EngineRunnerTemplate template, List<ObjectSemanticsKeyValue> parameterKeyValues = null, TemplateMapperOptions options = null) where T : new()
+        public static string GenerateFromTemplate<T>(T record, EngineRunnerTemplate template, Dictionary<string, object> parameterKeyValues = null, TemplateMapperOptions options = null) where T : new()
         {
             List<ExtractedObjProperty> objProperties = GetObjectProperties(record, parameterKeyValues);
             Dictionary<string, ExtractedObjProperty> propMap = objProperties.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
@@ -86,14 +86,12 @@ namespace ObjectSemantics.NET.Engine
                                 Type = row.GetType(),
                                 OriginalValue = row
                             };
-                            activeRow.Replace(objLoopCode.ReplaceRef,
-                                tempProp.GetPropertyDisplayString(objLoopCode.GetFormattingCommand(), options));
+                            activeRow.Replace(objLoopCode.ReplaceRef, tempProp.GetPropertyDisplayString(objLoopCode.GetFormattingCommand(), options));
                         }
                         else
                         {
                             if (rowMap.TryGetValue(objLoopCode.TargetPropertyName, out ExtractedObjProperty p))
-                                activeRow.Replace(objLoopCode.ReplaceRef,
-                                    p.GetPropertyDisplayString(objLoopCode.GetFormattingCommand(), options));
+                                activeRow.Replace(objLoopCode.ReplaceRef, p.GetPropertyDisplayString(objLoopCode.GetFormattingCommand(), options));
                             else
                                 activeRow.Replace(objLoopCode.ReplaceRef, objLoopCode.ReplaceCommand);
                         }
@@ -185,7 +183,7 @@ namespace ObjectSemantics.NET.Engine
             return templatedContent;
         }
 
-        private static List<ExtractedObjProperty> GetObjectProperties<T>(T value, List<ObjectSemanticsKeyValue> parameters) where T : new()
+        private static List<ExtractedObjProperty> GetObjectProperties<T>(T value, Dictionary<string, object> parameters) where T : new()
         {
             Type type = typeof(T);
             if (!PropertyCache.TryGetValue(type, out PropertyInfo[] props))
@@ -208,7 +206,7 @@ namespace ObjectSemantics.NET.Engine
 
             if (parameters != null)
             {
-                foreach (ObjectSemanticsKeyValue p in parameters)
+                foreach (KeyValuePair<string, object> p in parameters)
                     result.Add(new ExtractedObjProperty { Type = p.Value.GetType(), Name = p.Key, OriginalValue = p.Value });
             }
 
