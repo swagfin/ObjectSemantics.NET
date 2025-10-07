@@ -72,7 +72,6 @@ I am Jane Doe!
 ```csharp
 Person person = new Person
 {
-    Name = "John Doe",
     MyCars = new List<Car>
     {
         new Car { Make = "BMW", Year = 2023 },
@@ -81,7 +80,6 @@ Person person = new Person
 };
 
 string template = @"
-{{ Name }}'s Cars
 {{ #foreach(MyCars) }}
  - {{ Year }} {{ Make }}
 {{ #endforeach }}";
@@ -93,13 +91,37 @@ Console.WriteLine(result);
 
 **Output:**
 ```
-John Doe's Cars
  - 2023 BMW
  - 2020 Rolls-Royce
 ```
 ---
 
-### Example 4: Number Formatting Support
+### Example 4: Conditional Logic with `#if`, `#else`, and `#endif`
+
+```csharp
+Person person = new Person
+{
+    Age = 40
+};
+
+string template = @"
+{{ #if(Age >= 18) }}
+  Adult
+{{ #else }}
+  Minor
+{{ #endif }}";
+
+string result = person.Map(template);
+
+Console.WriteLine(result);
+```
+
+**Output:**
+```
+Adult
+```
+---
+### Example 5: Number Formatting Support
 
 ```csharp
 Car car = new Car
