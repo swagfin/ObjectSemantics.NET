@@ -13,13 +13,6 @@ This is especially useful when you want to dynamically generate content such as:
 - Reports or invoices
 - Config files
 - Logging output
-
-It supports:
-- ✅ Plain object property injection (`{{ PropertyName }}`)
-- ✅ Additional external parameters
-- ✅ Enumerable collections with looping (`#foreach`)
-- ✅ Built-in string, date, and number formatting
-
 ---
 
 ## 📦 Installation
@@ -34,105 +27,110 @@ Install-Package ObjectSemantics.NET
 
 ## 🚀 Quick Start
 
-### Example 1: Mapping Object Properties
+### Example 1: Basic Object Property Mapping
 
 ```csharp
-Person person = new Person
+// Create model
+Student student = new Student
 {
-    Name = "John Doe"
+    StudentName = "George Waynne",
+    Balance = 2510
 };
 
-// Define template and map it using the object
-string result = person.Map("I am {{ Name }}!");
+// Define template
+var template = new ObjectSemanticsTemplate
+{
+    FileContents = @"My Name is: {{ StudentName }} and my balance is {{ Balance:N2 }}"
+};
+
+// Map object to template
+string result = template.Map(student);
 
 Console.WriteLine(result);
 ```
 
 **Output:**
 ```
-I am John Doe!
+My Name is: George Waynne and my balance is 2,510.00
 ```
 
 ---
 
-### Example 2: Mapping Using String Extension
+### Example 2: Mapping Enumerable Collections
 
 ```csharp
-Person person = new Person
+Student student = new Student
 {
-    Name = "Jane Doe"
-};
-
-// You can also start with the string template
-string result = "I am {{ Name }}!".Map(person);
-
-Console.WriteLine(result);
-```
-
-**Output:**
-```
-I am Jane Doe!
-```
-
----
-
-### Example 3: Mapping Enumerable Collections (Looping)
-
-```csharp
-Person person = new Person
-{
-    Name = "John Doe",
-    MyCars = new List<Car>
+    StudentName = "John Doe",
+    Invoices = new List<Invoice>
     {
-        new Car { Make = "BMW", Year = 2023 },
-        new Car { Make = "Rolls-Royce", Year = 2020 }
+        new Invoice { Id = 2, RefNo = "INV_002", Narration = "Grade II Fees", Amount = 2000, InvoiceDate = new DateTime(2023, 04, 01) },
+        new Invoice { Id = 1, RefNo = "INV_001", Narration = "Grade I Fees", Amount = 320, InvoiceDate = new DateTime(2022, 08, 01) }
     }
 };
 
-string template = @"
-{{ Name }}'s Cars
-{{ #foreach(MyCars) }}
- - {{ Year }} {{ Make }}
-{{ #endforeach }}";
-
-string result = person.Map(template);
-
-Console.WriteLine(result);
-```
-
-**Output:**
-```
-John Doe's Cars
- - 2023 BMW
- - 2020 Rolls-Royce
-```
-
----
-
-### Example 4: Number Formatting Support
-
-```csharp
-Car car = new Car
+var template = new ObjectSemanticsTemplate
 {
-    Price = 50000m
+    FileContents = @"{{ StudentName }} Invoices
+{{ #foreach(Invoices) }}
+<tr>
+    <td>{{ Id }}</td>
+    <td>{{ RefNo }}</td>
+    <td>{{ Narration }}</td>
+    <td>{{ Amount:N0 }}</td>
+    <td>{{ InvoiceDate:yyyy-MM-dd }}</td>
+</tr>
+{{ #endforeach }}"
 };
 
-string result = car.Map("{{ Price:#,##0 }} | {{ Price:N5 }}");
+string result = template.Map(student);
 
 Console.WriteLine(result);
 ```
 
 **Output:**
 ```
-50,000 | 50,000.00000
+John Doe Invoices
+
+<tr>
+    <td>2</td>
+    <td>INV_002</td>
+    <td>Grade II Fees</td>
+    <td>2,000</td>
+    <td>2023-04-01</td>
+</tr>
+
+<tr>
+    <td>1</td>
+    <td>INV_001</td>
+    <td>Grade I Fees</td>
+    <td>320</td>
+    <td>2022-08-01</td>
+</tr>
 ```
 
 ---
-## 🧪 More Samples
 
-Explore more usage examples and edge cases in the test project:
+### Example 3: String Formatters
 
-📁 [`ObjectSemantics.NET.Tests`](./ObjectSemantics.NET.Tests)
+Use format like `uppercase`, `lowercase`, `titlecase`, `length`.
+
+```csharp
+FileContents = "Uppercase: {{ StudentName:uppercase }}, Length: {{ StudentName:length }}"
+```
+Outputs:
+
+```
+Uppercase: ALICE, Length: 5
+```
+
+---
+
+## 💡 More Examples & Documentation
+
+Explore more usage examples and edge cases in the Wiki Page:
+
+📁 [`Wiki Page`](https://github.com/swagfin/ObjectSemantics.NET/wiki/%F0%9F%9B%A0-Usage-Guide)
 
 ---
 
