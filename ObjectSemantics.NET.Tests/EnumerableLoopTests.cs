@@ -1,6 +1,5 @@
 ﻿using ObjectSemantics.NET.Tests.MoqModels;
 using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 
 namespace ObjectSemantics.NET.Tests
@@ -25,7 +24,7 @@ namespace ObjectSemantics.NET.Tests
 
             string result = person.Map(template);
 
-            string expectedResult = $"I own a {person.MyCars[0].Year} {person.MyCars[0].Make}.I own a {person.MyCars[1].Year} {person.MyCars[1].Make}.";
+            string expectedResult = $"I own a 2023 BMW.I own a 2020 Rolls-Royce.";
             Assert.Equal(expectedResult, result);
         }
 
@@ -51,14 +50,15 @@ namespace ObjectSemantics.NET.Tests
 
             string result = person.Map(template);
 
-            string expectedResult = @$"
-{person.Name}'s Cars
- - {person.MyCars[0].Year} {person.MyCars[0].Make}
- - {person.MyCars[1].Year} {person.MyCars[1].Make}
+            string expectedResult = @"
+John Doe's Cars
+
+ - 2023 BMW
+
+ - 2020 Rolls-Royce
 ";
             Assert.Equal(expectedResult, result);
         }
-
 
 
         [Fact]
@@ -92,13 +92,19 @@ My Dream Cars
 
             string result = person.Map(template);
 
-            string expectedResult = @$"
+            string expectedResult = @"
 My Cars
- - {person.MyCars[0].Make}
- - {person.MyCars[1].Make}
+
+ - Honda
+
+ - Toyota
+
 My Dream Cars
- - {person.MyDreamCars[0].Make}
- - {person.MyDreamCars[1].Make}
+
+ * BWM
+
+ * Rolls-Royce
+
 ";
             Assert.Equal(expectedResult, result);
         }
@@ -115,7 +121,7 @@ My Dream Cars
             string template = @"{{ #foreach(MyFriends)  }} {{ . }} {{ #endforeach }}";
 
             string generatedTemplate = person.Map(template);
-            string expectedResult = string.Join(string.Empty, person.MyFriends);
+            string expectedResult = " Morgan  George  Jane ";
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
 
@@ -131,7 +137,7 @@ My Dream Cars
             string template = @"{{ #foreach(MyFriends)  }} {{ .:uppercase }} {{ #endforeach }}";
 
             string generatedTemplate = person.Map(template);
-            string expectedResult = string.Join(string.Empty, person.MyFriends.Select(x => x.ToUpper()));
+            string expectedResult = " MORGAN  GEORGE  JANE ";
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
     }

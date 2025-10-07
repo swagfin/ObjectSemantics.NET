@@ -148,7 +148,7 @@ namespace ObjectSemantics.NET.Engine
                     TargetObjectName = m.Groups[1].Value?.Trim() ?? string.Empty
                 };
 
-                string loopBlock = m.Groups[2].Value.Trim('\r', '\n');
+                string loopBlock = m.Groups[2].Value;
                 loopBlock = DirectParamRegex.Replace(loopBlock, pm =>
                 {
                     key++;
