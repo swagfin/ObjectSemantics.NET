@@ -104,17 +104,17 @@ John Doe's Cars
 ```csharp
 Car car = new Car
 {
-    Price = 50000m
+    Price = 50000
 };
 
-string result = car.Map("{{ Price:#,##0 }} | {{ Price:N5 }}");
+string result = car.Map("{{ Price:#,##0 }} | {{ Price:N2 }}");
 
 Console.WriteLine(result);
 ```
 
 **Output:**
 ```
-50,000 | 50,000.00000
+50,000 | 50,000.00
 ```
 ---
 
