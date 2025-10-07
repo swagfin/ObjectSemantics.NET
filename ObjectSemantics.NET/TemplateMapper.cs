@@ -1,41 +1,43 @@
-﻿using System;
+﻿using ObjectSemantics.NET.Engine;
+using ObjectSemantics.NET.Engine.Models;
+using System;
 using System.Collections.Generic;
 
 namespace ObjectSemantics.NET
 {
     public static class TemplateMapper
     {
-
         /// <summary>
-        /// Generate a Data Template From Object Properties
+        /// Generate a mapped string from string
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="record">Single Record of T that may include a Collection inside it</param>
-        /// <param name="additionalKeyValues">Additional Key Value parameters that you may need mapped to file</param>
-        /// <param name="options">Custom Options and configurations for the Template Generator</param>
+        /// <param name="template"></param>
+        /// <param name="record"></param>
+        /// <param name="additionalKeyValues"></param>
+        /// <param name="options"></param>
         /// <returns></returns>
-        public static string Map<T>(this ObjectSemanticsTemplate template, T record, List<ObjectSemanticsKeyValue> additionalKeyValues = null, TemplateMapperOptions options = null) where T : new()
+        public static string Map<T>(this string template, T record, Dictionary<string, object> additionalKeyValues = null, TemplateMapperOptions options = null) where T : class, new()
         {
             return Map(record, template, additionalKeyValues, options);
         }
 
         /// <summary>
-        /// Generate a Data Template From Object Properties
+        /// Generates a mapped string from a T record and a template
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="record">Single Record of T that may include a Collection inside it</param>
-        /// <param name="template">Template File containing Template Name and Template Contents</param>
-        /// <param name="additionalKeyValues">Additional Key Value parameters that you may need mapped to file</param>
-        /// <param name="options">Custom Options and configurations for the Template Generator</param>
+        /// <param name="record"></param>
+        /// <param name="template"></param>
+        /// <param name="additionalKeyValues"></param>
+        /// <param name="options"></param>
         /// <returns></returns>
-        public static string Map<T>(T record, ObjectSemanticsTemplate template, List<ObjectSemanticsKeyValue> additionalKeyValues = null, TemplateMapperOptions options = null) where T : new()
+        /// <exception cref="Exception"></exception>
+        public static string Map<T>(this T record, string template, Dictionary<string, object> additionalKeyValues = null, TemplateMapperOptions options = null) where T : class, new()
         {
             if (record == null) return string.Empty;
             if (template == null) throw new Exception("Template Object can't be NULL");
             if (options == null) options = new TemplateMapperOptions();
-            TemplatedContent templatedContent = GavinsAlgorithim.GenerateTemplateFromFileContents(template.FileContents, options);
-            if (templatedContent == null) throw new Exception($"Error Generating template from specified Template Name: {template.Name}");
-            return GavinsAlgorithim.GenerateFromTemplate(record, templatedContent, additionalKeyValues, options);
+            EngineRunnerTemplate runnerTemplate = EngineAlgorithim.GenerateRunnerTemplate(template);
+            return runnerTemplate == null ? throw new Exception($"Error Mapping!") : EngineAlgorithim.GenerateFromTemplate(record, runnerTemplate, additionalKeyValues, options);
         }
     }
 }

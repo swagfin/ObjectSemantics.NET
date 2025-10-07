@@ -7,111 +7,110 @@ namespace ObjectSemantics.NET.Tests
     public class IfConditionTests
     {
         [Theory]
-        [InlineData(1, "Valid")]
-        [InlineData(0, "Invalid")]
-        public void Should_Render_If_Block_When_Condition_Is_True(int id, string expected)
+        [InlineData(40, "Adult")]
+        [InlineData(18, "Adult")]
+        [InlineData(0, "Minor")]
+        [InlineData(-7, "Minor")]
+        public void Should_Render_If_GreaterOrEqual_Condition_Block(int age, string expected)
         {
-            var model = new Invoice { Id = id };
-
-            var template = new ObjectSemanticsTemplate
+            Person person = new Person
             {
-                FileContents = @"{{ #if(Id == 1) }}Valid{{ #else }}Invalid{{ #endif }}"
+                Age = age
             };
 
-            string result = template.Map(model);
+            string template = @"{{ #if(Age >= 18) }}Adult{{ #else }}Minor{{ #endif }}";
+
+            string result = person.Map(template);
             Assert.Equal(expected, result);
         }
 
 
         [Theory]
-        [InlineData(18, "Minor")]
-        [InlineData(21, "Adult")]
-        [InlineData(5, "Minor")]
-        public void Should_Handle_LessThan_Or_Equal(int age, string expected)
+        [InlineData(40, "Adult 40")]
+        [InlineData(18, "Adult 18")]
+        [InlineData(0, "Minor 0")]
+        [InlineData(-7, "Minor -7")]
+        public void Should_Resolve_Variables_Inside_If_Condition(int age, string expected)
         {
-            var model = new Student { Age = age };
-
-            var template = new ObjectSemanticsTemplate
+            Person person = new Person
             {
-                FileContents = @"{{ #if(Age <= 18) }}Minor{{ #else }}Adult{{ #endif }}"
+                Age = age
             };
 
-            var result = template.Map(model);
+            string template = @"{{ #if( Age > 17 ) }}Adult {{Age}}{{ #else }}Minor {{Age}}{{ #endif }}";
+
+            var result = person.Map(template);
             Assert.Equal(expected, result);
         }
 
 
         [Theory]
-        [InlineData(1, "1")]
-        [InlineData(0, "Error")]
-        [InlineData(-1, "Error")]
-        [InlineData(5, "5")]
-        [InlineData(+2, "2")]
-        public void Should_Handle_Whitespace_And_Case_Insensitive_Condition(int id, string expected)
+        [InlineData(40, "")]
+        [InlineData(18, "")]
+        [InlineData(0, "NoDrinkingBeer")]
+        [InlineData(-7, "NoDrinkingBeer")]
+        public void Should_Render_If_Block_Without_Else_When_True(int age, string expected)
         {
-            var model = new Invoice { Id = id };
-
-            var template = new ObjectSemanticsTemplate
+            Person person = new Person
             {
-                FileContents = @"{{ #if( id > 0 ) }}{{id}}{{ #else }}Error{{ #endif }}"
+                Age = age
             };
 
-            var result = template.Map(model);
+            string template = @"{{ #if(Age < 18) }}NoDrinkingBeer{{ #endif }}";
+
+            string result = person.Map(template);
             Assert.Equal(expected, result);
         }
 
-
         [Fact]
-        public void Should_Render_If_Block_Without_Else_When_True()
+        public void Should_Evaluate_Enumerable_Count_Inside_If_Block()
         {
-            var model = new Student { IsActive = true };
 
-            var template = new ObjectSemanticsTemplate
+            Person person = new Person
             {
-                FileContents = @"Student: John {{ #if(IsActive == true) }}[Is Active]{{ #endif }}"
-            };
-
-            var result = template.Map(model);
-            Assert.Equal("Student: John [Is Active]", result);
-        }
-
-        [Fact]
-        public void Should_Evaluate_If_Enumerable_Count()
-        {
-            var model = new Student
-            {
-                Invoices = new List<Invoice>
+                MyCars = new List<Car>
                 {
-                     new Invoice{ Id = 2, RefNo = "INV_002" },
-                     new Invoice{ Id = 1, RefNo = "INV_001" }
+                     new Car { Make = "BMW" },
+                     new Car { Make = "Rolls-Royce" }
                 }
             };
 
-            var template = new ObjectSemanticsTemplate
-            {
-                FileContents = @"{{ #if(Invoices == 2) }}Matched{{ #else }}Not Matched{{ #endif }}"
-            };
+            string template = @"{{ #if(MyCars == 2) }}Has 2 Cars{{ #endif }}";
 
-            var result = template.Map(model);
-            Assert.Equal("Matched", result);
+            string result = person.Map(template);
+            Assert.Equal("Has 2 Cars", result);
         }
 
         [Fact]
         public void Should_Evaluate_Empty_Enumerable_As_Zero()
         {
-            var model = new Student
+            Person person = new Person
             {
-                Invoices = new List<Invoice>()
+                MyCars = null
             };
 
-            var template = new ObjectSemanticsTemplate
-            {
-                FileContents = @"{{ #if(Invoices == 0) }}No invoices available{{ #else }}Invoices Found{{ #endif }}"
-            };
+            string template = @"{{ #if(MyCars == 0) }}Zero Cars{{ #endif }}";
 
-            var result = template.Map(model);
-            Assert.Equal("No invoices available", result);
+            string result = person.Map(template);
+            Assert.Equal("Zero Cars", result);
         }
 
+        [Theory]
+        [InlineData("John DoeX2", "Yes")]
+        [InlineData("John Doe", "No")]
+        [InlineData("Doe", "No")]
+        [InlineData("John ", "No")]
+        public void Should_Evaluate_String_Conditions_If_Blocks(string name, string expected)
+        {
+            Person person = new Person
+            {
+                Name = name
+            };
+
+            string template = @"{{ #if(Name == John DoeX2) }}Yes{{ #else }}No{{ #endif }}";
+
+            string result = person.Map(template);
+            Assert.Equal(expected, result);
+        }
     }
 }
