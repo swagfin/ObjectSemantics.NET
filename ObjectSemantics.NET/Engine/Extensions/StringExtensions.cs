@@ -25,6 +25,53 @@ namespace ObjectSemantics.NET.Engine.Extensions
             return value;
         }
 
+        public static string TrimCustom(this string data, char[] chars, int? takeCount)
+        {
+            if (string.IsNullOrEmpty(data) || chars == null || chars.Length == 0)
+                return data;
+
+            // If takeCount is null or < 1, behave like normal Trim
+            if (takeCount == null || takeCount < 1)
+                return data.Trim(chars);
+
+            int leftIndex = 0;
+            int rightIndex = data.Length - 1;
+            int leftCount = 0;
+            int rightCount = 0;
+
+            // ⚡ Use simple lookup optimization
+            // Create a small fixed lookup array for faster char matching
+            bool[] lookup = new bool[char.MaxValue + 1];
+            for (int i = 0; i < chars.Length; i++)
+                lookup[chars[i]] = true;
+
+            // Trim from start
+            while (leftIndex < data.Length && leftCount < takeCount.Value)
+            {
+                char c = data[leftIndex];
+                if (c < lookup.Length && lookup[c])
+                {
+                    leftIndex++;
+                    leftCount++;
+                }
+                else break;
+            }
+
+            // Trim from end
+            while (rightIndex >= leftIndex && rightCount < takeCount.Value)
+            {
+                char c = data[rightIndex];
+                if (c < lookup.Length && lookup[c])
+                {
+                    rightIndex--;
+                    rightCount++;
+                }
+                else break;
+            }
+
+            return data.Substring(leftIndex, rightIndex - leftIndex + 1);
+        }
+
         public static string ToMD5String(this string input)
         {
             try

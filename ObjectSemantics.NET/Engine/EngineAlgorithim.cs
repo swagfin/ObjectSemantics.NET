@@ -108,12 +108,10 @@ namespace ObjectSemantics.NET.Engine
             foreach (ReplaceCode replaceCode in template.ReplaceCodes)
             {
                 if (propMap.TryGetValue(replaceCode.GetTargetPropertyName(), out ExtractedObjProperty property))
-                    result.Replace(replaceCode.ReplaceRef,
-                        property.GetPropertyDisplayString(replaceCode.GetFormattingCommand(), options));
+                    result.Replace(replaceCode.ReplaceRef, property.GetPropertyDisplayString(replaceCode.GetFormattingCommand(), options));
                 else
                     result.Replace(replaceCode.ReplaceRef, "{{ " + replaceCode.ReplaceCommand + " }}");
             }
-
             return result.ToString();
         }
 
@@ -147,10 +145,10 @@ namespace ObjectSemantics.NET.Engine
                 ReplaceObjLoopCode objLoop = new ReplaceObjLoopCode
                 {
                     ReplaceRef = refKey,
-                    TargetObjectName = m.Groups[1].Value
+                    TargetObjectName = m.Groups[1].Value?.Trim() ?? string.Empty
                 };
 
-                string loopBlock = m.Groups[2].Value;
+                string loopBlock = m.Groups[2].Value.Trim('\r', '\n');
                 loopBlock = DirectParamRegex.Replace(loopBlock, pm =>
                 {
                     key++;
