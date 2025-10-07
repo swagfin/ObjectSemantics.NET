@@ -27,103 +27,95 @@ Install-Package ObjectSemantics.NET
 
 ## 🚀 Quick Start
 
-### Example 1: Basic Object Property Mapping
+### Example 1: Mapping Object Properties
 
 ```csharp
-// Create model
-Student student = new Student
+Person person = new Person
 {
-    StudentName = "George Waynne",
-    Balance = 2510
+    Name = "John Doe"
 };
 
-// Define template
-var template = new ObjectSemanticsTemplate
-{
-    FileContents = @"My Name is: {{ StudentName }} and my balance is {{ Balance:N2 }}"
-};
-
-// Map object to template
-string result = template.Map(student);
+// Define template and map it using the object
+string result = person.Map("I am {{ Name }}!");
 
 Console.WriteLine(result);
 ```
 
 **Output:**
 ```
-My Name is: George Waynne and my balance is 2,510.00
+I am John Doe!
 ```
-
 ---
 
-### Example 2: Mapping Enumerable Collections
+### Example 2: Mapping Using String Extension
 
 ```csharp
-Student student = new Student
+Person person = new Person
 {
-    StudentName = "John Doe",
-    Invoices = new List<Invoice>
+    Name = "Jane Doe"
+};
+
+// You can also start with the string template
+string result = "I am {{ Name }}!".Map(person);
+
+Console.WriteLine(result);
+```
+
+**Output:**
+```
+I am Jane Doe!
+```
+---
+
+### Example 3: Mapping Enumerable Collections (Looping)
+
+```csharp
+Person person = new Person
+{
+    Name = "John Doe",
+    MyCars = new List<Car>
     {
-        new Invoice { Id = 2, RefNo = "INV_002", Narration = "Grade II Fees", Amount = 2000, InvoiceDate = new DateTime(2023, 04, 01) },
-        new Invoice { Id = 1, RefNo = "INV_001", Narration = "Grade I Fees", Amount = 320, InvoiceDate = new DateTime(2022, 08, 01) }
+        new Car { Make = "BMW", Year = 2023 },
+        new Car { Make = "Rolls-Royce", Year = 2020 }
     }
 };
 
-var template = new ObjectSemanticsTemplate
-{
-    FileContents = @"{{ StudentName }} Invoices
-{{ #foreach(Invoices) }}
-<tr>
-    <td>{{ Id }}</td>
-    <td>{{ RefNo }}</td>
-    <td>{{ Narration }}</td>
-    <td>{{ Amount:N0 }}</td>
-    <td>{{ InvoiceDate:yyyy-MM-dd }}</td>
-</tr>
-{{ #endforeach }}"
-};
+string template = @"
+{{ Name }}'s Cars
+{{ #foreach(MyCars) }}
+ - {{ Year }} {{ Make }}
+{{ #endforeach }}";
 
-string result = template.Map(student);
+string result = person.Map(template);
 
 Console.WriteLine(result);
 ```
 
 **Output:**
 ```
-John Doe Invoices
-
-<tr>
-    <td>2</td>
-    <td>INV_002</td>
-    <td>Grade II Fees</td>
-    <td>2,000</td>
-    <td>2023-04-01</td>
-</tr>
-
-<tr>
-    <td>1</td>
-    <td>INV_001</td>
-    <td>Grade I Fees</td>
-    <td>320</td>
-    <td>2022-08-01</td>
-</tr>
+John Doe's Cars
+ - 2023 BMW
+ - 2020 Rolls-Royce
 ```
-
 ---
 
-### Example 3: String Formatters
-
-Use format like `uppercase`, `lowercase`, `titlecase`, `length`.
+### Example 4: Number Formatting Support
 
 ```csharp
-FileContents = "Uppercase: {{ StudentName:uppercase }}, Length: {{ StudentName:length }}"
-```
-Outputs:
+Car car = new Car
+{
+    Price = 50000m
+};
 
-```
-Uppercase: ALICE, Length: 5
+string result = car.Map("{{ Price:#,##0 }} | {{ Price:N5 }}");
+
+Console.WriteLine(result);
 ```
 
+**Output:**
+```
+50,000 | 50,000.00000
+```
 ---
 
 ## 💡 More Examples & Documentation
