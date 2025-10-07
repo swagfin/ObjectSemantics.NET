@@ -44,7 +44,7 @@ namespace ObjectSemantics.NET.Tests
             //additional params (outside the class)
             Dictionary<string, object> additionalParams = new Dictionary<string, object>
             {
-                { "Occupation","Developer"},
+                { "Occupation", "Developer"},
                 { "DateOfBirth", new DateTime(1995, 01, 01) }
             };
 

@@ -16,7 +16,7 @@ namespace ObjectSemantics.NET
         /// <param name="additionalKeyValues"></param>
         /// <param name="options"></param>
         /// <returns></returns>
-        public static string Map<T>(this string template, T record, Dictionary<string, object> additionalKeyValues = null, TemplateMapperOptions options = null) where T : new()
+        public static string Map<T>(this string template, T record, Dictionary<string, object> additionalKeyValues = null, TemplateMapperOptions options = null) where T : class, new()
         {
             return Map(record, template, additionalKeyValues, options);
         }
@@ -31,7 +31,7 @@ namespace ObjectSemantics.NET
         /// <param name="options"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static string Map<T>(this T record, string template, Dictionary<string, object> additionalKeyValues = null, TemplateMapperOptions options = null) where T : new()
+        public static string Map<T>(this T record, string template, Dictionary<string, object> additionalKeyValues = null, TemplateMapperOptions options = null) where T : class, new()
         {
             if (record == null) return string.Empty;
             if (template == null) throw new Exception("Template Object can't be NULL");

@@ -78,7 +78,8 @@ namespace ObjectSemantics.NET.Engine
 
                     foreach (ReplaceCode objLoopCode in objLoop.ReplaceObjCodes)
                     {
-                        if (objLoopCode.TargetPropertyName == ".")
+                        string propName = objLoopCode.GetTargetPropertyName();
+                        if (propName == ".")
                         {
                             ExtractedObjProperty tempProp = new ExtractedObjProperty
                             {
@@ -90,7 +91,7 @@ namespace ObjectSemantics.NET.Engine
                         }
                         else
                         {
-                            if (rowMap.TryGetValue(objLoopCode.TargetPropertyName, out ExtractedObjProperty p))
+                            if (rowMap.TryGetValue(propName, out ExtractedObjProperty p))
                                 activeRow.Replace(objLoopCode.ReplaceRef, p.GetPropertyDisplayString(objLoopCode.GetFormattingCommand(), options));
                             else
                                 activeRow.Replace(objLoopCode.ReplaceRef, objLoopCode.ReplaceCommand);
@@ -106,7 +107,7 @@ namespace ObjectSemantics.NET.Engine
             // ---- Direct Replacements ----
             foreach (ReplaceCode replaceCode in template.ReplaceCodes)
             {
-                if (propMap.TryGetValue(replaceCode.TargetPropertyName, out ExtractedObjProperty property))
+                if (propMap.TryGetValue(replaceCode.GetTargetPropertyName(), out ExtractedObjProperty property))
                     result.Replace(replaceCode.ReplaceRef,
                         property.GetPropertyDisplayString(replaceCode.GetFormattingCommand(), options));
                 else
