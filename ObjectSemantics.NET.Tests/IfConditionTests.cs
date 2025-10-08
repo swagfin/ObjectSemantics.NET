@@ -112,5 +112,23 @@ namespace ObjectSemantics.NET.Tests
             string result = person.Map(template);
             Assert.Equal(expected, result);
         }
+
+        [Theory]
+        [InlineData(40, "[Adult]|[CanTakeAlcohol]")]
+        [InlineData(18, "[Adult]|[CanTakeAlcohol]")]
+        [InlineData(0, "[Minor]|[NoAlcohol]")]
+        [InlineData(-7, "[Minor]|[NoAlcohol]")]
+        public void Should_Render_Multiple_If_Condition_Statements(int age, string expected)
+        {
+            Person person = new Person
+            {
+                Age = age
+            };
+
+            string template = @"{{ #if(Age >= 18) }}[Adult]{{ #else }}[Minor]{{ #endif }}|{{ #if(Age < 18) }}[NoAlcohol]{{ #else }}[CanTakeAlcohol]{{ #endif }}";
+
+            string result = person.Map(template);
+            Assert.Equal(expected, result);
+        }
     }
 }
