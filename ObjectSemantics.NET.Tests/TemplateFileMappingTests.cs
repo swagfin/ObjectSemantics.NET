@@ -34,47 +34,10 @@ namespace ObjectSemantics.NET.Tests
                     FirstName = "JOHN DOE",
                     LastName = "ENTERPRISES",
                     CompanyName = "John Doe Enterprises",
-                    PrimaryMobile = "N/A",
-                    SecondaryMobile = null,
-                    PrimaryEmail = "",
-                    SecondaryEmail = null,
-                    Address = "",
-                    OpeningBalance = 0.0,
-                    OpeningDate = DateTime.Parse("2023-11-13T00:00:00"),
-                    CurrentBalance = 19095.0,
-                    CreditLimit = 0.0,
-                    TaxRefNo = "",
-                    BankAccount = null,
-                    RoutingNo = null,
-                    MoreDetails = "",
-                    LastModified = DateTime.Parse("2024-06-18T18:11:41.7819616"),
-                    LastModifiedAtBranchId = 1,
-                    ModifiedBy = "Joe Maina",
-                    DefaultPriceScheme = "SELLING PRICE",
-                    IsActive = true,
-                    Status = "ACTIVE",
-                    FullName = "Afrique"
                 },
                 Narration = null,
                 CustomerName = "JOHN DOE ENTERPRISES",
-                LedgerAccountName = "Cash A/C",
-                LedgerAccount = new LedgerAccount
-                {
-                    Id = 1,
-                    LedgerAccountTypeId = 4,
-                    AccountCode = "82187",
-                    AccountName = "Cash A/C",
-                    Description = "Current Cash",
-                    OpeningBalance = 0.0,
-                    OpeningDate = DateTime.Parse("2020-03-20T10:39:12"),
-                    IsBankAccount = false,
-                    BankAccountName = null,
-                    BankAccountNumber = null,
-                    AcCode = "82187",
-                    LedgerAccountType = null
-                },
-                CompanyBranchId = 1,
-                CompanyBranch = null
+                LedgerAccountName = "Cash A/C"
             };
 
 
@@ -86,7 +49,7 @@ namespace ObjectSemantics.NET.Tests
                 ["BranchMobile"] = "Default",
                 ["BranchEmail"] = "Default",
                 ["BranchAddress"] = "Default",
-                ["customer_name"] = "Afrique",
+                ["customer_name"] = "JOHN DOE",
                 ["customer_email"] = "",
                 ["customer_mobile"] = "N/A",
                 ["customer_address"] = "",
@@ -103,7 +66,6 @@ namespace ObjectSemantics.NET.Tests
                 ["CompanyLogo"] = "logo.jpg",
                 ["footer"] = "!Thank you and Come Again!"
             };
-
 
             //map
             var result = payment.Map(template, additionalParams);
