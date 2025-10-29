@@ -110,6 +110,7 @@ namespace ObjectSemantics.NET.Engine
                 else
                     result.ReplaceFirstOccurrence(replaceCode.ReplaceRef, "{{ " + replaceCode.ReplaceCommand + " }}");
             }
+
             return result.ToString();
         }
 

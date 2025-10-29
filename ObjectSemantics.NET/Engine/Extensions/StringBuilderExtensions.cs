@@ -32,6 +32,5 @@ namespace ObjectSemantics.NET.Engine.Extensions
 
             return sb;
         }
-
     }
 }
