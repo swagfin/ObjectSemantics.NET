@@ -17,8 +17,7 @@ namespace ObjectSemantics.NET.Engine
 
         private static readonly Regex IfConditionRegex = new Regex(@"{{\s*#if\s*\(\s*(?<param>\w+)\s*(?<operator>==|!=|>=|<=|>|<)\s*(?<value>[^)]+)\s*\)\s*}}(?<code>[\s\S]*?)(?:{{\s*#else\s*}}(?<else>[\s\S]*?))?{{\s*#endif\s*}}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        private static readonly Regex LoopBlockRegex = new Regex(@"{{\s*#foreach\s*\(\s*(\w+)\s*\)\s*\}\}([\s\S]*?)\{\{\s*#endforeach\s*}}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
+        private static readonly Regex LoopBlockRegex = new Regex(@"{{\s*#\s*foreach\s*\(\s*(\w+)\s*\)\s*\}\}([\s\S]*?)\{\{\s*#\s*endforeach\s*}}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex DirectParamRegex = new Regex(@"{{(.+?)}}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         public static string GenerateFromTemplate<T>(T record, EngineRunnerTemplate template, Dictionary<string, object> parameterKeyValues = null, TemplateMapperOptions options = null) where T : new()
@@ -33,7 +32,7 @@ namespace ObjectSemantics.NET.Engine
             {
                 if (!propMap.TryGetValue(ifCondition.IfPropertyName, out ExtractedObjProperty property))
                 {
-                    result.Replace(ifCondition.ReplaceRef, "[IF-CONDITION EXCEPTION]: unrecognized property: [" + ifCondition.IfPropertyName + "]");
+                    result.ReplaceFirstOccurrence(ifCondition.ReplaceRef, "[IF-CONDITION EXCEPTION]: unrecognized property: [" + ifCondition.IfPropertyName + "]");
                     continue;
                 }
 
@@ -55,7 +54,7 @@ namespace ObjectSemantics.NET.Engine
                     replacement = string.Empty;
                 }
 
-                result.Replace(ifCondition.ReplaceRef, replacement);
+                result.ReplaceFirstOccurrence(ifCondition.ReplaceRef, replacement);
             }
 
             // ---- Object Loops ----
@@ -63,7 +62,7 @@ namespace ObjectSemantics.NET.Engine
             {
                 if (!propMap.TryGetValue(objLoop.TargetObjectName, out ExtractedObjProperty targetObj) || !(targetObj.OriginalValue is IEnumerable enumerable))
                 {
-                    result.Replace(objLoop.ReplaceRef, string.Empty);
+                    result.ReplaceFirstOccurrence(objLoop.ReplaceRef, string.Empty);
                     continue;
                 }
 
@@ -87,30 +86,30 @@ namespace ObjectSemantics.NET.Engine
                                 Type = row.GetType(),
                                 OriginalValue = row
                             };
-                            activeRow.Replace(objLoopCode.ReplaceRef, tempProp.GetPropertyDisplayString(objLoopCode.GetFormattingCommand(), options));
+                            activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, tempProp.GetPropertyDisplayString(objLoopCode.GetFormattingCommand(), options));
                         }
                         else
                         {
                             if (rowMap.TryGetValue(propName, out ExtractedObjProperty p))
-                                activeRow.Replace(objLoopCode.ReplaceRef, p.GetPropertyDisplayString(objLoopCode.GetFormattingCommand(), options));
+                                activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, p.GetPropertyDisplayString(objLoopCode.GetFormattingCommand(), options));
                             else
-                                activeRow.Replace(objLoopCode.ReplaceRef, objLoopCode.ReplaceCommand);
+                                activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, objLoopCode.ReplaceCommand);
                         }
                     }
 
                     loopResult.Append(activeRow);
                 }
 
-                result.Replace(objLoop.ReplaceRef, loopResult.ToString());
+                result.ReplaceFirstOccurrence(objLoop.ReplaceRef, loopResult.ToString());
             }
 
             // ---- Direct Replacements ----
             foreach (ReplaceCode replaceCode in template.ReplaceCodes)
             {
                 if (propMap.TryGetValue(replaceCode.GetTargetPropertyName(), out ExtractedObjProperty property))
-                    result.Replace(replaceCode.ReplaceRef, property.GetPropertyDisplayString(replaceCode.GetFormattingCommand(), options));
+                    result.ReplaceFirstOccurrence(replaceCode.ReplaceRef, property.GetPropertyDisplayString(replaceCode.GetFormattingCommand(), options));
                 else
-                    result.Replace(replaceCode.ReplaceRef, "{{ " + replaceCode.ReplaceCommand + " }}");
+                    result.ReplaceFirstOccurrence(replaceCode.ReplaceRef, "{{ " + replaceCode.ReplaceCommand + " }}");
             }
             return result.ToString();
         }
