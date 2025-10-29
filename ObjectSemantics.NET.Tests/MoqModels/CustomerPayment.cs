@@ -10,7 +10,6 @@ namespace ObjectSemantics.NET.Tests.MoqModels
         public string ReferenceNo { get; set; }
         public string PaidBy { get; set; }
         public string PaidByMobile { get; set; }
-        public string PaymentStatus { get; set; }
         public string RegisteredBy { get; set; }
         public string Narration { get; set; }
         public string CustomerName { get; set; }
@@ -19,7 +18,6 @@ namespace ObjectSemantics.NET.Tests.MoqModels
         public DateTime PaymentDate { get; set; }
         public Customer Customer { get; set; }
     }
-
     public class Customer
     {
         public int Id { get; set; }

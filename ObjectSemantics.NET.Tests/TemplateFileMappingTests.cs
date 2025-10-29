@@ -26,7 +26,6 @@ namespace ObjectSemantics.NET.Tests
                 PaidBy = "JOHN DOE",
                 PaidByMobile = "N/A",
                 PaymentDate = DateTime.Parse("2025-10-29T14:03:19.4147588"),
-                PaymentStatus = null,
                 RegisteredBy = "George Waynne",
                 Customer = new Customer
                 {
@@ -40,35 +39,21 @@ namespace ObjectSemantics.NET.Tests
                 LedgerAccountName = "Cash A/C"
             };
 
-
             //additional headers
             var additionalParams = new Dictionary<string, object>
             {
-                ["BranchId"] = "1",
                 ["BranchName"] = "MAIN BRANCH",
-                ["BranchMobile"] = "Default",
-                ["BranchEmail"] = "Default",
-                ["BranchAddress"] = "Default",
-                ["customer_name"] = "JOHN DOE",
-                ["customer_email"] = "",
-                ["customer_mobile"] = "N/A",
-                ["customer_address"] = "",
-                ["customer_taxrefno"] = "",
+                ["CompanyName"] = "TEST COMPANY",
+                ["CompanyEmail"] = "test@gmail.com",
+                ["CompanyAddress"] = "Test Address",
+                ["CompanyMobile"] = "+2547000000001",
                 ["customer_prevBalance"] = "19,395.00",
                 ["customer_currentBalance"] = "19,095.00",
-                ["CompanyAddress"] = "Test Address",
-                ["CompanyBusinessType"] = "RETAIL & WHOLESALE STORE",
-                ["CompanyEmail"] = "test@gmail.com",
-                ["CompanyMobile"] = "+2547000000001",
-                ["CompanyName"] = "TEST COMPANY",
-                ["CompanyTaxNo"] = "P000000001",
-                ["ReportsDeliveryEmailAddresses"] = "",
                 ["CompanyLogo"] = "logo.jpg",
-                ["footer"] = "!Thank you and Come Again!"
             };
 
             //map
-            var result = payment.Map(template, additionalParams);
+            string result = payment.Map(template, additionalParams);
 
             Assert.Equal(result, expectedResult);
         }
