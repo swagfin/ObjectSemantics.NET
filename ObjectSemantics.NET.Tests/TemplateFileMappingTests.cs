@@ -24,7 +24,6 @@ namespace ObjectSemantics.NET.Tests
                 LedgerAccountId = 1,
                 ReferenceNo = "CP-20251029-14QH",
                 PaidBy = "JOHN DOE",
-                PaidByMobile = "N/A",
                 PaymentDate = DateTime.Parse("2025-10-29T14:03:19.4147588"),
                 RegisteredBy = "George Waynne",
                 Customer = new Customer
