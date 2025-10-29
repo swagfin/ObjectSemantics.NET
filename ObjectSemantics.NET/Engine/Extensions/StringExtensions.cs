@@ -5,21 +5,6 @@ namespace ObjectSemantics.NET.Engine.Extensions
 {
     internal static class StringExtensions
     {
-        public static StringBuilder ReplaceFirstOccurrence(this StringBuilder sb, string search, string replace)
-        {
-            if (sb == null || string.IsNullOrEmpty(search))
-                return sb;
-
-            int pos = sb.ToString().IndexOf(search, StringComparison.Ordinal);
-            if (pos < 0)
-                return sb;
-
-            sb.Remove(pos, search.Length);
-            sb.Insert(pos, replace);
-
-            return sb;
-        }
-
         public static string ReplaceFirstOccurrence(this string text, string search, string replace)
         {
             int pos = text.IndexOf(search);

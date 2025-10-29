@@ -15,8 +15,7 @@ namespace ObjectSemantics.NET.Engine
     {
         private static readonly ConcurrentDictionary<Type, PropertyInfo[]> PropertyCache = new ConcurrentDictionary<Type, PropertyInfo[]>();
 
-        private static readonly Regex IfConditionRegex = new Regex(@"{{\s*#if\s*\(\s*(?<param>\w+)\s*(?<operator>==|!=|>=|<=|>|<)\s*(?<value>[^)]+)\s*\)\s*}}(?<code>[\s\S]*?)(?:{{\s*#else\s*}}(?<else>[\s\S]*?))?{{\s*#endif\s*}}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
+        private static readonly Regex IfConditionRegex = new Regex(@"{{\s*#\s*if\s*\(\s*(?<param>\w+)\s*(?<operator>==|!=|>=|<=|>|<)\s*(?<value>[^)]+?)\s*\)\s*}}(?<code>[\s\S]*?)(?:{{\s*#\s*else\s*}}(?<else>[\s\S]*?))?{{\s*#\s*endif\s*}}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex LoopBlockRegex = new Regex(@"{{\s*#\s*foreach\s*\(\s*(\w+)\s*\)\s*\}\}([\s\S]*?)\{\{\s*#\s*endforeach\s*}}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private static readonly Regex DirectParamRegex = new Regex(@"{{(.+?)}}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
