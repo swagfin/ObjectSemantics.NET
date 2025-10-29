@@ -140,5 +140,20 @@ My Dream Cars
             string expectedResult = " MORGAN  GEORGE  JANE ";
             Assert.Equal(expectedResult, generatedTemplate, false, true, true);
         }
+
+        [Theory]
+        [InlineData(@"{{ #foreach(MyFriends)  }}[{{ .:uppercase }}]{{ #endforeach }}")]
+        [InlineData(@"{{# foreach(MyFriends)  }}[{{ .:uppercase }}]{{# endforeach }}")]
+        [InlineData(@"{{ #foreach(MyFriends)  }}[{{ .:uppercase }}]{{  #endforeach }}")]
+        public void Should_Evaluate_ForEach_Having_Spaces_Before_And_After_Parentheses(string template)
+        {
+            Person person = new Person
+            {
+                MyFriends = new string[] { "Morgan", "George" }
+            };
+
+            string result = person.Map(template);
+            Assert.Equal("[MORGAN][GEORGE]", result);
+        }
     }
 }
