@@ -101,5 +101,33 @@ namespace ObjectSemantics.NET.Tests
             });
             Assert.Equal(expected, generatedTemplate);
         }
+
+
+        [Fact]
+        public void Additional_Headers_And_Class_Properties_Should_Also_Be_Mapped_Combined()
+        {
+            Payment payment = new Payment
+            {
+                Id = 1,
+                Amount = 1000,
+                PayMethod = "CHEQUE",
+                PayMethodId = 2,
+                ReferenceNo = "CHEQUE0001",
+                UserId = 242
+            };
+            //additional params (outside the class)
+            Dictionary<string, object> additionalParams = new Dictionary<string, object>
+            {
+                { "ReceivedBy", "John Doe"},
+                { "NewBalance", 1050 }
+            };
+
+            string generatedTemplate = payment.Map("{{Id}}-{{ ReferenceNo }} Confirmed. ${{ Amount:N2 }} received via {{ PayMethod }}({{PayMethodId}}) from user-id {{ UserId }}. New Balance: {{ NewBalance:N2 }}, Received By: {{ReceivedBy}}.", additionalParams);
+
+
+            string expectedResponse = "1-CHEQUE0001 Confirmed. $1,000.00 received via CHEQUE(2) from user-id 242. New Balance: 1,050.00, Received By: John Doe.";
+
+            Assert.Equal(generatedTemplate, expectedResponse);
+        }
     }
 }
