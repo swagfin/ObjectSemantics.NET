@@ -1,0 +1,52 @@
+﻿<Template font="Calibri" FontSize="10" MarginTop="10">
+
+	<Data FontStyle="Bold" FontSize="11" TextWrap ="True" Align="Center">{{ CompanyName }}</Data>
+	<Data TextWrap ="True" Align="Center">{{ CompanyEmail }}</Data>
+	<Data TextWrap ="True" Align="Center">{{ CompanyAddress }}</Data>
+	<Data TextWrap ="True" Align="Center">{{ CompanyMobile }}</Data>
+
+	<LineBreak/>
+	<Data FontStyle="Bold" FontSize="12" Align="Center">CUSTOMER PAYMENT RECEIPT</Data>
+
+	<LineBreak/>
+
+	<Data>Payment No #: {{ Id }}</Data>
+	<Data>Ref No #: {{ ReferenceNo }}</Data>
+	<Data>Payment Date: {{ PaymentDate:dd-MMM-yyyy  hh:mm tt }}</Data>
+
+	<Line Style="Dash" />
+	<Data FontStyle="Bold" Align="Right">PAYMENT TO</Data>
+	<Data TextWrap ="True" Align="Right">{{ BranchName }}</Data>
+	<Data TextWrap ="True" Align="Right">Account: {{ LedgerAccountName }}</Data>
+	<Data TextWrap ="True" Align="Right">Account Code: {{ LedgerAccountId }}</Data>
+	<LineBreak/>
+
+	<Line Style="Dash" />
+	<Data FontStyle="Bold">PAYMENT FROM</Data>
+	<Data TextWrap ="True">{{ CustomerName }}</Data>
+	<Data TextWrap ="True">Account Code: {{ CustomerId }}</Data>
+	<Data TextWrap ="True">Paid By: {{ PaidBy }}</Data>
+	<LineBreak/>
+
+	<Line Style="Dash" />
+
+	<Grid ColumnWidths="2*1">
+		<GridRow>
+			<Data Grid.Column="0" FontStyle="Bold">AMOUNT</Data>
+			<Data Grid.Column="1" FontStyle="Bold" FontSize="11" Align="Right">{{ Amount:N2 }}</Data>
+		</GridRow>
+	</Grid>
+
+	<Data Align="Center" TextWrap="True">{{ Narration }}</Data>
+	<Line Style="Dash" />
+
+	<LineBreak/>
+
+	<Data>Payment received by: {{ RegisteredBy }}</Data>
+	<LineBreak/>
+	<Data Align="Center" TextWrap ="True">Customer Prev. Bal: {{ customer_prevBalance }}, Current Bal: {{ customer_currentBalance }}</Data>
+	<LineBreak/>
+	<LineBreak/>
+	<Data  Align="Center"  FontSize="8">Powered By Semantic POS | www.semanticpos.com</Data>
+
+</Template>

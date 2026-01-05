@@ -1,0 +1,52 @@
+﻿<Template font="Calibri" FontSize="10" MarginTop="10">
+
+	<Data FontStyle="Bold" FontSize="11" TextWrap ="True" Align="Center">TEST COMPANY</Data>
+	<Data TextWrap ="True" Align="Center">test@gmail.com</Data>
+	<Data TextWrap ="True" Align="Center">Test Address</Data>
+	<Data TextWrap ="True" Align="Center">+2547000000001</Data>
+
+	<LineBreak/>
+	<Data FontStyle="Bold" FontSize="12" Align="Center">CUSTOMER PAYMENT RECEIPT</Data>
+
+	<LineBreak/>
+
+	<Data>Payment No #: 12719</Data>
+	<Data>Ref No #: CP-20251029-14QH</Data>
+	<Data>Payment Date: 29-Oct-2025  02:03 PM</Data>
+
+	<Line Style="Dash" />
+	<Data FontStyle="Bold" Align="Right">PAYMENT TO</Data>
+	<Data TextWrap ="True" Align="Right">MAIN BRANCH</Data>
+	<Data TextWrap ="True" Align="Right">Account: Cash A/C</Data>
+	<Data TextWrap ="True" Align="Right">Account Code: 1</Data>
+	<LineBreak/>
+
+	<Line Style="Dash" />
+	<Data FontStyle="Bold">PAYMENT FROM</Data>
+	<Data TextWrap ="True">JOHN DOE ENTERPRISES</Data>
+	<Data TextWrap ="True">Account Code: 54</Data>
+	<Data TextWrap ="True">Paid By: JOHN DOE</Data>
+	<LineBreak/>
+
+	<Line Style="Dash" />
+
+	<Grid ColumnWidths="2*1">
+		<GridRow>
+			<Data Grid.Column="0" FontStyle="Bold">AMOUNT</Data>
+			<Data Grid.Column="1" FontStyle="Bold" FontSize="11" Align="Right">300.00</Data>
+		</GridRow>
+	</Grid>
+
+	<Data Align="Center" TextWrap="True"></Data>
+	<Line Style="Dash" />
+
+	<LineBreak/>
+
+	<Data>Payment received by: George Waynne</Data>
+	<LineBreak/>
+	<Data Align="Center" TextWrap ="True">Customer Prev. Bal: 19,395.00, Current Bal: 19,095.00</Data>
+	<LineBreak/>
+	<LineBreak/>
+	<Data  Align="Center"  FontSize="8">Powered By Semantic POS | www.semanticpos.com</Data>
+
+</Template>

@@ -130,5 +130,21 @@ namespace ObjectSemantics.NET.Tests
             string result = person.Map(template);
             Assert.Equal(expected, result);
         }
+
+
+        [Theory]
+        [InlineData(@"{{#if(MyCars==0)}}Zero Cars{{#else}}Hmmm!{{#endif}}")]
+        [InlineData(@"{{# if (MyCars==0)}}Zero Cars{{ # else }}Hmmm!{{ # endif}}")]
+        [InlineData(@"{{ #if(MyCars==0) }}Zero Cars{{ #endif }}")]
+        public void Should_Evaluate_If_Having_Spaces_Before_And_After_Parentheses(string template)
+        {
+            Person person = new Person
+            {
+                MyCars = null
+            };
+
+            string result = person.Map(template);
+            Assert.Equal("Zero Cars", result);
+        }
     }
 }
