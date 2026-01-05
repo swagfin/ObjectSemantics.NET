@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Text;
 
 namespace ObjectSemantics.NET.Engine.Extensions
@@ -36,7 +37,7 @@ namespace ObjectSemantics.NET.Engine.Extensions
                     // Convert the byte array to hexadecimal string
                     StringBuilder sb = new StringBuilder();
                     for (int i = 0; i < hashBytes.Length; i++)
-                        sb.Append(hashBytes[i].ToString("X2"));
+                        sb.Append(hashBytes[i].ToString("X2", CultureInfo.InvariantCulture));
                     return sb.ToString();
                 }
             }

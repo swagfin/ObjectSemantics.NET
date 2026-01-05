@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Globalization;
 
 namespace ObjectSemantics.NET.Engine.Models
 {
@@ -8,7 +9,8 @@ namespace ObjectSemantics.NET.Engine.Models
         public Type Type { get; set; }
         public string Name { get; set; }
         public object OriginalValue { get; set; }
-        public string StringFormatted { get { return string.Format("{0}", OriginalValue); } }
+        public string StringFormatted => Convert.ToString(OriginalValue, CultureInfo.InvariantCulture);
+
         public bool IsEnumerableObject
         {
             get { return typeof(IEnumerable).IsAssignableFrom(Type) && Type != typeof(string); }
