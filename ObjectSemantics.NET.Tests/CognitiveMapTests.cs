@@ -48,9 +48,9 @@ namespace ObjectSemantics.NET.Tests
                 { "DateOfBirth", new DateTime(1995, 01, 01) }
             };
 
-            string generatedTemplate = "Name: {{ Name }} | Occupation: {{ Occupation }} | DOB: {{ DateOfBirth }}".Map(person, additionalParams);
-
-            Assert.Equal($"Name: {person.Name} | Occupation: {additionalParams["Occupation"]} | DOB: {additionalParams["DateOfBirth"]}", generatedTemplate);
+            string generatedTemplate = "Name: {{ Name }} | Occupation: {{ Occupation }} | DOB: {{ DateOfBirth:yyyy }}".Map(person, additionalParams);
+            string expected = "Name: John Doe | Occupation: Developer | DOB: 1995";
+            Assert.Equal(expected, generatedTemplate);
         }
 
 

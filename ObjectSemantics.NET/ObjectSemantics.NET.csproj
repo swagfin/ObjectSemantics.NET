@@ -15,9 +15,9 @@
   ToBase64
   FromBase64
 . Added template extension method to allow mapping directly from Template</PackageReleaseNotes>
-		<AssemblyVersion>7.0.1</AssemblyVersion>
-		<FileVersion>7.0.1</FileVersion>
-		<Version>7.0.1</Version>
+		<Version>7.0.2</Version>
+		<AssemblyVersion>$(Version)</AssemblyVersion>
+		<FileVersion>$(Version)</FileVersion>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<ApplicationIcon></ApplicationIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>

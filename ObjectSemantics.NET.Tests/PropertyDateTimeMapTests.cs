@@ -9,13 +9,14 @@ namespace ObjectSemantics.NET.Tests
         [Fact]
         public void Should_Map_From_Date()
         {
-            DateTime date = new DateTime(2022, 11, 27, 18, 13, 59);
+            DateTime date = new DateTime(2022, 2, 27, 18, 13, 59);
             Car car = new Car()
             {
                 ManufactureDate = date
             };
             string result = car.Map("{{ ManufactureDate:yyyy }}|{{ ManufactureDate:yyyy-MM-dd HH:mm tt }}");
-            Assert.Equal($"{car.ManufactureDate:yyyy}|{car.ManufactureDate:yyyy-MM-dd HH:mm tt}", result, false, true, true);
+            string expected = "2022|2022-02-27 18:13 PM";
+            Assert.Equal(expected, result, false, true, true);
         }
 
         [Fact]
@@ -25,8 +26,9 @@ namespace ObjectSemantics.NET.Tests
             {
                 LastServiceDate = null
             };
-            string result = car.Map("Last serviced: {{ LastServiceDate }}");
-            Assert.Equal($"Last serviced: {car.LastServiceDate}", result, false, true, true);
+            string result = car.Map("Last serviced: {{ LastServiceDate:yyyy-MM-dd hh:mm tt }}");
+            string expected = "Last serviced: ";
+            Assert.Equal(expected, result, false, true, true);
         }
 
         [Fact]
@@ -36,8 +38,9 @@ namespace ObjectSemantics.NET.Tests
             {
                 LastServiceDate = new DateTime(2025, 1, 1)
             };
-            string result = car.Map("Last serviced: {{ LastServiceDate }}");
-            Assert.Equal($"Last serviced: {car.LastServiceDate}", result, false, true, true);
+            string result = car.Map("Last serviced: {{ LastServiceDate:yyyy-MM-dd hh:mm tt }}");
+            string expected = $"Last serviced: 2025-01-01 12:00 AM";
+            Assert.Equal(expected, result, false, true, true);
         }
     }
 }

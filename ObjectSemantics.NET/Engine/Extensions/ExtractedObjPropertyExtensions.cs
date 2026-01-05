@@ -31,8 +31,6 @@ namespace ObjectSemantics.NET.Engine.Extensions
 
             // avoid repeated ToLower calls
             string fmt = customFormat.Trim();
-            string fmtLower = fmt.ToLowerInvariant();
-
             // handle numeric and datetime formats first
             try
             {
@@ -55,7 +53,7 @@ namespace ObjectSemantics.NET.Engine.Extensions
             }
 
             // custom string-based formats (single switch to avoid multiple ToLower() checks)
-            switch (fmtLower)
+            switch (fmt.ToLowerInvariant())
             {
                 case "uppercase": return val?.ToUpperInvariant();
                 case "lowercase": return val?.ToLowerInvariant();
@@ -102,8 +100,7 @@ namespace ObjectSemantics.NET.Engine.Extensions
                     }
                 }
 
-                if (t == typeof(int) || t == typeof(double) || t == typeof(long) ||
-                    t == typeof(float) || t == typeof(decimal))
+                if (t == typeof(int) || t == typeof(double) || t == typeof(long) || t == typeof(float) || t == typeof(decimal))
                 {
                     double v1 = Convert.ToDouble(original ?? 0, CultureInfo.InvariantCulture);
                     double v2 = Convert.ToDouble(GetConvertibleValue<double>(valueComparer), CultureInfo.InvariantCulture);
