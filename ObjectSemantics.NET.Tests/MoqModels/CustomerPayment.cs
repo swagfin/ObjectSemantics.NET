@@ -24,5 +24,12 @@ namespace ObjectSemantics.NET.Tests.MoqModels
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string CompanyName { get; set; }
+        public CustomerBankingDetail BankingDetail { get; set; }
+    }
+
+    public class CustomerBankingDetail
+    {
+        public string BankName { get; set; }
+        public string AccountNumber { get; set; }
     }
 }

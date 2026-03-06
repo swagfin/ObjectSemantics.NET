@@ -29,7 +29,7 @@ namespace ObjectSemantics.NET.Engine
             // ---- IF Conditions ----
             foreach (ReplaceIfOperationCode ifCondition in template.ReplaceIfConditionCodes)
             {
-                if (!propMap.TryGetValue(ifCondition.IfPropertyName, out ExtractedObjProperty property))
+                if (!TryResolveProperty(propMap, ifCondition.IfPropertyName, out ExtractedObjProperty property))
                 {
                     result.ReplaceFirstOccurrence(ifCondition.ReplaceRef, "[IF-CONDITION EXCEPTION]: unrecognized property: [" + ifCondition.IfPropertyName + "]");
                     continue;
@@ -89,7 +89,7 @@ namespace ObjectSemantics.NET.Engine
                         }
                         else
                         {
-                            if (rowMap.TryGetValue(propName, out ExtractedObjProperty p))
+                            if (TryResolveProperty(rowMap, propName, out ExtractedObjProperty p))
                                 activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, p.GetPropertyDisplayString(objLoopCode.GetFormattingCommand(), options));
                             else
                                 activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, objLoopCode.ReplaceCommand);
@@ -105,7 +105,7 @@ namespace ObjectSemantics.NET.Engine
             // ---- Direct Replacements ----
             foreach (ReplaceCode replaceCode in template.ReplaceCodes)
             {
-                if (propMap.TryGetValue(replaceCode.GetTargetPropertyName(), out ExtractedObjProperty property))
+                if (TryResolveProperty(propMap, replaceCode.GetTargetPropertyName(), out ExtractedObjProperty property))
                     result.ReplaceFirstOccurrence(replaceCode.ReplaceRef, property.GetPropertyDisplayString(replaceCode.GetFormattingCommand(), options));
                 else
                     result.ReplaceFirstOccurrence(replaceCode.ReplaceRef, "{{ " + replaceCode.ReplaceCommand + " }}");
@@ -235,6 +235,79 @@ namespace ObjectSemantics.NET.Engine
             }
 
             return result;
+        }
+
+        private static bool TryResolveProperty(Dictionary<string, ExtractedObjProperty> propMap, string propertyPath, out ExtractedObjProperty result)
+        {
+            result = null;
+            if (propMap == null || string.IsNullOrWhiteSpace(propertyPath))
+                return false;
+
+            string path = propertyPath.Trim();
+            if (propMap.TryGetValue(path, out result))
+                return true;
+
+            int dotIndex = path.IndexOf('.');
+            if (dotIndex < 0)
+                return false;
+
+            string rootName = path.Substring(0, dotIndex).Trim();
+            string nestedPath = path.Substring(dotIndex + 1).Trim();
+            if (string.IsNullOrEmpty(rootName) || string.IsNullOrEmpty(nestedPath))
+                return false;
+
+            if (!propMap.TryGetValue(rootName, out ExtractedObjProperty rootProperty))
+                return false;
+
+            return TryResolveNestedProperty(rootProperty, nestedPath, path, out result);
+        }
+
+        private static bool TryResolveNestedProperty(ExtractedObjProperty rootProperty, string nestedPath, string fullPath, out ExtractedObjProperty result)
+        {
+            result = null;
+            if (rootProperty == null || string.IsNullOrWhiteSpace(nestedPath))
+                return false;
+
+            string[] segments = nestedPath.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+            if (segments.Length == 0)
+                return false;
+
+            object currentValue = rootProperty.OriginalValue;
+            Type currentType = rootProperty.Type;
+
+            for (int i = 0; i < segments.Length; i++)
+            {
+                if (currentType == null)
+                    return false;
+
+                string segment = segments[i].Trim();
+                if (string.IsNullOrEmpty(segment))
+                    return false;
+
+                PropertyInfo nextProperty = currentType
+                    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .FirstOrDefault(p => p.GetIndexParameters().Length == 0 && string.Equals(p.Name, segment, StringComparison.OrdinalIgnoreCase));
+
+                if (nextProperty == null)
+                    return false;
+
+                object nextValue = currentValue == null ? null : nextProperty.GetValue(currentValue, null);
+                if (i == segments.Length - 1)
+                {
+                    result = new ExtractedObjProperty
+                    {
+                        Name = fullPath,
+                        Type = nextProperty.PropertyType,
+                        OriginalValue = nextValue
+                    };
+                    return true;
+                }
+
+                currentType = nextProperty.PropertyType;
+                currentValue = nextValue;
+            }
+
+            return false;
         }
     }
 }
