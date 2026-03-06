@@ -1,158 +1,107 @@
 # ObjectSemantics.NET
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fswagfin%2FObjectSemantics.NET.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fswagfin%2FObjectSemantics.NET?ref=badge_shield)
 
-**Simple and flexible object-to-template string mapper with formatting support**
+Object-to-template mapping for .NET with nested property support, loops, conditions, formatting, and lightweight calculations.
 
-## 🧠 Overview
+## Why ObjectSemantics.NET
+Use it when you need fast, readable template mapping for:
+- Email and SMS templates
+- Receipts, invoices, and reports
+- Notification payloads
+- Config and log rendering
 
-**ObjectSemantics.NET** is a lightweight C# library that lets you inject object property values directly into string templates much like [Handlebars](https://handlebarsjs.com/) or Helm templates, but focused on .NET.
+## Features
+- Direct property mapping: `{{ Name }}`
+- Nested property mapping: `{{ Customer.BankingDetail.BankName }}`
+- Collection loops: `{{ #foreach(Items) }}...{{ #endforeach }}`
+- Conditional blocks: `{{ #if(Age >= 18) }}...{{ #else }}...{{ #endif }}`
+- Built-in formatting for number/date/string
+- XML escaping option (`XmlCharEscaping = true`)
+- Calculation functions:
+  - `sum`, `avg`, `count`, `min`, `max`
+  - `calc` arithmetic expressions
+  - Function names accept optional leading underscores: `_sum(...)`, `__calc(...)`
 
-This is especially useful when you want to dynamically generate content such as:
-- Email templates
-- HTML fragments
-- Reports or invoices
-- Config files
-- Logging output
----
-
-## 📦 Installation
-
+## Installation
 Install from [NuGet](https://www.nuget.org/packages/ObjectSemantics.NET):
 
-```bash
+```powershell
 Install-Package ObjectSemantics.NET
 ```
 
----
-
-## 🚀 Quick Start
-
-### Example 1: Mapping Object Properties
-
+## Quick Start
 ```csharp
-Person person = new Person
-{
-    Name = "John Doe"
-};
+using ObjectSemantics.NET;
 
-// Define template and map it using the object
-string result = person.Map("I am {{ Name }}!");
-
-Console.WriteLine(result);
+var person = new Person { Name = "John Doe" };
+string output = person.Map("Hello {{ Name }}");
+// Hello John Doe
 ```
 
-**Output:**
-```
-I am John Doe!
-```
----
-
-### Example 2: Mapping Using String Extension
-
+## Template Examples
+### Nested mapping
 ```csharp
-Person person = new Person
+var payment = new CustomerPayment
 {
-    Name = "Jane Doe"
-};
-
-// You can also start with the string template
-string result = "I am {{ Name }}!".Map(person);
-
-Console.WriteLine(result);
-```
-
-**Output:**
-```
-I am Jane Doe!
-```
----
-
-### Example 3: Mapping Enumerable Collections (Looping)
-
-```csharp
-Person person = new Person
-{
-    MyCars = new List<Car>
+    Amount = 100000000,
+    Customer = new Customer
     {
-        new Car { Make = "BMW", Year = 2023 },
-        new Car { Make = "Rolls-Royce", Year = 2020 }
+        CompanyName = "CRUDSOFT TECHNOLOGIES"
     }
 };
 
-string template = @"
-{{ #foreach(MyCars) }}
- - {{ Year }} {{ Make }}
-{{ #endforeach }}";
-
-string result = person.Map(template);
-
-Console.WriteLine(result);
+string result = payment.Map("Paid Amount: {{ Amount:N2 }} By {{ Customer.CompanyName }}");
+// Paid Amount: 100,000,000.00 By CRUDSOFT TECHNOLOGIES
 ```
 
-**Output:**
-```
- - 2023 BMW
- - 2020 Rolls-Royce
-```
----
-
-### Example 4: Conditional Logic with `#if`, `#else`, and `#endif`
-
+### Loop + format
 ```csharp
-Person person = new Person
-{
-    Age = 40
-};
-
-string template = @"
-{{ #if(Age >= 18) }}
-  Adult
-{{ #else }}
-  Minor
-{{ #endif }}";
-
-string result = person.Map(template);
-
-Console.WriteLine(result);
+string template = "{{ #foreach(Items) }}[{{ Quantity }}x{{ Name }}={{ LineTotal:N2 }}]{{ #endforeach }}";
 ```
 
-**Output:**
-```
-Adult
-```
----
-### Example 5: Number Formatting Support
-
+### Condition
 ```csharp
-Car car = new Car
-{
-    Price = 50000
-};
-
-string result = car.Map("{{ Price:#,##0 }} | {{ Price:N2 }}");
-
-Console.WriteLine(result);
+string template = "{{ #if(IsPaid == true) }}PAID{{ #else }}UNPAID{{ #endif }}";
 ```
 
-**Output:**
+### Calculations
+```csharp
+// Aggregates
+"{{ __sum(Customer.Payments.Amount):N2 }}"
+"{{ _avg(Customer.Payments.PaidAmount):N2 }}"
+"{{ __count(Customer.Payments.Amount) }}"
+
+// Arithmetic expression
+"{{ __calc(PaidAmount - Customer.CreditLimit):N2 }}"
 ```
-50,000 | 50,000.00
-```
----
 
-## 💡 More Examples & Documentation
+Calculation behavior:
+- Null source/property in math path returns zero
+- Unknown property/path returns empty
+- Invalid/non-numeric math expression returns empty
 
-Explore more usage examples and edge cases in the Wiki Page:
+## Documentation
+Detailed wiki files are available in-repo:
+- [Wiki Home](wiki/Home.md)
+- [Getting Started](wiki/Getting-Started.md)
+- [Template Syntax](wiki/Template-Syntax.md)
+- [Calculations](wiki/Calculations.md)
+- [Real-World Recipes](wiki/Recipes.md)
+- [Troubleshooting](wiki/Troubleshooting.md)
 
-📁 [`Wiki Page`](https://github.com/swagfin/ObjectSemantics.NET/wiki/%F0%9F%9B%A0-Usage-Guide)
+These files can be copied directly into your GitHub Wiki repository.
 
----
+## Validation
+Current test suite covers:
+- Nested object mapping
+- Conditions and loops
+- String/number/date formatting
+- File template mapping
+- Real-world email and messaging scenarios
+- Expression functions and edge cases
 
-## 🤝 Contributing
+## Contributing
+Contributions are welcome through issues and pull requests.
 
-Feel free to open issues or contribute improvements via pull requests!
-
----
-
-## 📄 MIT License
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fswagfin%2FObjectSemantics.NET.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fswagfin%2FObjectSemantics.NET?ref=badge_large)
+## License
+[MIT](LICENSE)

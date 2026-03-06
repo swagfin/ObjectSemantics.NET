@@ -34,6 +34,83 @@ namespace ObjectSemantics.NET.Tests
         }
 
         [Fact]
+        public void Property_Of_Object_Should_Be_Mapped()
+        {
+            CustomerPayment customerPayment = new CustomerPayment
+            {
+                Amount = 100_000_000,
+                Customer =  new Customer
+                {
+                   CompanyName = "CRUDSOFT TECHNOLOGIES"   
+                } 
+            };
+            string generatedTemplate = "Paid Amount: {{ Amount:N2 }} By {{ Customer.CompanyName }}".Map(customerPayment);
+            Assert.Equal("Paid Amount: 100,000,000.00 By CRUDSOFT TECHNOLOGIES", generatedTemplate);
+        }
+
+        [Fact]
+        public void Nested_Property_Should_Be_Empty_When_Parent_Object_Is_Null()
+        {
+            CustomerPayment customerPayment = new CustomerPayment
+            {
+                Amount = 100_000_000,
+                Customer = null
+            };
+
+            string generatedTemplate = "Paid Amount: {{ Amount:N2 }} By {{ Customer.CompanyName }}".Map(customerPayment);
+            Assert.Equal("Paid Amount: 100,000,000.00 By ", generatedTemplate);
+        }
+
+        [Fact]
+        public void Nested_Property_Should_Be_Empty_When_Target_Property_Is_Null()
+        {
+            CustomerPayment customerPayment = new CustomerPayment
+            {
+                Amount = 100_000_000,
+                Customer = new Customer
+                {
+                    CompanyName = null
+                }
+            };
+
+            string generatedTemplate = "Paid Amount: {{ Amount:N2 }} By {{ Customer.CompanyName }}".Map(customerPayment);
+            Assert.Equal("Paid Amount: 100,000,000.00 By ", generatedTemplate);
+        }
+
+        [Fact]
+        public void Deeply_Nested_Property_Should_Be_Mapped()
+        {
+            CustomerPayment customerPayment = new CustomerPayment
+            {
+                Amount = 100_000_000,
+                Customer = new Customer
+                {
+                    BankingDetail = new CustomerBankingDetail
+                    {
+                        BankName = "KCB BANK"
+                    }
+                }
+            };
+
+            string generatedTemplate = "Paid Amount: {{ Amount:N2 }} Via {{ Customer.BankingDetail.BankName }}".Map(customerPayment);
+            Assert.Equal("Paid Amount: 100,000,000.00 Via KCB BANK", generatedTemplate);
+        }
+
+        [Fact]
+        public void Deeply_Nested_Property_Should_Be_Empty_When_Object_Is_Null()
+        {
+            CustomerPayment customerPayment = new CustomerPayment
+            {
+                Amount = 100_000_000,
+                Customer = null
+            };
+
+            string generatedTemplate = "Paid Amount: {{ Amount:N2 }} Via {{ Customer.BankingDetail.BankName }}".Map(customerPayment);
+            Assert.Equal("Paid Amount: 100,000,000.00 Via ", generatedTemplate);
+        }
+
+
+        [Fact]
         public void Additional_Headers_Should_Also_Be_Mapped()
         {
             Person person = new Person
