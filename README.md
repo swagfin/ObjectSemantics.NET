@@ -20,7 +20,6 @@ Use it when you need fast, readable template mapping for:
 - Calculation functions:
   - `sum`, `avg`, `count`, `min`, `max`
   - `calc` arithmetic expressions
-  - Function names accept optional leading underscores: `_sum(...)`, `__calc(...)`
 
 ## Installation
 Install from [NuGet](https://www.nuget.org/packages/ObjectSemantics.NET):
@@ -75,11 +74,6 @@ string template = "{{ #if(IsPaid == true) }}PAID{{ #else }}UNPAID{{ #endif }}";
 "{{ __calc(PaidAmount - Customer.CreditLimit):N2 }}"
 ```
 
-Calculation behavior:
-- Null source/property in math path returns zero
-- Unknown property/path returns empty
-- Invalid/non-numeric math expression returns empty
-
 ## Documentation
 Detailed wiki files are available in-repo:
 - [Wiki Home](wiki/Home.md)
@@ -88,17 +82,6 @@ Detailed wiki files are available in-repo:
 - [Calculations](wiki/Calculations.md)
 - [Real-World Recipes](wiki/Recipes.md)
 - [Troubleshooting](wiki/Troubleshooting.md)
-
-These files can be copied directly into your GitHub Wiki repository.
-
-## Validation
-Current test suite covers:
-- Nested object mapping
-- Conditions and loops
-- String/number/date formatting
-- File template mapping
-- Real-world email and messaging scenarios
-- Expression functions and edge cases
 
 ## Contributing
 Contributions are welcome through issues and pull requests.
