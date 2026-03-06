@@ -4,5 +4,7 @@
     {
         public string ReplaceRef { get; set; }
         public string ReplaceCommand { get; set; }
+        public string TargetPropertyName { get; set; }
+        public string FormattingCommand { get; set; }
     }
 }
