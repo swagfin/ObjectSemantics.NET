@@ -75,13 +75,8 @@ string template = "{{ #if(IsPaid == true) }}PAID{{ #else }}UNPAID{{ #endif }}";
 ```
 
 ## Documentation
-Detailed wiki files are available in-repo:
-- [Wiki Home](wiki/Home.md)
-- [Getting Started](wiki/Getting-Started.md)
-- [Template Syntax](wiki/Template-Syntax.md)
-- [Calculations](wiki/Calculations.md)
-- [Real-World Recipes](wiki/Recipes.md)
-- [Troubleshooting](wiki/Troubleshooting.md)
+Detailed wiki files are available at the Wiki Page:
+- [Go to Documentation](https://github.com/swagfin/ObjectSemantics.NET/wiki)
 
 ## Contributing
 Contributions are welcome through issues and pull requests.
