@@ -95,6 +95,10 @@ namespace ObjectSemantics.NET.Engine
 
                             if (EnginePropertyResolver.TryResolveProperty(rowMap, propName, out ExtractedObjProperty rowProperty))
                                 activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, rowProperty.GetPropertyDisplayString(formattingCommand, options));
+                            else if (EngineExpressionEvaluator.TryEvaluate(propName, row, rowMap, out ExtractedObjProperty expressionProperty, out bool renderEmptyOnExpressionFailure, out bool isExpressionCommand))
+                                activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, expressionProperty.GetPropertyDisplayString(formattingCommand, options));
+                            else if (isExpressionCommand && renderEmptyOnExpressionFailure)
+                                activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, string.Empty);
                             else
                                 activeRow.ReplaceFirstOccurrence(objLoopCode.ReplaceRef, objLoopCode.ReplaceCommand);
                         }
@@ -115,6 +119,10 @@ namespace ObjectSemantics.NET.Engine
 
                 if (EnginePropertyResolver.TryResolveProperty(propMap, targetPropertyName, out ExtractedObjProperty property))
                     result.ReplaceFirstOccurrence(replaceCode.ReplaceRef, property.GetPropertyDisplayString(formattingCommand, options));
+                else if (EngineExpressionEvaluator.TryEvaluate(targetPropertyName, record, propMap, out ExtractedObjProperty expressionProperty, out bool renderEmptyOnExpressionFailure, out bool isExpressionCommand))
+                    result.ReplaceFirstOccurrence(replaceCode.ReplaceRef, expressionProperty.GetPropertyDisplayString(formattingCommand, options));
+                else if (isExpressionCommand && renderEmptyOnExpressionFailure)
+                    result.ReplaceFirstOccurrence(replaceCode.ReplaceRef, string.Empty);
                 else
                     result.ReplaceFirstOccurrence(replaceCode.ReplaceRef, "{{ " + replaceCode.ReplaceCommand + " }}");
             }
