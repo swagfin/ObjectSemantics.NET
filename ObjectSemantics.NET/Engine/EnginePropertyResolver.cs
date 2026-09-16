@@ -22,10 +22,10 @@ namespace ObjectSemantics.NET.Engine
             if (!propMap.TryGetValue(rootName, out ExtractedObjProperty rootProperty))
                 return false;
 
-            return TryResolveNestedProperty(rootProperty, propertyPath.Segments, path, out result);
+            return TryResolveNestedProperty(rootProperty, propertyPath.Segments, out result);
         }
 
-        private static bool TryResolveNestedProperty(ExtractedObjProperty rootProperty, string[] segments, string fullPath, out ExtractedObjProperty result)
+        private static bool TryResolveNestedProperty(ExtractedObjProperty rootProperty, string[] segments, out ExtractedObjProperty result)
         {
             result = null;
             if (rootProperty == null)
@@ -56,7 +56,6 @@ namespace ObjectSemantics.NET.Engine
                 {
                     result = new ExtractedObjProperty
                     {
-                        Name = fullPath,
                         Type = currentType,
                         OriginalValue = nextValue
                     };
@@ -68,6 +67,5 @@ namespace ObjectSemantics.NET.Engine
 
             return false;
         }
-
     }
 }

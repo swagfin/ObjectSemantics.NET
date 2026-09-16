@@ -27,7 +27,6 @@ namespace ObjectSemantics.NET.Engine
                 propertyMap.Add(accessor.Name, new ExtractedObjProperty
                 {
                     Type = accessor.PropertyType,
-                    Name = accessor.Name,
                     OriginalValue = value == null ? null : accessor.Getter(value)
                 });
             }
@@ -39,7 +38,6 @@ namespace ObjectSemantics.NET.Engine
                     propertyMap.Add(p.Key, new ExtractedObjProperty
                     {
                         Type = p.Value != null ? p.Value.GetType() : typeof(object),
-                        Name = p.Key,
                         OriginalValue = p.Value
                     });
                 }

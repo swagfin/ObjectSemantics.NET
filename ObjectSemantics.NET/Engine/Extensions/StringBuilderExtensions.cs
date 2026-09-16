@@ -1,7 +1,8 @@
-﻿using System.Text;
+using System.Text;
 
 namespace ObjectSemantics.NET.Engine.Extensions
 {
+    /// <summary>Legacy public helper retained for consumer compatibility; template rendering no longer uses string replacement.</summary>
     public static class StringBuilderExtensions
     {
         public static StringBuilder ReplaceFirstOccurrence(this StringBuilder sb, string search, string replace)

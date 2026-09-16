@@ -69,7 +69,7 @@ namespace ObjectSemantics.NET.Engine
                 }
                 if (node.Kind == TemplateNodeKind.Value && scope.IsRow && node.Path.Text == ".")
                 {
-                    ExtractedObjProperty current = new ExtractedObjProperty { Name = ".", Type = scope.Type, OriginalValue = scope.Model };
+                    ExtractedObjProperty current = new ExtractedObjProperty { Type = scope.Type, OriginalValue = scope.Model };
                     context.Write(current.GetPropertyDisplayString(node.Format, context.Options));
                     continue;
                 }

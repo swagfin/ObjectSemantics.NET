@@ -6,7 +6,6 @@
 		<Copyright>Crudsoft Technologies @ 2025</Copyright>
 		<PackageProjectUrl>https://github.com/swagfin/ObjectSemantics.NET</PackageProjectUrl>
 		<PackageIcon>icon.jpg</PackageIcon>
-		<PackageIconUrl />
 		<RepositoryUrl>https://github.com/swagfin/ObjectSemantics.NET</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageReleaseNotes>Version 8.0.0 introduces structured template parsing and ordered rendering, reusable compiled templates, writer output, syntax diagnostics, strict mode, cancellation, and execution limits.
@@ -17,7 +16,6 @@ Existing Map APIs and .NET Standard 2.0 support remain. Review README compatibil
 		<AssemblyVersion>$(Version)</AssemblyVersion>
 		<FileVersion>$(Version)</FileVersion>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-		<ApplicationIcon></ApplicationIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>ObjectMapper;Mapper;Formatter;ClassMapper;ClassToString;TemplateMapper; AutoMapper</PackageTags>
 		<Title>ObjectSemantics.NET</Title>
@@ -39,10 +37,6 @@ Existing Map APIs and .NET Standard 2.0 support remain. Review README compatibil
 
 	<ItemGroup>
 		<None Update="icon.jpg">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-		<None Update="README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>

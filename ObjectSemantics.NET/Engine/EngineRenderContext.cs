@@ -64,7 +64,7 @@ namespace ObjectSemantics.NET.Engine
                     {
                         if (EngineTypeMetadataCache.TryGetPropertyAccessor(type, parameter.Key, out _))
                             throw new ArgumentException("Additional parameter duplicates a model property: " + parameter.Key);
-                        _properties.Add(parameter.Key, new ExtractedObjProperty { Name = parameter.Key, Type = parameter.Value == null ? typeof(object) : parameter.Value.GetType(), OriginalValue = parameter.Value });
+                        _properties.Add(parameter.Key, new ExtractedObjProperty { Type = parameter.Value == null ? typeof(object) : parameter.Value.GetType(), OriginalValue = parameter.Value });
                     }
                 }
             }
@@ -87,7 +87,7 @@ namespace ObjectSemantics.NET.Engine
                 return true;
             if (!Options.LazyPropertyAccess || !EngineTypeMetadataCache.TryGetPropertyAccessor(Type, name, out PropertyAccessor accessor))
                 return false;
-            property = new ExtractedObjProperty { Name = name, Type = accessor.PropertyType, OriginalValue = Model == null ? null : accessor.Getter(Model) };
+            property = new ExtractedObjProperty { Type = accessor.PropertyType, OriginalValue = Model == null ? null : accessor.Getter(Model) };
             _properties.Add(name, property);
             return true;
         }

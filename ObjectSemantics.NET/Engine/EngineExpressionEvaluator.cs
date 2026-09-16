@@ -13,7 +13,6 @@ namespace ObjectSemantics.NET.Engine
 
         internal class ExpressionPlan
         {
-            public string Command { get; set; }
             public string Function { get; set; }
             public PropertyPath Argument { get; set; }
             public ExpressionToken[] Instructions { get; set; }
@@ -28,7 +27,6 @@ namespace ObjectSemantics.NET.Engine
                 return null;
             ExpressionPlan plan = new ExpressionPlan
             {
-                Command = command,
                 Function = match.Groups["fn"].Value.Trim().ToLowerInvariant(),
                 Argument = new PropertyPath(match.Groups["arg"].Value.Trim())
             };
@@ -55,7 +53,6 @@ namespace ObjectSemantics.NET.Engine
             isExpressionCommand = plan != null;
             if (plan == null)
                 return false;
-            string expressionCommand = plan.Command;
             string fn = plan.Function;
             PropertyPath arg = plan.Argument;
 
@@ -69,7 +66,7 @@ namespace ObjectSemantics.NET.Engine
                             renderEmptyOnFailure = true;
                             return false;
                         }
-                        evaluatedProperty = CreateDecimalProperty(expressionCommand, sum);
+                        evaluatedProperty = CreateDecimalProperty(sum);
                         return true;
 
                     case "avg":
@@ -78,7 +75,7 @@ namespace ObjectSemantics.NET.Engine
                             renderEmptyOnFailure = true;
                             return false;
                         }
-                        evaluatedProperty = CreateDecimalProperty(expressionCommand, avg);
+                        evaluatedProperty = CreateDecimalProperty(avg);
                         return true;
 
                     case "count":
@@ -89,7 +86,6 @@ namespace ObjectSemantics.NET.Engine
                         }
                         evaluatedProperty = new ExtractedObjProperty
                         {
-                            Name = expressionCommand,
                             Type = typeof(int),
                             OriginalValue = count
                         };
@@ -101,7 +97,7 @@ namespace ObjectSemantics.NET.Engine
                             renderEmptyOnFailure = true;
                             return false;
                         }
-                        evaluatedProperty = CreateDecimalProperty(expressionCommand, min);
+                        evaluatedProperty = CreateDecimalProperty(min);
                         return true;
 
                     case "max":
@@ -110,7 +106,7 @@ namespace ObjectSemantics.NET.Engine
                             renderEmptyOnFailure = true;
                             return false;
                         }
-                        evaluatedProperty = CreateDecimalProperty(expressionCommand, max);
+                        evaluatedProperty = CreateDecimalProperty(max);
                         return true;
 
                     case "calc":
@@ -119,7 +115,7 @@ namespace ObjectSemantics.NET.Engine
                             renderEmptyOnFailure = true;
                             return false;
                         }
-                        evaluatedProperty = CreateDecimalProperty(expressionCommand, calcResult);
+                        evaluatedProperty = CreateDecimalProperty(calcResult);
                         return true;
                 }
 
@@ -132,11 +128,10 @@ namespace ObjectSemantics.NET.Engine
             }
         }
 
-        private static ExtractedObjProperty CreateDecimalProperty(string name, decimal value)
+        private static ExtractedObjProperty CreateDecimalProperty(decimal value)
         {
             return new ExtractedObjProperty
             {
-                Name = name,
                 Type = typeof(decimal),
                 OriginalValue = value
             };
