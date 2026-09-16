@@ -1,4 +1,4 @@
-﻿using ObjectSemantics.NET.Engine;
+using ObjectSemantics.NET.Engine;
 using ObjectSemantics.NET.Engine.Models;
 using System;
 using System.Collections.Generic;
@@ -7,6 +7,29 @@ namespace ObjectSemantics.NET
 {
     public static class TemplateMapper
     {
+        /// <summary>Prepare a reusable template. Options validate compilation; pass render options separately.</summary>
+        public static CompiledTemplate Compile(string template, TemplateMapperOptions options = null)
+        {
+            if (template == null) throw new ArgumentNullException(nameof(template));
+            TemplateMapperOptions activeOptions = (options ?? new TemplateMapperOptions()).Snapshot();
+            EngineTemplateRenderer.CheckSource(template, activeOptions);
+            EngineRunnerTemplate parsed = EngineTemplateCache.GetOrAdd(template, EngineTemplateParser.Parse);
+            EngineTemplateRenderer.CheckTemplate(parsed, activeOptions);
+            return new CompiledTemplate(parsed);
+        }
+
+        /// <summary>Validate syntax without evaluating model getters. Missing model values are checked by strict rendering.</summary>
+        public static IReadOnlyList<TemplateDiagnostic> Validate(string template)
+        {
+            return Compile(template).Diagnostics;
+        }
+
+        /// <summary>Replaces the process-wide template cache. Existing renders remain valid.</summary>
+        public static void ConfigureCache(int capacity = 2048, long maximumSourceCharacters = 16777216)
+        {
+            EngineTemplateCache.Configure(capacity, maximumSourceCharacters);
+        }
+
         /// <summary>
         /// Generate a mapped string from string
         /// </summary>
@@ -35,9 +58,10 @@ namespace ObjectSemantics.NET
         {
             if (record == null) return string.Empty;
             if (template == null) throw new Exception("Template Object can't be NULL");
-            if (options == null) options = new TemplateMapperOptions();
-            EngineRunnerTemplate runnerTemplate = EngineAlgorithim.GenerateRunnerTemplate(template);
-            return runnerTemplate == null ? throw new Exception($"Error Mapping!") : EngineAlgorithim.GenerateFromTemplate(record, runnerTemplate, additionalKeyValues, options);
+            options = (options ?? new TemplateMapperOptions()).Snapshot();
+            EngineTemplateRenderer.CheckSource(template, options);
+            EngineRunnerTemplate runnerTemplate = EngineTemplateCache.GetOrAdd(template, EngineTemplateParser.Parse);
+            return EngineTemplateRenderer.Render(record, runnerTemplate, additionalKeyValues, options);
         }
     }
 }

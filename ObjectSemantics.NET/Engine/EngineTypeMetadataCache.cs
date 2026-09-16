@@ -1,6 +1,7 @@
 using ObjectSemantics.NET.Engine.Models;
 using System;
-using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -9,7 +10,7 @@ namespace ObjectSemantics.NET.Engine
 {
     internal static class EngineTypeMetadataCache
     {
-        private static readonly ConcurrentDictionary<Type, TypePropertyCache> TypeCacheMap = new ConcurrentDictionary<Type, TypePropertyCache>();
+        private static readonly ConditionalWeakTable<Type, Lazy<TypePropertyCache>> TypeCacheMap = new ConditionalWeakTable<Type, Lazy<TypePropertyCache>>();
 
         private static readonly TypePropertyCache EmptyTypePropertyCache = new TypePropertyCache(Array.Empty<PropertyAccessor>(), new Dictionary<string, PropertyAccessor>(StringComparer.OrdinalIgnoreCase));
 
@@ -26,7 +27,6 @@ namespace ObjectSemantics.NET.Engine
                 propertyMap.Add(accessor.Name, new ExtractedObjProperty
                 {
                     Type = accessor.PropertyType,
-                    Name = accessor.Name,
                     OriginalValue = value == null ? null : accessor.Getter(value)
                 });
             }
@@ -38,7 +38,6 @@ namespace ObjectSemantics.NET.Engine
                     propertyMap.Add(p.Key, new ExtractedObjProperty
                     {
                         Type = p.Value != null ? p.Value.GetType() : typeof(object),
-                        Name = p.Key,
                         OriginalValue = p.Value
                     });
                 }
@@ -62,7 +61,7 @@ namespace ObjectSemantics.NET.Engine
             if (type == null)
                 return EmptyTypePropertyCache;
 
-            return TypeCacheMap.GetOrAdd(type, BuildTypePropertyCache);
+            return TypeCacheMap.GetValue(type, key => new Lazy<TypePropertyCache>(() => BuildTypePropertyCache(key), LazyThreadSafetyMode.ExecutionAndPublication)).Value;
         }
 
         private static TypePropertyCache BuildTypePropertyCache(Type type)
@@ -105,7 +104,7 @@ namespace ObjectSemantics.NET.Engine
         }
     }
 
-    internal sealed class PropertyAccessor
+    internal class PropertyAccessor
     {
         public PropertyAccessor(string name, Type propertyType, Func<object, object> getter)
         {
@@ -119,7 +118,7 @@ namespace ObjectSemantics.NET.Engine
         public Func<object, object> Getter { get; }
     }
 
-    internal sealed class TypePropertyCache
+    internal class TypePropertyCache
     {
         public TypePropertyCache(PropertyAccessor[] accessors, Dictionary<string, PropertyAccessor> propertyMap)
         {
