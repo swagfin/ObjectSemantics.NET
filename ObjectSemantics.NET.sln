@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObjectSemantics.NET", "Obje
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectSemantics.NET.Tests", "ObjectSemantics.NET.Tests\ObjectSemantics.NET.Tests.csproj", "{2BAC0553-674B-413F-ABC8-9DF4901E2D62}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectSemantics.NET.Benchmarks", "ObjectSemantics.NET.Benchmarks\ObjectSemantics.NET.Benchmarks.csproj", "{FB61CDBB-C615-44F3-A6D4-D90C37FFD563}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{2BAC0553-674B-413F-ABC8-9DF4901E2D62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BAC0553-674B-413F-ABC8-9DF4901E2D62}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BAC0553-674B-413F-ABC8-9DF4901E2D62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB61CDBB-C615-44F3-A6D4-D90C37FFD563}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB61CDBB-C615-44F3-A6D4-D90C37FFD563}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB61CDBB-C615-44F3-A6D4-D90C37FFD563}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB61CDBB-C615-44F3-A6D4-D90C37FFD563}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

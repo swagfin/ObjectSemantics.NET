@@ -1,8 +1,7 @@
-﻿using ObjectSemantics.NET.Engine.Models;
+using ObjectSemantics.NET.Engine.Models;
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.Globalization;
-using System.Linq;
 using System.Security;
 
 namespace ObjectSemantics.NET.Engine.Extensions
@@ -26,32 +25,22 @@ namespace ObjectSemantics.NET.Engine.Extensions
             if (string.IsNullOrEmpty(customFormat) || p.OriginalValue == null)
                 return p.StringFormatted;
 
-            Type t = p.Type;
-            string val = p.StringFormatted;
+            Type t = Nullable.GetUnderlyingType(p.Type) ?? p.Type;
 
             // avoid repeated ToLower calls
             string fmt = customFormat.Trim();
             // handle numeric and datetime formats first
             try
             {
-                if (t == typeof(int) || t == typeof(int?))
-                    return int.Parse(val, CultureInfo.InvariantCulture).ToString(fmt, CultureInfo.InvariantCulture);
-                if (t == typeof(double) || t == typeof(double?))
-                    return double.Parse(val, CultureInfo.InvariantCulture).ToString(fmt, CultureInfo.InvariantCulture);
-                if (t == typeof(long) || t == typeof(long?))
-                    return long.Parse(val, CultureInfo.InvariantCulture).ToString(fmt, CultureInfo.InvariantCulture);
-                if (t == typeof(float) || t == typeof(float?))
-                    return float.Parse(val, CultureInfo.InvariantCulture).ToString(fmt, CultureInfo.InvariantCulture);
-                if (t == typeof(decimal) || t == typeof(decimal?))
-                    return decimal.Parse(val, CultureInfo.InvariantCulture).ToString(fmt, CultureInfo.InvariantCulture);
-                if (t == typeof(DateTime) || t == typeof(DateTime?))
-                    return DateTime.Parse(val, CultureInfo.InvariantCulture).ToString(fmt, CultureInfo.InvariantCulture);
+                if (t == typeof(int) || t == typeof(double) || t == typeof(long) || t == typeof(float) || t == typeof(decimal) || t == typeof(DateTime))
+                    return ((IFormattable)p.OriginalValue).ToString(fmt, CultureInfo.InvariantCulture);
             }
-            catch
+            catch (FormatException)
             {
-                // fall through if invalid format
+                // Preserve the existing fallback for unsupported format strings.
             }
 
+            string val = p.StringFormatted;
             // custom string-based formats (single switch to avoid multiple ToLower() checks)
             switch (fmt.ToLowerInvariant())
             {
@@ -74,15 +63,21 @@ namespace ObjectSemantics.NET.Engine.Extensions
             return (T)Convert.ChangeType(value, typeof(T), CultureInfo.InvariantCulture);
         }
 
-        public static bool IsPropertyValueConditionPassed(this ExtractedObjProperty property, string valueComparer, string criteria)
+        public static bool IsPropertyValueConditionPassed(this ExtractedObjProperty property, string valueComparer, string criteria, EngineRenderContext context)
         {
             if (property == null)
                 return false;
 
             try
             {
-                Type t = property.Type;
+                Type nullableType = Nullable.GetUnderlyingType(property.Type);
+                Type t = nullableType ?? property.Type;
                 object original = property.OriginalValue;
+                if (nullableType != null && (original == null || string.Equals(valueComparer.Trim(), "null", StringComparison.OrdinalIgnoreCase)))
+                {
+                    bool bothNull = original == null && string.Equals(valueComparer.Trim(), "null", StringComparison.OrdinalIgnoreCase);
+                    return criteria == "==" ? bothNull : criteria == "!=" && !bothNull;
+                }
                 string crit = criteria?.Trim() ?? string.Empty;
 
                 if (t == typeof(string))
@@ -100,7 +95,23 @@ namespace ObjectSemantics.NET.Engine.Extensions
                     }
                 }
 
-                if (t == typeof(int) || t == typeof(double) || t == typeof(long) || t == typeof(float) || t == typeof(decimal))
+                if (t == typeof(int) || t == typeof(long) || t == typeof(decimal))
+                {
+                    decimal left = Convert.ToDecimal(original ?? 0, CultureInfo.InvariantCulture);
+                    decimal right = GetConvertibleValue<decimal>(valueComparer);
+                    switch (crit)
+                    {
+                        case "==": return left == right;
+                        case "!=": return left != right;
+                        case ">": return left > right;
+                        case ">=": return left >= right;
+                        case "<": return left < right;
+                        case "<=": return left <= right;
+                        default: return false;
+                    }
+                }
+
+                if (t == typeof(double) || t == typeof(float))
                 {
                     double v1 = Convert.ToDouble(original ?? 0, CultureInfo.InvariantCulture);
                     double v2 = Convert.ToDouble(GetConvertibleValue<double>(valueComparer), CultureInfo.InvariantCulture);
@@ -143,7 +154,16 @@ namespace ObjectSemantics.NET.Engine.Extensions
 
                 if (property.IsEnumerableObject)
                 {
-                    int v1 = original is IEnumerable<object> enumerable ? enumerable.Count() : 0;
+                    long v1 = 0;
+                    if (original is ICollection collection) v1 = collection.Count;
+                    else if (original is IEnumerable enumerable)
+                    {
+                        foreach (object item in enumerable)
+                        {
+                            context.CountIteration();
+                            v1++;
+                        }
+                    }
                     double v2 = Convert.ToDouble(GetConvertibleValue<double>(valueComparer), CultureInfo.InvariantCulture);
 
                     switch (crit)
@@ -160,7 +180,7 @@ namespace ObjectSemantics.NET.Engine.Extensions
 
                 return false;
             }
-            catch
+            catch (Exception exception) when (!(exception is OperationCanceledException) && !(exception is TemplateLimitExceededException))
             {
                 return false;
             }

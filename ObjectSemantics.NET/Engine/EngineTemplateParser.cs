@@ -1,103 +1,157 @@
 using ObjectSemantics.NET.Engine.Models;
-using System.Text.RegularExpressions;
+using System;
+using System.Collections.Generic;
 
 namespace ObjectSemantics.NET.Engine
 {
     internal static class EngineTemplateParser
     {
-        private static readonly Regex IfConditionRegex = new Regex(@"{{\s*#\s*if\s*\(\s*(?<param>[\w\.]+)\s*(?<operator>==|!=|>=|<=|>|<)\s*(?<value>[^)]+?)\s*\)\s*}}(?<code>[\s\S]*?)(?:{{\s*#\s*else\s*}}(?<else>[\s\S]*?))?{{\s*#\s*endif\s*}}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex LoopBlockRegex = new Regex(@"{{\s*#\s*foreach\s*\(\s*(?<target>[\w\.]+)\s*\)\s*}}(?<body>[\s\S]*?){{\s*#\s*endforeach\s*}}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        private static readonly Regex DirectParamRegex = new Regex(@"{{(.+?)}}", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
         public static EngineRunnerTemplate Parse(string templateContent)
         {
-            EngineRunnerTemplate templatedContent = new EngineRunnerTemplate { Template = templateContent ?? string.Empty };
-            long key = 0;
-
-            templatedContent.Template = IfConditionRegex.Replace(templatedContent.Template, m =>
+            string source = templateContent ?? string.Empty;
+            List<TemplateNode> roots = new List<TemplateNode>();
+            List<TemplateNode> active = roots;
+            List<TemplateDiagnostic> diagnostics = new List<TemplateDiagnostic>();
+            Stack<BlockFrame> blocks = new Stack<BlockFrame>();
+            int offset = 0;
+            int maximumDepth = 0;
+            List<int> lineStarts = null;
+            while (offset < source.Length)
             {
-                key++;
-                string refKey = "RIB_" + key;
-                templatedContent.ReplaceIfConditionCodes.Add(new ReplaceIfOperationCode
+                int start = source.IndexOf("{{", offset, StringComparison.Ordinal);
+                if (start < 0)
                 {
-                    ReplaceRef = refKey,
-                    IfPropertyName = m.Groups["param"].Value,
-                    IfOperationType = m.Groups["operator"].Value,
-                    IfOperationValue = m.Groups["value"].Value,
-                    IfOperationTrueTemplate = m.Groups["code"].Value,
-                    IfOperationFalseTemplate = m.Groups["else"].Success ? m.Groups["else"].Value : string.Empty
-                });
-                return refKey;
-            });
-
-            templatedContent.Template = LoopBlockRegex.Replace(templatedContent.Template, m =>
+                    active.Add(new TemplateNode { Kind = TemplateNodeKind.Literal, Text = source.Substring(offset), Position = offset });
+                    break;
+                }
+                if (start > offset)
+                    active.Add(new TemplateNode { Kind = TemplateNodeKind.Literal, Text = source.Substring(offset, start - offset), Position = offset });
+                int end = source.IndexOf("}}", start + 2, StringComparison.Ordinal);
+                if (end < 0)
+                {
+                    AddDiagnostic(diagnostics, source, ref lineStarts, start, "Unclosed template expression.");
+                    active.Add(new TemplateNode { Kind = TemplateNodeKind.Literal, Text = source.Substring(start), Position = start });
+                    break;
+                }
+                string command = source.Substring(start + 2, end - start - 2).Trim();
+                offset = end + 2;
+                string directive = command.StartsWith("#", StringComparison.Ordinal) ? command.Substring(1).Trim() : null;
+                if (directive != null && (directive.Equals("else", StringComparison.OrdinalIgnoreCase) || directive.Equals("endif", StringComparison.OrdinalIgnoreCase) || directive.Equals("endforeach", StringComparison.OrdinalIgnoreCase)))
+                {
+                    bool isElse = directive.Equals("else", StringComparison.OrdinalIgnoreCase);
+                    TemplateNodeKind expected = directive.Equals("endforeach", StringComparison.OrdinalIgnoreCase) ? TemplateNodeKind.Loop : TemplateNodeKind.Condition;
+                    if (blocks.Count == 0 || blocks.Peek().Node.Kind != expected || (isElse && blocks.Peek().InAlternative))
+                    {
+                        AddDiagnostic(diagnostics, source, ref lineStarts, start, "Unexpected block directive: " + command);
+                        active.Add(new TemplateNode { Kind = TemplateNodeKind.Literal, Text = source.Substring(start, offset - start), Position = start });
+                        continue;
+                    }
+                    BlockFrame frame = blocks.Peek();
+                    if (isElse)
+                    {
+                        frame.Node.Children = active.ToArray();
+                        frame.InAlternative = true;
+                        active = new List<TemplateNode>();
+                    }
+                    else
+                    {
+                        if (frame.InAlternative) frame.Node.Alternative = active.ToArray();
+                        else frame.Node.Children = active.ToArray();
+                        blocks.Pop();
+                        active = frame.Parent;
+                    }
+                    continue;
+                }
+                TemplateNode node = new TemplateNode { Kind = TemplateNodeKind.Value, Text = command, Position = start };
+                int open = directive == null ? -1 : directive.IndexOf('(');
+                if (open >= 0 && directive.EndsWith(")", StringComparison.Ordinal))
+                {
+                    string keyword = directive.Substring(0, open).Trim();
+                    string argument = directive.Substring(open + 1, directive.Length - open - 2).Trim();
+                    if (keyword.Equals("foreach", StringComparison.OrdinalIgnoreCase) && IsPath(argument))
+                    {
+                        node.Kind = TemplateNodeKind.Loop;
+                        node.Path = new PropertyPath(argument);
+                    }
+                    else if (keyword.Equals("if", StringComparison.OrdinalIgnoreCase))
+                    {
+                        int comparison = argument.IndexOfAny(new[] { '=', '!', '>', '<' });
+                        if (comparison > 0)
+                        {
+                            string path = argument.Substring(0, comparison).Trim();
+                            int length = comparison + 1 < argument.Length && argument[comparison + 1] == '=' ? 2 : 1;
+                            string operation = argument.Substring(comparison, length);
+                            string value = argument.Substring(comparison + length).Trim();
+                            if (IsPath(path) && value.Length > 0 && (operation == "==" || operation == "!=" || operation == ">" || operation == "<" || operation == ">=" || operation == "<="))
+                            {
+                                node.Kind = TemplateNodeKind.Condition;
+                                node.Path = new PropertyPath(path);
+                                node.Operator = operation;
+                                node.Comparison = value;
+                            }
+                        }
+                    }
+                }
+                active.Add(node);
+                if (node.Kind == TemplateNodeKind.Loop || node.Kind == TemplateNodeKind.Condition)
+                {
+                    blocks.Push(new BlockFrame { Node = node, Parent = active });
+                    maximumDepth = Math.Max(maximumDepth, blocks.Count);
+                    active = new List<TemplateNode>();
+                }
+                else
+                {
+                    if (directive != null)
+                        AddDiagnostic(diagnostics, source, ref lineStarts, start, "Invalid block directive: " + command);
+                    int colon = command.IndexOf(':');
+                    string target = colon > 0 ? command.Substring(0, colon).Trim() : command;
+                    node.Format = colon > 0 ? command.Substring(colon + 1).Trim() : string.Empty;
+                    node.Path = new PropertyPath(target);
+                    node.Expression = EngineExpressionEvaluator.Prepare(target);
+                    if (node.Expression != null && node.Expression.Function == "calc" && node.Expression.Instructions == null)
+                        AddDiagnostic(diagnostics, source, ref lineStarts, start, "Invalid arithmetic expression.");
+                }
+            }
+            while (blocks.Count > 0)
             {
-                key++;
-                string refKey = "RLB_" + key;
-                ReplaceObjLoopCode objLoop = new ReplaceObjLoopCode
-                {
-                    ReplaceRef = refKey,
-                    TargetObjectName = m.Groups["target"].Value?.Trim() ?? string.Empty
-                };
-
-                string loopBlock = m.Groups["body"].Value;
-                loopBlock = DirectParamRegex.Replace(loopBlock, pm =>
-                {
-                    key++;
-                    string loopRef = "RLBR_" + key;
-                    objLoop.ReplaceObjCodes.Add(CreateReplaceCode(loopRef, pm.Groups[1].Value));
-                    return loopRef;
-                });
-
-                objLoop.ObjLoopTemplate = loopBlock;
-                templatedContent.ReplaceObjLoopCodes.Add(objLoop);
-                return refKey;
-            });
-
-            templatedContent.Template = DirectParamRegex.Replace(templatedContent.Template, m =>
-            {
-                key++;
-                string refKey = "RP_" + key;
-                templatedContent.ReplaceCodes.Add(CreateReplaceCode(refKey, m.Groups[1].Value));
-                return refKey;
-            });
-
-            return templatedContent;
+                BlockFrame frame = blocks.Pop();
+                AddDiagnostic(diagnostics, source, ref lineStarts, frame.Node.Position, "Unclosed block: " + frame.Node.Text);
+                if (frame.InAlternative) frame.Node.Alternative = active.ToArray();
+                else frame.Node.Children = active.ToArray();
+                active = frame.Parent;
+            }
+            return new EngineRunnerTemplate { Template = source, MaximumDepth = maximumDepth, Nodes = roots.ToArray(), Diagnostics = diagnostics.ToArray() };
         }
 
-        private static ReplaceCode CreateReplaceCode(string replaceRef, string replaceCommand)
+        private static bool IsPath(string path)
         {
-            string command = replaceCommand?.Trim() ?? string.Empty;
-            ParseReplaceCommand(command, out string targetPropertyName, out string formattingCommand);
-
-            return new ReplaceCode
+            if (path.Length == 0) return false;
+            for (int i = 0; i < path.Length; i++)
             {
-                ReplaceRef = replaceRef,
-                ReplaceCommand = command,
-                TargetPropertyName = targetPropertyName,
-                FormattingCommand = formattingCommand
-            };
+                char character = path[i];
+                if (!char.IsLetterOrDigit(character) && character != '_' && character != '.') return false;
+            }
+            return true;
         }
 
-        private static void ParseReplaceCommand(string replaceCommand, out string targetPropertyName, out string formattingCommand)
+        private static void AddDiagnostic(List<TemplateDiagnostic> diagnostics, string source, ref List<int> lineStarts, int position, string message)
         {
-            if (string.IsNullOrEmpty(replaceCommand))
+            if (lineStarts == null)
             {
-                targetPropertyName = string.Empty;
-                formattingCommand = string.Empty;
-                return;
+                lineStarts = new List<int> { 0 };
+                for (int i = 0; i < source.Length; i++)
+                    if (source[i] == '\n') lineStarts.Add(i + 1);
             }
+            int line = lineStarts.BinarySearch(position);
+            if (line < 0) line = ~line - 1;
+            diagnostics.Add(new TemplateDiagnostic { Message = message, Position = position, Line = line + 1, Column = position - lineStarts[line] + 1 });
+        }
 
-            int colonIndex = replaceCommand.IndexOf(':');
-            if (colonIndex > 0)
-            {
-                targetPropertyName = replaceCommand.Substring(0, colonIndex).Trim();
-                formattingCommand = colonIndex < replaceCommand.Length - 1 ? replaceCommand.Substring(colonIndex + 1).Trim() : string.Empty;
-                return;
-            }
-
-            targetPropertyName = replaceCommand.Trim();
-            formattingCommand = string.Empty;
+        private class BlockFrame
+        {
+            public TemplateNode Node { get; set; }
+            public List<TemplateNode> Parent { get; set; }
+            public bool InAlternative { get; set; }
         }
     }
 }

@@ -9,87 +9,127 @@ namespace ObjectSemantics.NET.Engine
 {
     internal static class EngineExpressionEvaluator
     {
-        private static readonly Regex FunctionRegex = new Regex(@"^\s*_*(?<fn>sum|avg|count|min|max|calc)\s*\(\s*(?<arg>.*)\s*\)\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex FunctionRegex = new Regex(@"^\s*_*(?<fn>sum|avg|count|min|max|calc)\s*\(\s*(?<arg>.*)\s*\)\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled, TimeSpan.FromSeconds(1));
 
-        public static bool TryEvaluate(string expressionCommand, object rootRecord, Dictionary<string, ExtractedObjProperty> propMap, out ExtractedObjProperty evaluatedProperty, out bool renderEmptyOnFailure, out bool isExpressionCommand)
+        internal class ExpressionPlan
+        {
+            public string Command { get; set; }
+            public string Function { get; set; }
+            public PropertyPath Argument { get; set; }
+            public ExpressionToken[] Instructions { get; set; }
+        }
+
+        public static ExpressionPlan Prepare(string command)
+        {
+            if (string.IsNullOrWhiteSpace(command))
+                return null;
+            Match match = FunctionRegex.Match(command.Trim());
+            if (!match.Success)
+                return null;
+            ExpressionPlan plan = new ExpressionPlan
+            {
+                Command = command,
+                Function = match.Groups["fn"].Value.Trim().ToLowerInvariant(),
+                Argument = new PropertyPath(match.Groups["arg"].Value.Trim())
+            };
+            if (plan.Function == "calc" && TryTokenize(plan.Argument.Text, out List<ExpressionToken> tokens) && TryToRpn(tokens, out List<ExpressionToken> instructions))
+            {
+                int stackDepth = 0;
+                bool valid = true;
+                for (int i = 0; i < instructions.Count; i++)
+                {
+                    ExpressionToken token = instructions[i];
+                    if (token.Kind == ExpressionTokenKind.Number || token.Kind == ExpressionTokenKind.Identifier) stackDepth++;
+                    else if (token.Kind == ExpressionTokenKind.UnaryMinus) valid &= stackDepth >= 1;
+                    else { valid &= stackDepth >= 2; stackDepth--; }
+                }
+                if (valid && stackDepth == 1) plan.Instructions = instructions.ToArray();
+            }
+            return plan;
+        }
+
+        public static bool TryEvaluate(ExpressionPlan plan, RenderScope propMap, out ExtractedObjProperty evaluatedProperty, out bool renderEmptyOnFailure, out bool isExpressionCommand)
         {
             evaluatedProperty = null;
             renderEmptyOnFailure = false;
-            isExpressionCommand = false;
-            if (string.IsNullOrWhiteSpace(expressionCommand))
+            isExpressionCommand = plan != null;
+            if (plan == null)
                 return false;
+            string expressionCommand = plan.Command;
+            string fn = plan.Function;
+            PropertyPath arg = plan.Argument;
 
-            Match match = FunctionRegex.Match(expressionCommand.Trim());
-            if (!match.Success)
-                return false;
-            isExpressionCommand = true;
-
-            string fn = match.Groups["fn"].Value.Trim().ToLowerInvariant();
-            string arg = match.Groups["arg"].Value.Trim();
-
-            switch (fn)
+            try
             {
-                case "sum":
-                    if (!TryAggregateNumeric(arg, rootRecord, propMap, AggregateMode.Sum, out decimal sum))
-                    {
-                        renderEmptyOnFailure = true;
-                        return false;
-                    }
-                    evaluatedProperty = CreateDecimalProperty(expressionCommand, sum);
-                    return true;
+                switch (fn)
+                {
+                    case "sum":
+                        if (!TryAggregateNumeric(arg, propMap, AggregateMode.Sum, out decimal sum))
+                        {
+                            renderEmptyOnFailure = true;
+                            return false;
+                        }
+                        evaluatedProperty = CreateDecimalProperty(expressionCommand, sum);
+                        return true;
 
-                case "avg":
-                    if (!TryAggregateNumeric(arg, rootRecord, propMap, AggregateMode.Average, out decimal avg))
-                    {
-                        renderEmptyOnFailure = true;
-                        return false;
-                    }
-                    evaluatedProperty = CreateDecimalProperty(expressionCommand, avg);
-                    return true;
+                    case "avg":
+                        if (!TryAggregateNumeric(arg, propMap, AggregateMode.Average, out decimal avg))
+                        {
+                            renderEmptyOnFailure = true;
+                            return false;
+                        }
+                        evaluatedProperty = CreateDecimalProperty(expressionCommand, avg);
+                        return true;
 
-                case "count":
-                    if (!TryCount(arg, rootRecord, propMap, out int count))
-                    {
-                        renderEmptyOnFailure = true;
-                        return false;
-                    }
-                    evaluatedProperty = new ExtractedObjProperty
-                    {
-                        Name = expressionCommand,
-                        Type = typeof(int),
-                        OriginalValue = count
-                    };
-                    return true;
+                    case "count":
+                        if (!TryCount(arg, propMap, out int count))
+                        {
+                            renderEmptyOnFailure = true;
+                            return false;
+                        }
+                        evaluatedProperty = new ExtractedObjProperty
+                        {
+                            Name = expressionCommand,
+                            Type = typeof(int),
+                            OriginalValue = count
+                        };
+                        return true;
 
-                case "min":
-                    if (!TryAggregateNumeric(arg, rootRecord, propMap, AggregateMode.Min, out decimal min))
-                    {
-                        renderEmptyOnFailure = true;
-                        return false;
-                    }
-                    evaluatedProperty = CreateDecimalProperty(expressionCommand, min);
-                    return true;
+                    case "min":
+                        if (!TryAggregateNumeric(arg, propMap, AggregateMode.Min, out decimal min))
+                        {
+                            renderEmptyOnFailure = true;
+                            return false;
+                        }
+                        evaluatedProperty = CreateDecimalProperty(expressionCommand, min);
+                        return true;
 
-                case "max":
-                    if (!TryAggregateNumeric(arg, rootRecord, propMap, AggregateMode.Max, out decimal max))
-                    {
-                        renderEmptyOnFailure = true;
-                        return false;
-                    }
-                    evaluatedProperty = CreateDecimalProperty(expressionCommand, max);
-                    return true;
+                    case "max":
+                        if (!TryAggregateNumeric(arg, propMap, AggregateMode.Max, out decimal max))
+                        {
+                            renderEmptyOnFailure = true;
+                            return false;
+                        }
+                        evaluatedProperty = CreateDecimalProperty(expressionCommand, max);
+                        return true;
 
-                case "calc":
-                    if (!TryEvaluateArithmetic(arg, rootRecord, propMap, out decimal calcResult))
-                    {
-                        renderEmptyOnFailure = true;
-                        return false;
-                    }
-                    evaluatedProperty = CreateDecimalProperty(expressionCommand, calcResult);
-                    return true;
+                    case "calc":
+                        if (!TryEvaluateArithmetic(plan.Instructions, propMap, out decimal calcResult))
+                        {
+                            renderEmptyOnFailure = true;
+                            return false;
+                        }
+                        evaluatedProperty = CreateDecimalProperty(expressionCommand, calcResult);
+                        return true;
+                }
+
+                return false;
             }
-
-            return false;
+            catch (OverflowException)
+            {
+                renderEmptyOnFailure = true;
+                return false;
+            }
         }
 
         private static ExtractedObjProperty CreateDecimalProperty(string name, decimal value)
@@ -102,50 +142,45 @@ namespace ObjectSemantics.NET.Engine
             };
         }
 
-        private static bool TryCount(string path, object rootRecord, Dictionary<string, ExtractedObjProperty> propMap, out int count)
+        private static bool TryCount(PropertyPath path, RenderScope propMap, out int count)
         {
             count = 0;
-            if (string.IsNullOrWhiteSpace(path))
+            int nonNullCount = 0;
+            if (string.IsNullOrWhiteSpace(path.Text))
                 return false;
 
-            List<object> values = ResolvePathValues(path, rootRecord, propMap);
-            if (values.Count == 0)
-                return false;
-
-            for (int i = 0; i < values.Count; i++)
+            bool found = false;
+            VisitPathValues(path, propMap, value =>
             {
-                if (values[i] != null)
-                    count++;
-            }
-            return true;
+                found = true;
+                if (value != null) nonNullCount++;
+            });
+            count = nonNullCount;
+            return found;
         }
 
-        private static bool TryAggregateNumeric(string path, object rootRecord, Dictionary<string, ExtractedObjProperty> propMap, AggregateMode mode, out decimal result)
+        private static bool TryAggregateNumeric(PropertyPath path, RenderScope propMap, AggregateMode mode, out decimal result)
         {
             result = 0m;
-            if (string.IsNullOrWhiteSpace(path))
+            if (string.IsNullOrWhiteSpace(path.Text))
                 return false;
 
-            List<object> values = ResolvePathValues(path, rootRecord, propMap);
-
-            if (values.Count == 0)
-                return false;
-
+            bool found = false;
             bool hasAny = false;
             bool hasInvalidNonNumeric = false;
             decimal running = 0m;
             int numericCount = 0;
 
-            for (int i = 0; i < values.Count; i++)
+            VisitPathValues(path, propMap, rawValue =>
             {
-                object rawValue = values[i];
+                found = true;
                 if (rawValue == null)
-                    continue;
+                    return;
 
                 if (!TryConvertToDecimal(rawValue, out decimal numeric))
                 {
                     hasInvalidNonNumeric = true;
-                    continue;
+                    return;
                 }
 
                 if (!hasAny)
@@ -171,9 +206,9 @@ namespace ObjectSemantics.NET.Engine
                 }
 
                 numericCount++;
-            }
+            });
 
-            if (hasInvalidNonNumeric)
+            if (!found || hasInvalidNonNumeric)
                 return false;
 
             if (!hasAny)
@@ -190,97 +225,65 @@ namespace ObjectSemantics.NET.Engine
             return true;
         }
 
-        private static List<object> ResolvePathValues(string path, object rootRecord, Dictionary<string, ExtractedObjProperty> propMap)
+        private static void VisitPathValues(PropertyPath path, RenderScope scope, Action<object> visit)
         {
-            List<object> empty = new List<object>();
-            if (string.IsNullOrWhiteSpace(path) || propMap == null)
-                return empty;
-
-            string normalizedPath = path.Trim();
-            if (propMap.TryGetValue(normalizedPath, out ExtractedObjProperty directProperty))
-                return new List<object> { directProperty?.OriginalValue };
-
-            int dotIndex = normalizedPath.IndexOf('.');
-            string rootName = dotIndex >= 0 ? normalizedPath.Substring(0, dotIndex).Trim() : normalizedPath;
-            string nestedPath = dotIndex >= 0 ? normalizedPath.Substring(dotIndex + 1).Trim() : string.Empty;
-
-            if (!propMap.TryGetValue(rootName, out ExtractedObjProperty rootProperty))
-                return empty;
-
-            if (string.IsNullOrEmpty(nestedPath))
-                return new List<object> { rootProperty?.OriginalValue };
-
-            string[] segments = SplitPathSegments(nestedPath);
-            if (segments.Length == 0)
-                return new List<object> { rootProperty?.OriginalValue };
-
-            List<object> currentValues = new List<object> { rootProperty?.OriginalValue };
-            for (int i = 0; i < segments.Length; i++)
+            if (scope.TryGetValue(path.Text, out ExtractedObjProperty direct)) { visit(direct.OriginalValue); return; }
+            if (!scope.TryGetValue(path.Root, out ExtractedObjProperty root)) return;
+            if (path.Segments.Length == 0) { visit(root.OriginalValue); return; }
+            if (scope.Options.UseStreamingEvaluation)
             {
-                string segment = segments[i];
-                List<object> nextValues = new List<object>();
-
-                for (int j = 0; j < currentValues.Count; j++)
-                    ExpandSegmentValues(currentValues[j], segment, nextValues);
-
-                currentValues = nextValues;
-                if (currentValues.Count == 0)
-                    break;
+                WalkPath(root.OriginalValue, path.Segments, 0, scope.Context, visit, 0);
+                return;
             }
 
-            return currentValues;
+            // Compatibility mode preserves breadth-first getter evaluation.
+            List<object> current = new List<object> { root.OriginalValue };
+            for (int i = 0; i < path.Segments.Length; i++)
+            {
+                List<object> next = new List<object>();
+                for (int j = 0; j < current.Count; j++)
+                    ExpandSegment(current[j], path.Segments[i], next, scope.Context, 0);
+                current = next;
+            }
+            for (int i = 0; i < current.Count; i++) visit(current[i]);
         }
 
-        private static void ExpandSegmentValues(object current, string segment, List<object> nextValues)
+        private static void WalkPath(
+            object value,
+            string[] segments,
+            int index,
+            EngineRenderContext context,
+            Action<object> visit,
+            int depth)
         {
-            if (string.IsNullOrWhiteSpace(segment))
-                return;
-
-            if (current == null)
+            context.Check(depth);
+            if (index == segments.Length || value == null) { visit(value); return; }
+            if (value is IEnumerable rows && !(value is string))
             {
-                nextValues.Add(null);
-                return;
+                foreach (object row in rows)
+                {
+                    context.CountIteration();
+                    WalkPath(row, segments, index, context, visit, depth + 1);
+                }
             }
-
-            if (current is IEnumerable enumerable && !(current is string))
-            {
-                foreach (object item in enumerable)
-                    ExpandSegmentValues(item, segment, nextValues);
-                return;
-            }
-
-            Type type = current.GetType();
-            if (!EngineTypeMetadataCache.TryGetPropertyAccessor(type, segment, out PropertyAccessor accessor))
-                return;
-
-            nextValues.Add(accessor.Getter(current));
+            else if (EngineTypeMetadataCache.TryGetPropertyAccessor(value.GetType(), segments[index], out PropertyAccessor accessor))
+                WalkPath(accessor.Getter(value), segments, index + 1, context, visit, depth + 1);
         }
 
-        private static string[] SplitPathSegments(string path)
+        private static void ExpandSegment(object value, string segment, List<object> next, EngineRenderContext context, int depth)
         {
-            if (string.IsNullOrWhiteSpace(path))
-                return Array.Empty<string>();
-
-            string[] raw = path.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
-            if (raw.Length == 0)
-                return raw;
-
-            int count = 0;
-            for (int i = 0; i < raw.Length; i++)
+            context.Check(depth);
+            if (value == null) { next.Add(null); return; }
+            if (value is IEnumerable rows && !(value is string))
             {
-                string trimmed = raw[i].Trim();
-                if (trimmed.Length == 0)
-                    continue;
-                raw[count] = trimmed;
-                count++;
+                foreach (object row in rows)
+                {
+                    context.CountIteration();
+                    ExpandSegment(row, segment, next, context, depth + 1);
+                }
             }
-
-            if (count == raw.Length)
-                return raw;
-
-            string[] trimmedSegments = new string[count];
-            Array.Copy(raw, trimmedSegments, count);
-            return trimmedSegments;
+            else if (EngineTypeMetadataCache.TryGetPropertyAccessor(value.GetType(), segment, out PropertyAccessor accessor))
+                next.Add(accessor.Getter(value));
         }
 
         private static bool TryConvertToDecimal(object value, out decimal number)
@@ -332,20 +335,15 @@ namespace ObjectSemantics.NET.Engine
             return false;
         }
 
-        private static bool TryEvaluateArithmetic(string expression, object rootRecord, Dictionary<string, ExtractedObjProperty> propMap, out decimal result)
+        private static bool TryEvaluateArithmetic(ExpressionToken[] rpn, RenderScope propMap, out decimal result)
         {
             result = 0m;
-            if (string.IsNullOrWhiteSpace(expression))
-                return false;
-
-            if (!TryTokenize(expression, out List<ExpressionToken> tokens))
-                return false;
-            if (!TryToRpn(tokens, out List<ExpressionToken> rpn))
+            if (rpn == null)
                 return false;
 
             Stack<decimal> stack = new Stack<decimal>();
             bool hasNullOperand = false;
-            for (int i = 0; i < rpn.Count; i++)
+            for (int i = 0; i < rpn.Length; i++)
             {
                 ExpressionToken token = rpn[i];
                 switch (token.Kind)
@@ -354,7 +352,7 @@ namespace ObjectSemantics.NET.Engine
                         stack.Push(token.NumberValue);
                         break;
                     case ExpressionTokenKind.Identifier:
-                        IdentifierResolveMode identifierResolveMode = TryResolveIdentifierToNumber(token.TextValue, rootRecord, propMap, out decimal identifierValue);
+                        IdentifierResolveMode identifierResolveMode = TryResolveIdentifierToNumber(token.Path, propMap, out decimal identifierValue);
                         if (identifierResolveMode == IdentifierResolveMode.UnknownPath || identifierResolveMode == IdentifierResolveMode.NonNumeric || identifierResolveMode == IdentifierResolveMode.Ambiguous)
                             return false;
 
@@ -406,20 +404,22 @@ namespace ObjectSemantics.NET.Engine
             return true;
         }
 
-        private static IdentifierResolveMode TryResolveIdentifierToNumber(string identifier, object rootRecord, Dictionary<string, ExtractedObjProperty> propMap, out decimal number)
+        private static IdentifierResolveMode TryResolveIdentifierToNumber(PropertyPath identifier, RenderScope propMap, out decimal number)
         {
             number = 0m;
-            if (string.IsNullOrWhiteSpace(identifier))
+            if (string.IsNullOrWhiteSpace(identifier.Text))
                 return IdentifierResolveMode.UnknownPath;
 
-            List<object> values = ResolvePathValues(identifier, rootRecord, propMap);
-            if (values.Count == 0)
-                return IdentifierResolveMode.UnknownPath;
+            object singleValue = null;
+            int count = 0;
+            VisitPathValues(identifier, propMap, value =>
+            {
+                singleValue = value;
+                count++;
+            });
+            if (count == 0) return IdentifierResolveMode.UnknownPath;
+            if (count > 1) return IdentifierResolveMode.Ambiguous;
 
-            if (values.Count > 1)
-                return IdentifierResolveMode.Ambiguous;
-
-            object singleValue = values[0];
             if (singleValue == null)
                 return IdentifierResolveMode.NullValue;
 
@@ -528,10 +528,29 @@ namespace ObjectSemantics.NET.Engine
             Stack<ExpressionToken> operators = new Stack<ExpressionToken>();
             ExpressionToken previousToken = default;
             bool hasPrevious = false;
+            bool expectsOperand = true;
 
             for (int i = 0; i < tokens.Count; i++)
             {
                 ExpressionToken token = tokens[i];
+                if (token.Kind == ExpressionTokenKind.Number || token.Kind == ExpressionTokenKind.Identifier)
+                {
+                    if (!expectsOperand) return false;
+                    expectsOperand = false;
+                }
+                else if (token.Kind == ExpressionTokenKind.LeftParenthesis)
+                {
+                    if (!expectsOperand) return false;
+                }
+                else if (token.Kind == ExpressionTokenKind.RightParenthesis)
+                {
+                    if (expectsOperand) return false;
+                }
+                else if (token.Kind == ExpressionTokenKind.Operator)
+                {
+                    if (expectsOperand && token.OperatorChar != '-') return false;
+                    expectsOperand = true;
+                }
                 switch (token.Kind)
                 {
                     case ExpressionTokenKind.Number:
@@ -599,7 +618,7 @@ namespace ObjectSemantics.NET.Engine
                 rpn.Add(top);
             }
 
-            return rpn.Count > 0;
+            return !expectsOperand && rpn.Count > 0;
         }
 
         private static bool IsOperatorToken(ExpressionToken token)
@@ -634,7 +653,7 @@ namespace ObjectSemantics.NET.Engine
             Max
         }
 
-        private enum ExpressionTokenKind
+        internal enum ExpressionTokenKind
         {
             Number,
             Identifier,
@@ -644,11 +663,11 @@ namespace ObjectSemantics.NET.Engine
             UnaryMinus
         }
 
-        private struct ExpressionToken
+        internal struct ExpressionToken
         {
             public ExpressionTokenKind Kind;
             public decimal NumberValue;
-            public string TextValue;
+            public PropertyPath Path;
             public char OperatorChar;
 
             public static ExpressionToken Number(decimal value)
@@ -658,7 +677,7 @@ namespace ObjectSemantics.NET.Engine
 
             public static ExpressionToken Identifier(string value)
             {
-                return new ExpressionToken { Kind = ExpressionTokenKind.Identifier, TextValue = value };
+                return new ExpressionToken { Kind = ExpressionTokenKind.Identifier, Path = new PropertyPath(value) };
             }
 
             public static ExpressionToken Operator(char op)
