@@ -2,24 +2,31 @@ name: .NET Ensure Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
+
+permissions:
+  contents: read
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    timeout-minutes: 15
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '8.0.x'
-    - name: Restore Nuget Packages
-      run: dotnet restore ObjectSemantics.NET/ObjectSemantics.NET.csproj
-    - name: Build Project
-      run: dotnet build ObjectSemantics.NET/ObjectSemantics.NET.csproj --no-restore
-    - name: Test
-      run: dotnet test ObjectSemantics.NET/ObjectSemantics.NET.csproj --no-build --verbosity normal
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore ObjectSemantics.NET.Tests/ObjectSemantics.NET.Tests.csproj
+
+      - name: Build
+        run: dotnet build ObjectSemantics.NET.Tests/ObjectSemantics.NET.Tests.csproj -c Release --no-restore
+
+      - name: Test
+        run: dotnet test ObjectSemantics.NET.Tests/ObjectSemantics.NET.Tests.csproj -c Release --no-build --no-restore
