@@ -11,7 +11,6 @@ Turn everyday .NET data into payment reminders, order confirmations, receipts, a
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fswagfin%2FObjectSemantics.NET.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fswagfin%2FObjectSemantics.NET?ref=badge_shield)
 
-**Nested properties · Loops · Conditions · Calculations · Reusable templates**
 
 [Get started](#get-started) · [Everyday examples](#everyday-examples) · [Performance](#performance) · [Production controls](#production-controls)
 
@@ -19,11 +18,9 @@ Turn everyday .NET data into payment reminders, order confirmations, receipts, a
 
 ---
 
-A customer has an outstanding balance. An order has five line items. A receipt needs a different message when payment is complete.
+ObjectSemantics.NET is a lightweight .NET templating library that turns objects into personalized emails, notifications, receipts, and reports with support for nested properties, loops, conditions, and calculations.
 
-ObjectSemantics.NET lets you express those messages in templates and fill them from your existing objects. Keep the wording separate from application code, format values where they appear, and reuse the same template for the next customer.
-
-```text
+```handlebars
 Hi {{ Name }}, your balance is KES {{ Balance:N2 }}. Due {{ DueDate:dd MMM }}.
 ```
 
@@ -33,20 +30,9 @@ Hi {{ Name }}, your balance is KES {{ Balance:N2 }}. Due {{ DueDate:dd MMM }}.
 Hi Amina, your balance is KES 4,500.00. Due 05 Oct.
 ```
 
-| When you need to… | The library gives you… |
-|---|---|
-| Personalize an SMS or email | Readable placeholders mapped to object properties |
-| Build a receipt with a changing number of items | Collection loops and per-item formatting |
-| Show “Paid” or “Payment due” | Conditional blocks, including nested conditions |
-| Calculate a subtotal or display a balance | Aggregates and arithmetic expressions |
-| Generate the same message for many customers | Cached parsing and reusable compiled templates |
-| Catch mistakes before sending | Syntax diagnostics and optional strict rendering |
-
-The core library targets **.NET Standard 2.0** and has **no explicit third-party package dependencies**. It renders text that your application can send, save, or display.
-
 ## Get started
 
-```sh
+```csharp
 dotnet add package ObjectSemantics.NET
 ```
 
